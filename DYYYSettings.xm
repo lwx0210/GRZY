@@ -2337,7 +2337,7 @@ static void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		    @"detail" : @"",
 		    @"cellType" : @6,
 		    @"imageName" : @"ic_eyeslash_outlined_16"}];
-	  [clearButtonItems addObject:hideTabButton];
+	  [clearButtonItems addObject:hideSpeedButton];
 	  // 获取清屏按钮的当前开关状态
 	  BOOL isEnabled = [DYYYSettingsHelper getUserDefaults:@"DYYYEnableFloatClearButton"];
 	  clearButtonSizeItem.isEnable = isEnabled;
