@@ -2206,8 +2206,8 @@ static void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 	  AWESettingItemModel *buttonSizeItem = [[%c(AWESettingItemModel) alloc] init];
 	  buttonSizeItem.identifier = @"DYYYSpeedButtonSize";
 	  buttonSizeItem.title = @"快捷倍速按钮大小";
-	  // 获取当前的按钮大小，如果没有设置则默认为32
-	  CGFloat currentButtonSize = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYSpeedButtonSize"] ?: 32;
+	  // 获取当前的按钮大小，如果没有设置则默认为35
+	  CGFloat currentButtonSize = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYSpeedButtonSize"] ?: 35;
 	  buttonSizeItem.detail = [NSString stringWithFormat:@"%.0f", currentButtonSize];
 	  buttonSizeItem.type = 0;
 	  buttonSizeItem.svgIconImageName = @"ic_zoomin_outlined_20";
@@ -2218,16 +2218,16 @@ static void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 	    NSString *currentValue = [NSString stringWithFormat:@"%.0f", currentButtonSize];
 	    [DYYYSettingsHelper showTextInputAlert:@"设置按钮大小"
 				       defaultText:currentValue
-				       placeholder:@"请输入20-60之间的数值"
+				       placeholder:@"请输入20-80之间的数值"
 					 onConfirm:^(NSString *text) {
 					   NSInteger size = [text integerValue];
-					   if (size >= 20 && size <= 60) {
+					   if (size >= 20 && size <= 80) {
 						   [[NSUserDefaults standardUserDefaults] setFloat:size forKey:@"DYYYSpeedButtonSize"];
 						   [[NSUserDefaults standardUserDefaults] synchronize];
 						   buttonSizeItem.detail = [NSString stringWithFormat:@"%.0f", (CGFloat)size];
 						   [DYYYSettingsHelper refreshTableView];
 					   } else {
-						   [DYYYManager showToast:@"请输入20-60之间的有效数值"];
+						   [DYYYManager showToast:@"请输入20-80之间的有效数值"];
 					   }
 					 }
 					  onCancel:nil];
@@ -2254,8 +2254,8 @@ static void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 	  AWESettingItemModel *clearButtonSizeItem = [[%c(AWESettingItemModel) alloc] init];
 	  clearButtonSizeItem.identifier = @"DYYYEnableFloatClearButtonSize";
 	  clearButtonSizeItem.title = @"一键清屏按钮大小";
-	  // 获取当前的按钮大小，如果没有设置则默认为40
-	  CGFloat currentClearButtonSize = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYEnableFloatClearButtonSize"] ?: 40;
+	  // 获取当前的按钮大小，如果没有设置则默认为42
+	  CGFloat currentClearButtonSize = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYEnableFloatClearButtonSize"] ?: 42;
 	  clearButtonSizeItem.detail = [NSString stringWithFormat:@"%.0f", currentClearButtonSize];
 	  clearButtonSizeItem.type = 0;
 	  clearButtonSizeItem.svgIconImageName = @"ic_zoomin_outlined_20";
@@ -2266,17 +2266,17 @@ static void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 	    NSString *currentValue = [NSString stringWithFormat:@"%.0f", currentClearButtonSize];
 	    [DYYYSettingsHelper showTextInputAlert:@"设置清屏按钮大小"
 				       defaultText:currentValue
-				       placeholder:@"请输入20-60之间的数值"
+				       placeholder:@"请输入20-80之间的数值"
 					 onConfirm:^(NSString *text) {
 					   NSInteger size = [text integerValue];
 					   // 确保输入值在有效范围内
-					   if (size >= 20 && size <= 60) {
+					   if (size >= 20 && size <= 80) {
 						   [[NSUserDefaults standardUserDefaults] setFloat:size forKey:@"DYYYEnableFloatClearButtonSize"];
 						   [[NSUserDefaults standardUserDefaults] synchronize];
 						   clearButtonSizeItem.detail = [NSString stringWithFormat:@"%.0f", (CGFloat)size];
 						   [DYYYSettingsHelper refreshTableView];
 					   } else {
-						   [DYYYManager showToast:@"请输入20-60之间的有效数值"];
+						   [DYYYManager showToast:@"请输入20-80之间的有效数值"];
 					   }
 					 }
 					  onCancel:nil];
@@ -2284,7 +2284,7 @@ static void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 	  [clearButtonItems addObject:clearButtonSizeItem];
 
 	  // 添加清屏按钮自定义图标选项
-	  AWESettingItemModel *clearButtonIcon = createIconCustomizationItem(@"DYYYClearButtonIcon", @"清屏按钮图标", @"ic_roaming_outlined", @"qingping.gif");
+	  AWESettingItemModel *clearButtonIcon = createIconCustomizationItem(@"DYYYClearButtonIcon", @"一键清屏按钮图标", @"ic_roaming_outlined", @"qingping.gif");
 
 	  [clearButtonItems addObject:clearButtonIcon];
 	  // 清屏隐藏弹幕
