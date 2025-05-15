@@ -2330,7 +2330,7 @@ static void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		    @"cellType" : @6,
 		    @"imageName" : @"ic_eyeslash_outlined_16"}];
 	  [clearButtonItems addObject:hideTabButton];
-	  AWESettingItemModel *hideTabButton = [DYYYSettingsHelper
+	  AWESettingItemModel *hideSpeedButton = [DYYYSettingsHelper
 	      createSettingItem:
 		  @{@"identifier" : @"DYYYHideSpeed",
 		    @"title" : @"清屏隐藏倍速按钮",
