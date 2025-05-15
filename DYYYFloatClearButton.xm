@@ -98,6 +98,10 @@ static void initTargetClassNames(void) {
     if (hideTabBar) {
         [list addObject:@"AWENormalModeTabBar"];
     }
+    BOOL hideDanmaku = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideDanmaku"];
+	if (hideDanmaku) {
+		[list addObject:@"AWEVideoPlayDanmakuContainerView"];
+	}
 	BOOL hideDanmaku = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideDanmaku"];
 	if (hideDanmaku) {
 		[list addObject:@"AWEVideoPlayDanmakuContainerView"];
