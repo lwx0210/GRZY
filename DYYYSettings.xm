@@ -2330,14 +2330,15 @@ static void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		    @"cellType" : @6,
 		    @"imageName" : @"ic_eyeslash_outlined_16"}];
 	  [clearButtonItems addObject:hideTabButton];
-		AWESettingItemModel *hideSpeedButton = [self
-		createSettingItem:
-		   @{@"identifier" : @"DYYYHideSpeed",
-		   @"title" : @"清屏隐藏倍速按钮",
-		   @"detail" : @"",
-		   @"cellType" : @6,
-		   @"imageName" : @"ic_eyeslash_outlined_16"}];
-	  [clearButtonItems addObject:hideSpeedButton];
+			AWESettingItemModel *hideSpeedButton = [self
+			createSettingItem:
+			    @{@"identifier" : @"DYYYHideSpeed",
+			      @"title" : @"清屏隐藏倍速按钮",
+			      @"detail" : @"",
+			      @"cellType" : @6,
+			      @"imageName" : @"ic_eyeslash_outlined_16"}];
+		    [clearButtonItems addObject:hideSpeedButton];
+
 
 	  // 获取清屏按钮的当前开关状态
 	  BOOL isEnabled = [DYYYSettingsHelper getUserDefaults:@"DYYYEnableFloatClearButton"];
