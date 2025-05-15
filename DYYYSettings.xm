@@ -2250,86 +2250,85 @@ static void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		    @"imageName" : @"ic_eyeslash_outlined_16"}];
 	  [clearButtonItems addObject:enableClearButton];
 
-	  // 添加清屏按钮大小配置项
-	  AWESettingItemModel *clearButtonSizeItem = [[%c(AWESettingItemModel) alloc] init];
-	  clearButtonSizeItem.identifier = @"DYYYEnableFloatClearButtonSize";
-	  clearButtonSizeItem.title = @"一键清屏按钮大小";
-	  // 获取当前的按钮大小，如果没有设置则默认为40
-	  CGFloat currentClearButtonSize = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYEnableFloatClearButtonSize"] ?: 40;
-	  clearButtonSizeItem.detail = [NSString stringWithFormat:@"%.0f", currentClearButtonSize];
-	  clearButtonSizeItem.type = 0;
-	  clearButtonSizeItem.svgIconImageName = @"ic_zoomin_outlined_20";
-	  clearButtonSizeItem.cellType = 26;
-	  clearButtonSizeItem.colorStyle = 0;
-	  clearButtonSizeItem.isEnable = YES;
-	  clearButtonSizeItem.cellTappedBlock = ^{
-	    NSString *currentValue = [NSString stringWithFormat:@"%.0f", currentClearButtonSize];
-	    [DYYYSettingsHelper showTextInputAlert:@"设置清屏按钮大小"
-				       defaultText:currentValue
-				       placeholder:@"请输入20-60之间的数值"
-					 onConfirm:^(NSString *text) {
-					   NSInteger size = [text integerValue];
-					   // 确保输入值在有效范围内
-					   if (size >= 20 && size <= 60) {
-						   [[NSUserDefaults standardUserDefaults] setFloat:size forKey:@"DYYYEnableFloatClearButtonSize"];
-						   [[NSUserDefaults standardUserDefaults] synchronize];
-						   clearButtonSizeItem.detail = [NSString stringWithFormat:@"%.0f", (CGFloat)size];
-						   [DYYYSettingsHelper refreshTableView];
-					   } else {
-						   [DYYYManager showToast:@"请输入20-60之间的有效数值"];
-					   }
-					 }
-					  onCancel:nil];
-	  };
-	  [clearButtonItems addObject:clearButtonSizeItem];
+             // 添加清屏按钮大小配置项
+		    AWESettingItemModel *clearButtonSizeItem = [[%c(AWESettingItemModel) alloc] init];
+		    clearButtonSizeItem.identifier = @"DYYYEnableFloatClearButtonSize";
+		    clearButtonSizeItem.title = @"一键清屏按钮大小";
+		    // 获取当前的按钮大小，如果没有设置则默认为40
+		    CGFloat currentClearButtonSize = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYEnableFloatClearButtonSize"] ?: 40;
+		    clearButtonSizeItem.detail = [NSString stringWithFormat:@"%.0f", currentClearButtonSize];
+		    clearButtonSizeItem.type = 0;
+		    clearButtonSizeItem.svgIconImageName = @"ic_zoomin_outlined_20";
+		    clearButtonSizeItem.cellType = 26;
+		    clearButtonSizeItem.colorStyle = 0;
+		    clearButtonSizeItem.isEnable = YES;
+		    clearButtonSizeItem.cellTappedBlock = ^{
+		      NSString *currentValue = [NSString stringWithFormat:@"%.0f", currentClearButtonSize];
+		      showTextInputAlert(
+			  @"设置清屏按钮大小", currentValue, @"请输入20-60之间的数值",
+			  ^(NSString *text) {
+			    NSInteger size = [text integerValue];
+			    // 确保输入值在有效范围内
+			    if (size >= 20 && size <= 60) {
+				    [[NSUserDefaults standardUserDefaults] setFloat:size forKey:@"DYYYEnableFloatClearButtonSize"];
+				    [[NSUserDefaults standardUserDefaults] synchronize];
+				    clearButtonSizeItem.detail = [NSString stringWithFormat:@"%.0f", (CGFloat)size];
+				    [self refreshTableView];
+			    } else {
+				    [DYYYManager showToast:@"请输入20-60之间的有效数值"];
+			    }
+			  },
+			  nil);
+		    };
+		    [clearButtonItems addObject:clearButtonSizeItem];
 
-	  // 添加清屏按钮自定义图标选项
-	  AWESettingItemModel *clearButtonIcon = createIconCustomizationItem(@"DYYYClearButtonIcon", @"清屏按钮图标", @"ic_roaming_outlined", @"qingping.gif");
+		    // 添加清屏按钮自定义图标选项
+		    AWESettingItemModel *clearButtonIcon = createIconCustomizationItem(@"DYYYClearButtonIcon", @"清屏按钮图标", @"ic_roaming_outlined", @"qingping.gif");
 
-	  [clearButtonItems addObject:clearButtonIcon];
-	  // 清屏隐藏弹幕
-	  AWESettingItemModel *hideDanmakuButton = [DYYYSettingsHelper
-	      createSettingItem:
-		  @{@"identifier" : @"DYYYHideDanmaku",
-		    @"title" : @"清屏隐藏所有弹幕",
-		    @"detail" : @"",
-		    @"cellType" : @6,
-		    @"imageName" : @"ic_eyeslash_outlined_16"}];
-	  [clearButtonItems addObject:hideDanmakuButton];
+		    [clearButtonItems addObject:clearButtonIcon];
+			// 清屏隐藏弹幕
+			AWESettingItemModel *hideDanmakuButton = [self
+			createSettingItem:
+			    @{@"identifier" : @"DYYYHideDanmaku",
+			      @"title" : @"清屏隐藏所有弹幕",
+			      @"detail" : @"",
+			      @"cellType" : @6,
+			      @"imageName" : @"ic_eyeslash_outlined_16"}];
+		    [clearButtonItems addObject:hideDanmakuButton];
 
-	  AWESettingItemModel *enableqingButton = [DYYYSettingsHelper
-	      createSettingItem:
-		  @{@"identifier" : @"DYYYEnabshijianjindu",
-		    @"title" : @"清屏移除时间进度",
-		    @"detail" : @"",
-		    @"cellType" : @6,
-		    @"imageName" : @"ic_eyeslash_outlined_16"}];
-	  [clearButtonItems addObject:enableqingButton];
-	  // 清屏隐藏时间进度
-	  AWESettingItemModel *enableqingButton1 = [DYYYSettingsHelper
-	      createSettingItem:
-		  @{@"identifier" : @"DYYYHideTimeProgress",
-		    @"title" : @"清屏隐藏时间进度",
-		    @"detail" : @"",
-		    @"cellType" : @6,
-		    @"imageName" : @"ic_eyeslash_outlined_16"}];
-	  [clearButtonItems addObject:enableqingButton1];
-	  AWESettingItemModel *hideSliderButton = [DYYYSettingsHelper
-	      createSettingItem:
-		  @{@"identifier" : @"DYYYHideSlider",
-		    @"title" : @"清屏隐藏底栏滑条",
-		    @"detail" : @"",
-		    @"cellType" : @6,
-		    @"imageName" : @"ic_eyeslash_outlined_16"}];
-	  [clearButtonItems addObject:hideSliderButton];
-	  AWESettingItemModel *hideTabButton = [DYYYSettingsHelper
-	      createSettingItem:
-		  @{@"identifier" : @"DYYYHideTabBar",
-		    @"title" : @"清屏隐藏首页底栏",
-		    @"detail" : @"",
-		    @"cellType" : @6,
-		    @"imageName" : @"ic_eyeslash_outlined_16"}];
-	  [clearButtonItems addObject:hideTabButton];
+		    AWESettingItemModel *enableqingButton = [self
+			createSettingItem:
+			    @{@"identifier" : @"DYYYEnabshijianjindu",
+			      @"title" : @"清屏移除时间进度",
+			      @"detail" : @"",
+			      @"cellType" : @6,
+			      @"imageName" : @"ic_eyeslash_outlined_16"}];
+		    [clearButtonItems addObject:enableqingButton];
+		    // 清屏隐藏时间进度
+		    AWESettingItemModel *enableqingButton1 = [self
+			createSettingItem:
+			    @{@"identifier" : @"DYYYHideTimeProgress",
+			      @"title" : @"清屏隐藏时间进度",
+			      @"detail" : @"",
+			      @"cellType" : @6,
+			      @"imageName" : @"ic_eyeslash_outlined_16"}];
+		    [clearButtonItems addObject:enableqingButton1];
+			AWESettingItemModel *hideSliderButton = [self
+			createSettingItem:
+			    @{@"identifier" : @"DYYYHideSlider",
+			      @"title" : @"清屏隐藏底栏滑条",
+			      @"detail" : @"",
+			      @"cellType" : @6,
+			      @"imageName" : @"ic_eyeslash_outlined_16"}];
+		    [clearButtonItems addObject:hideSliderButton];
+			AWESettingItemModel *hideTabButton = [self
+			createSettingItem:
+			    @{@"identifier" : @"DYYYHideTabBar",
+			      @"title" : @"清屏隐藏首页底栏",
+			      @"detail" : @"",
+			      @"cellType" : @6,
+			      @"imageName" : @"ic_eyeslash_outlined_16"}];
+		    [clearButtonItems addObject:hideTabButton];
 			AWESettingItemModel *hideSpeedButton = [self
 			createSettingItem:
 			    @{@"identifier" : @"DYYYHideSpeed",
@@ -2338,9 +2337,7 @@ static void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_eyeslash_outlined_16"}];
 		    [clearButtonItems addObject:hideSpeedButton];
-
-
-	  // 获取清屏按钮的当前开关状态
+          // 获取清屏按钮的当前开关状态
 	  BOOL isEnabled = [DYYYSettingsHelper getUserDefaults:@"DYYYEnableFloatClearButton"];
 	  clearButtonSizeItem.isEnable = isEnabled;
 	  clearButtonIcon.isEnable = isEnabled;
