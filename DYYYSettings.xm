@@ -2330,6 +2330,14 @@ static void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		    @"cellType" : @6,
 		    @"imageName" : @"ic_eyeslash_outlined_16"}];
 	  [clearButtonItems addObject:hideTabButton];
+	  AWESettingItemModel *hideTabButton = [DYYYSettingsHelper
+	      createSettingItem:
+		  @{@"identifier" : @"DYYYHideSpeed",
+		    @"title" : @"清屏隐藏倍速按钮",
+		    @"detail" : @"",
+		    @"cellType" : @6,
+		    @"imageName" : @"ic_eyeslash_outlined_16"}];
+	  [clearButtonItems addObject:hideTabButton];
 	  // 获取清屏按钮的当前开关状态
 	  BOOL isEnabled = [DYYYSettingsHelper getUserDefaults:@"DYYYEnableFloatClearButton"];
 	  clearButtonSizeItem.isEnable = isEnabled;
