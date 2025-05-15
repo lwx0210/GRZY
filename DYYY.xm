@@ -199,7 +199,7 @@
 		return;
 
 	for (NSString *pair in titlePairs) {
-		NSArray *components = [pair componentsSeparatedByString:@"="];
+		NSArray *components = [pair componentsSeparatedByString:@","];
 		if (components.count != 2)
 			continue;
 
@@ -940,6 +940,7 @@ static CGFloat rightLabelRightMargin = -1;
 }
 %end
 
+//iP属地区域
 %hook AWEPlayInteractionTimestampElement
 - (id)timestampLabel {
 	UILabel *label = %orig;
@@ -1084,7 +1085,7 @@ static CGFloat rightLabelRightMargin = -1;
 			} else if (![text containsString:cityName]) {
 				if (!self.model.ipAttribution) {
 					BOOL isDirectCity = [provinceName isEqualToString:cityName] ||
-							    ([cityCode hasPrefix:@"11"] || [cityCode hasPrefix:@"12"] || [cityCode hasPrefix:@"31"] || [cityCode hasPrefix:@"50"]);
+							    ([cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"]);
 
 					if (isDirectCity) {
 						label.text = [NSString stringWithFormat:@"%@  IP属地：%@", text, cityName];
@@ -1093,7 +1094,7 @@ static CGFloat rightLabelRightMargin = -1;
 					}
 				} else {
 					BOOL isDirectCity = [provinceName isEqualToString:cityName] ||
-							    ([cityCode hasPrefix:@"11"] || [cityCode hasPrefix:@"12"] || [cityCode hasPrefix:@"31"] || [cityCode hasPrefix:@"50"]);
+							    ([cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"]);
 
 					BOOL containsProvince = [text containsString:provinceName];
 					if (containsProvince && !isDirectCity) {
