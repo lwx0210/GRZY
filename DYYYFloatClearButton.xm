@@ -121,7 +121,7 @@ static void initTargetClassNames(void) {
         
         // 设置默认状态为半透明
         self.originalAlpha = 1.0;  // 交互时为完全不透明
-        self.alpha = 0.5;  // 初始为半透明
+        self.alpha = 0.7;  // 初始为半透明
 		// 加载保存的锁定状态
 		[self loadLockState];
 		[self loadIcons];
@@ -159,7 +159,7 @@ static void initTargetClassNames(void) {
 							   block:^(NSTimer *timer) {
 							     [UIView animateWithDuration:0.3
 									      animations:^{
-										self.alpha = 0.5;  // 变为半透明
+										self.alpha = 0.7;  // 变为半透明
 									      }];
 							   }];
 	// 交互时变为完全不透明
@@ -564,7 +564,7 @@ static void initTargetClassNames(void) {
     // 提前准备按钮显示
     if (hideButton) {
         hideButton.hidden = isCommentViewVisible; // 根据评论界面状态决定是否显示
-        hideButton.alpha = 0.5;
+        hideButton.alpha = 0.7;
     }
 }
 - (void)viewWillAppear:(BOOL)animated {
@@ -573,7 +573,7 @@ static void initTargetClassNames(void) {
     // 立即显示按钮，除非评论界面可见
     if (hideButton) {
         hideButton.hidden = isCommentViewVisible;
-        hideButton.alpha = 0.5;
+        hideButton.alpha = 0.7;
     }
 }
 - (void)viewDidAppear:(BOOL)animated {
