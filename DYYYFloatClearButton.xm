@@ -85,23 +85,31 @@ static void reapplyHidingToAllElements(HideUIButton *button) {
 	[button hideUIElements];
 }
 static void initTargetClassNames(void) {
-    NSMutableArray<NSString *> *list = [@[
+  NSMutableArray<NSString *> *list = [@[
         @"AWEHPTopBarCTAContainer", @"AWEHPDiscoverFeedEntranceView", @"AWELeftSideBarEntranceView",
         @"DUXBadge", @"AWEBaseElementView", @"AWEElementStackView",
         @"AWEPlayInteractionDescriptionLabel", @"AWEUserNameLabel",
-        @"AWEStoryProgressSlideView", @"AWEStoryProgressContainerView",
         @"ACCEditTagStickerView", @"AWEFeedTemplateAnchorView",
         @"AWESearchFeedTagView", @"AWEPlayInteractionSearchAnchorView",
         @"AFDRecommendToFriendTagView", @"AWELandscapeFeedEntryView",
-        @"AWEFeedAnchorContainerView", @"AFDAIbumFolioView",@"AWENormalModeTabBar"
+        @"AWEFeedAnchorContainerView", @"AFDAIbumFolioView"
     ] mutableCopy];
-    BOOL hideBottomBar = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideTimeProgress"];
-    if (hideBottomBar) {
-        [list removeObject:@"AWENormalModeTabBar"];
+    BOOL hideTabBar = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideTabBar"];
+    if (hideTabBar) {
+        [list addObject:@"AWENormalModeTabBar"];
     }
 	BOOL hideDanmaku = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideDanmaku"];
 	if (hideDanmaku) {
 		[list addObject:@"AWEVideoPlayDanmakuContainerView"];
+	}
+	BOOL hideSlider = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideSlider"];
+	if (hideSlider) {
+		[list addObject:@"AWEStoryProgressSlideView"];
+		[list addObject:@"AWEStoryProgressContainerView"];
+	}
+	BOOL hideSpeed = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideSpeed"];
+	if (hideSpeed) {
+		[list addObject:@"FloatingSpeedButton"];
 	}
     targetClassNames = [list copy];
 }
