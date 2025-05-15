@@ -64,10 +64,18 @@ static UIWindow *getKeyWindow(void) {
 	}
 	return keyWindow;
 }
+static CGFloat DYYYGetGlobalAlpha(void) {
+    NSString *value = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYGlobalTransparency"];
+    if (value.length == 0)  return 1.0;
+    CGFloat alpha = value.floatValue;
+    if (alpha < 0.011 || alpha > 1.0)  return 1.0; 
+    return alpha;
+}
 static void forceResetAllUIElements(void) {
 	UIWindow *window = getKeyWindow();
 	if (!window)
 		return;
+	CGFloat alphaValue = DYYYGetGlobalAlpha();
 	for (NSString *className in targetClassNames) {
 		Class viewClass = NSClassFromString(className);
 		if (!viewClass)
@@ -75,7 +83,8 @@ static void forceResetAllUIElements(void) {
 		NSMutableArray *views = [NSMutableArray array];
 		findViewsOfClassHelper(window, viewClass, views);
 		for (UIView *view in views) {
-			view.alpha = 1.0;
+			view.tag = DYYY_IGNORE_GLOBAL_ALPHA_TAG;
+			view.alpha = alphaValue;
 		}
 	}
 }
@@ -98,10 +107,6 @@ static void initTargetClassNames(void) {
     if (hideTabBar) {
         [list addObject:@"AWENormalModeTabBar"];
     }
-    BOOL hideDanmaku = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideDanmaku"];
-	if (hideDanmaku) {
-		[list addObject:@"AWEVideoPlayDanmakuContainerView"];
-	}
 	BOOL hideDanmaku = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideDanmaku"];
 	if (hideDanmaku) {
 		[list addObject:@"AWEVideoPlayDanmakuContainerView"];
@@ -110,6 +115,10 @@ static void initTargetClassNames(void) {
 	if (hideSlider) {
 		[list addObject:@"AWEStoryProgressSlideView"];
 		[list addObject:@"AWEStoryProgressContainerView"];
+	}
+	BOOL hideSpeed = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideSpeed"];
+	if (hideSpeed) {
+		[list addObject:@"FloatingSpeedButton"];
 	}
     targetClassNames = [list copy];
 }
@@ -125,7 +134,7 @@ static void initTargetClassNames(void) {
         
         // 设置默认状态为半透明
         self.originalAlpha = 1.0;  // 交互时为完全不透明
-        self.alpha = 0.7;  // 初始为半透明
+        self.alpha = 0.5;  // 初始为半透明
 		// 加载保存的锁定状态
 		[self loadLockState];
 		[self loadIcons];
@@ -163,7 +172,7 @@ static void initTargetClassNames(void) {
 							   block:^(NSTimer *timer) {
 							     [UIView animateWithDuration:0.3
 									      animations:^{
-										self.alpha = 0.7;  // 变为半透明
+										self.alpha = 0.5;  // 变为半透明
 									      }];
 							   }];
 	// 交互时变为完全不透明
@@ -313,7 +322,8 @@ static void initTargetClassNames(void) {
 			view.hidden = NO;
 		} else {
 			// 恢复透明度
-    		view.alpha = 1.0; 
+			CGFloat alphaValue = DYYYGetGlobalAlpha();
+    		view.alpha = alphaValue; 
 		}
         return;
     }
@@ -568,7 +578,7 @@ static void initTargetClassNames(void) {
     // 提前准备按钮显示
     if (hideButton) {
         hideButton.hidden = isCommentViewVisible; // 根据评论界面状态决定是否显示
-        hideButton.alpha = 0.7;
+        hideButton.alpha = 0.5;
     }
 }
 - (void)viewWillAppear:(BOOL)animated {
@@ -577,7 +587,7 @@ static void initTargetClassNames(void) {
     // 立即显示按钮，除非评论界面可见
     if (hideButton) {
         hideButton.hidden = isCommentViewVisible;
-        hideButton.alpha = 0.7;
+        hideButton.alpha = 0.5;
     }
 }
 - (void)viewDidAppear:(BOOL)animated {
