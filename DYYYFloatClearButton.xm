@@ -64,18 +64,10 @@ static UIWindow *getKeyWindow(void) {
 	}
 	return keyWindow;
 }
-static CGFloat DYYYGetGlobalAlpha(void) {
-    NSString *value = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYGlobalTransparency"];
-    if (value.length == 0)  return 1.0;
-    CGFloat alpha = value.floatValue;
-    if (alpha < 0.011 || alpha > 1.0)  return 1.0; 
-    return alpha;
-}
 static void forceResetAllUIElements(void) {
 	UIWindow *window = getKeyWindow();
 	if (!window)
 		return;
-	CGFloat alphaValue = DYYYGetGlobalAlpha();
 	for (NSString *className in targetClassNames) {
 		Class viewClass = NSClassFromString(className);
 		if (!viewClass)
@@ -83,8 +75,7 @@ static void forceResetAllUIElements(void) {
 		NSMutableArray *views = [NSMutableArray array];
 		findViewsOfClassHelper(window, viewClass, views);
 		for (UIView *view in views) {
-			view.tag = DYYY_IGNORE_GLOBAL_ALPHA_TAG;
-			view.alpha = alphaValue;
+			view.alpha = 1.0;
 		}
 	}
 }
@@ -98,27 +89,19 @@ static void initTargetClassNames(void) {
         @"AWEHPTopBarCTAContainer", @"AWEHPDiscoverFeedEntranceView", @"AWELeftSideBarEntranceView",
         @"DUXBadge", @"AWEBaseElementView", @"AWEElementStackView",
         @"AWEPlayInteractionDescriptionLabel", @"AWEUserNameLabel",
+        @"AWEStoryProgressSlideView", @"AWEStoryProgressContainerView",
         @"ACCEditTagStickerView", @"AWEFeedTemplateAnchorView",
         @"AWESearchFeedTagView", @"AWEPlayInteractionSearchAnchorView",
         @"AFDRecommendToFriendTagView", @"AWELandscapeFeedEntryView",
-        @"AWEFeedAnchorContainerView", @"AFDAIbumFolioView"
+        @"AWEFeedAnchorContainerView", @"AFDAIbumFolioView",@"AWENormalModeTabBar"
     ] mutableCopy];
-    BOOL hideTabBar = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideTabBar"];
-    if (hideTabBar) {
-        [list addObject:@"AWENormalModeTabBar"];
+    BOOL hideBottomBar = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideTimeProgress"];
+    if (hideBottomBar) {
+        [list removeObject:@"AWENormalModeTabBar"];
     }
 	BOOL hideDanmaku = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideDanmaku"];
 	if (hideDanmaku) {
 		[list addObject:@"AWEVideoPlayDanmakuContainerView"];
-	}
-	BOOL hideSlider = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideSlider"];
-	if (hideSlider) {
-		[list addObject:@"AWEStoryProgressSlideView"];
-		[list addObject:@"AWEStoryProgressContainerView"];
-	}
-	BOOL hideSpeed = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideSpeed"];
-	if (hideSpeed) {
-		[list addObject:@"FloatingSpeedButton"];
 	}
     targetClassNames = [list copy];
 }
@@ -134,7 +117,7 @@ static void initTargetClassNames(void) {
         
         // 设置默认状态为半透明
         self.originalAlpha = 1.0;  // 交互时为完全不透明
-        self.alpha = 0.5;  // 初始为半透明
+        self.alpha = 0.7;  // 初始为半透明
 		// 加载保存的锁定状态
 		[self loadLockState];
 		[self loadIcons];
@@ -172,7 +155,7 @@ static void initTargetClassNames(void) {
 							   block:^(NSTimer *timer) {
 							     [UIView animateWithDuration:0.3
 									      animations:^{
-										self.alpha = 0.5;  // 变为半透明
+										self.alpha = 0.7;  // 变为半透明
 									      }];
 							   }];
 	// 交互时变为完全不透明
@@ -321,9 +304,8 @@ static void initTargetClassNames(void) {
 			// 如果设置了移除时间进度条，直接显示
 			view.hidden = NO;
 		} else {
-			// 恢复透明度
-			CGFloat alphaValue = DYYYGetGlobalAlpha();
-    		view.alpha = alphaValue; 
+			// 否则恢复透明度
+			view.alpha = 1.0;
 		}
         return;
     }
@@ -370,7 +352,6 @@ static void initTargetClassNames(void) {
 			view.hidden = YES;
 		} else {
 			// 否则设置透明度为 0.0,可拖动
-			view.tag = DYYY_IGNORE_GLOBAL_ALPHA_TAG;
         	view.alpha = 0.0;
 		}
         [self.hiddenViewsList addObject:view];
