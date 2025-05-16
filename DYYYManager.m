@@ -3086,13 +3086,13 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
         dispatch_group_enter(processingGroup);
         
         // 使用Core Animation创建静态图片视频
-        [self createVideoFromImage:image duration:5.0 outputPath:tempVideoPath completion:^(BOOL success) {
+        [self createVideoFromImage:image duration:3.0 outputPath:tempVideoPath completion:^(BOOL success) {
             if (success) {
                 @synchronized(mediaSegments) {
                     [mediaSegments addObject:@{
                         @"type": @"image",
                         @"path": tempVideoPath,
-                        @"duration": @5.0
+                        @"duration": @3.0
                     }];
                 }
                 NSLog(@"成功创建图片视频片段: %@", tempVideoPath);
