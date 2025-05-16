@@ -270,8 +270,9 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @end
 
 //主页全屏
-@interface AWEAwemeDetailTableView : UIView
+@interface AWEAwemeDetailTableView : UITableView
 @end
+
 
 @interface AWEAwemeDetailTableViewCell : UIView
 @end
