@@ -19,7 +19,7 @@
     if (!originalArray) {
         originalArray = @[];
     }
-    
+
     // 检查是否启用了任意长按功能
     BOOL hasAnyFeatureEnabled = NO;
     // 检查各个单独的功能开关
