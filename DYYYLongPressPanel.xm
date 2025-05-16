@@ -331,10 +331,10 @@
         imageViewModel.awemeModel = self.awemeModel;
         imageViewModel.actionType = 669;
         imageViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
-        imageViewModel.describeString = @"保存当前图片";
+        imageViewModel.describeString = @"保存图片";
         AWEImageAlbumImageModel *currimge = self.awemeModel.albumImages[self.awemeModel.currentImageIndex - 1];
         if (currimge.clipVideo != nil) {
-            imageViewModel.describeString = @"保存当前实况";
+            imageViewModel.describeString = @"保存实况";
         }
         imageViewModel.action = ^{
             AWEAwemeModel *awemeModel = self.awemeModel;
@@ -388,7 +388,7 @@
         allImagesViewModel.awemeModel = self.awemeModel;
         allImagesViewModel.actionType = 670;
         allImagesViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
-        allImagesViewModel.describeString = @"保存所有图片";
+        allImagesViewModel.describeString = @"所有图片";
         // 检查是否有实况照片并更改按钮文字
         BOOL hasLivePhoto = NO;
         for (AWEImageAlbumImageModel *imageModel in self.awemeModel.albumImages) {
@@ -398,7 +398,7 @@
             }
         }
         if (hasLivePhoto) {
-            allImagesViewModel.describeString = @"保存所有实况";
+            allImagesViewModel.describeString = @"所有实况";
         }
         allImagesViewModel.action = ^{
             AWEAwemeModel *awemeModel = self.awemeModel;
@@ -1239,10 +1239,10 @@
         imageViewModel.awemeModel = self.awemeModel;
         imageViewModel.actionType = 669;
         imageViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
-        imageViewModel.describeString = @"保存当前图片";
+        imageViewModel.describeString = @"保存图片";
         AWEImageAlbumImageModel *currimge = self.awemeModel.albumImages[self.awemeModel.currentImageIndex - 1];
         if (currimge.clipVideo != nil) {
-            imageViewModel.describeString = @"保存当前实况";
+            imageViewModel.describeString = @"保存实况";
         }
         imageViewModel.action = ^{
             AWEAwemeModel *awemeModel = self.awemeModel;
@@ -1296,7 +1296,7 @@
         allImagesViewModel.awemeModel = self.awemeModel;
         allImagesViewModel.actionType = 670;
         allImagesViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
-        allImagesViewModel.describeString = @"保存所有图片";
+        allImagesViewModel.describeString = @"所有图片";
         // 检查是否有实况照片并更改按钮文字
         BOOL hasLivePhoto = NO;
         for (AWEImageAlbumImageModel *imageModel in self.awemeModel.albumImages) {
@@ -1306,7 +1306,7 @@
             }
         }
         if (hasLivePhoto) {
-            allImagesViewModel.describeString = @"保存所有实况";
+            allImagesViewModel.describeString = @"所有实况";
         }
         allImagesViewModel.action = ^{
             AWEAwemeModel *awemeModel = self.awemeModel;
