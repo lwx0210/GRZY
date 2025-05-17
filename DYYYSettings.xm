@@ -2042,7 +2042,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_personcircleclean_outlined_20"},
 			    @{@"identifier" : @"DYYYEnableVideoHighestQuality",
-			      @"title" : @"启用首页最高画质",
+			      @"title" : @"启用视频最高画质",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_videosearch_outlined_20"},
