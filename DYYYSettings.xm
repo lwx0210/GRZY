@@ -2041,7 +2041,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_personcircleclean_outlined_20"},
-			    @{@"identifier" : @"DYYYEnableLiveHighestQuality",
+			    @{@"identifier" : @"DYYYEnableVideoHighestQuality",
 			      @"title" : @"启用首页最高画质",
 			      @"detail" : @"",
 			      @"cellType" : @6,
