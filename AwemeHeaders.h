@@ -198,7 +198,8 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @end
 
 @interface AWEPlayInteractionViewController : UIViewController
-@property (nonatomic, strong) UIView *view;
+@property(nonatomic, strong) UIView *view;
+@property(nonatomic, strong) NSString *referString;
 - (void)performCommentAction;
 - (void)performLikeAction;
 - (void)showSharePanel;
