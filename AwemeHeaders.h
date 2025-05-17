@@ -1052,7 +1052,6 @@ typedef NS_ENUM(NSInteger, MediaType) {
 - (void)handleVideoQualityLongPress:(UILongPressGestureRecognizer *)gesture;
 @end
 
-//直播默认最高清晰度
 @interface IESLiveRoomComponent : NSObject
 @end
 
