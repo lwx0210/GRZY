@@ -1056,3 +1056,5 @@ typedef NS_ENUM(NSInteger, MediaType) {
 - (void)setResolutionWithIndex:(NSInteger)index isManual:(BOOL)manual beginChange:(void (^)(void))beginChangeBlock completion:(void (^)(void))completionBlock;
 @end
 
+@interface AWEMixVideoPanelMoreView : UIView
+@end
