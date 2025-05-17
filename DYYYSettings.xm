@@ -2055,7 +2055,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		              @"title" : @"启用降噪人声增强",
 		              @"detail" : @"",
 		              @"cellType" : @6,
-		              @"imageName" : @"ic_threestars_filled_16"},
+		              @"imageName" : @"ic_usercheckmark_outlined"},
                             @{@"identifier" : @"DYYYHapticFeedbackEnabled",
 			      @"title" : @"启用保存媒体反馈",
 			      @"detail" : @"",
