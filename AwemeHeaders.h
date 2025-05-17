@@ -1051,3 +1051,8 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @interface AWEFeedVideoControlView : UIView
 - (void)handleVideoQualityLongPress:(UILongPressGestureRecognizer *)gesture;
 @end
+
+//直播默认最高清晰度
+@interface IESLiveRoomComponent : NSObject
+@end
+
