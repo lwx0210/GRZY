@@ -1024,12 +1024,6 @@ typedef NS_ENUM(NSInteger, MediaType) {
 + (id)sharedManager;
 @end
 
-@interface HTSLiveStreamQualityFragment : IESLiveRoomComponent
-@property(nonatomic, strong) NSArray *streamQualityArray;
-- (NSArray *)getQualities;
-- (void)setResolutionWithIndex:(NSInteger)index isManual:(BOOL)manual beginChange:(void (^)(void))beginChangeBlock completion:(void (^)(void))completionBlock;
-@end
-
 //资料页默认展示作品
 @interface AWEUserDetailViewControllerV2 : UIViewController
 - (void)setProfileShowTab:(NSInteger)tab;
