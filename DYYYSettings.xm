@@ -998,7 +998,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		    @"cellType" : @6,
 		    @"imageName" : @"ic_eyeslash_outlined_16"},
 	          @{@"identifier" : @"DYYYHideBack",
-		    @"title" : @"隐藏返回按钮",
+		    @"title" : @"隐藏左侧返回",
 		    @"detail" : @"",
 		    @"cellType" : @6,
 		    @"imageName" : @"ic_eyeslash_outlined_16"}
