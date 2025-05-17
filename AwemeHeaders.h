@@ -21,10 +21,10 @@ typedef NS_ENUM(NSInteger, MediaType) {
 
 
 @interface AWEURLModel : NSObject
-@property (nonatomic, copy) NSArray *originURLList;
-@property (nonatomic, assign) NSInteger imageWidth;
-@property (nonatomic, assign) NSInteger imageHeight;
-@property (nonatomic, copy) NSString *URLKey;
+@property(nonatomic, copy) NSArray *originURLList;
+@property(nonatomic, assign) NSInteger imageWidth;
+@property(nonatomic, assign) NSInteger imageHeight;
+@property(nonatomic, copy) NSString *URLKey;
 - (NSArray *)originURLList;
 - (id)URI;
 - (NSURL *)getDYYYSrcURLDownload;
@@ -483,6 +483,12 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @interface AWEFeedRootViewController : UIViewController
 - (BOOL)prefersStatusBarHidden;
 @end
+@interface IESLiveAudienceViewController : UIView
+- (BOOL)prefersStatusBarHidden;
+@end
+@interface AWEAwemeDetailTableViewController : UIView
+- (BOOL)prefersStatusBarHidden;
+@end
 
 // 设置修改顶栏标题
 @interface AWEHPTopTabItemTextContentView : UIView
@@ -921,13 +927,13 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @end
 
 @interface AFDPrivacyHalfScreenViewController : AWEHalfScreenBaseViewController <AFDPrivacyHalfScreenViewControllerProtocol>
-@property (retain, nonatomic) UILabel *titleLabel;
-@property (retain, nonatomic) UILabel *contentLabel;
-@property (retain, nonatomic) UIImageView *imageView;
-@property (copy, nonatomic) void (^rightBtnClickedBlock)(void);
-@property (copy, nonatomic) void (^leftButtonClickedBlock)(void);
-@property (retain, nonatomic) AWEButton *leftCancelButton;
-@property (retain, nonatomic) AWEButton *rightConfirmButton;
+@property(retain, nonatomic) UILabel *titleLabel;
+@property(retain, nonatomic) UILabel *contentLabel;
+@property(retain, nonatomic) UIImageView *imageView;
+@property(copy, nonatomic) void (^rightBtnClickedBlock)(void);
+@property(copy, nonatomic) void (^leftButtonClickedBlock)(void);
+@property(retain, nonatomic) AWEButton *leftCancelButton;
+@property(retain, nonatomic) AWEButton *rightConfirmButton;
 
 - (void)configWithImageView:(UIImageView *)imageView 
                   lockImage:(UIImage *)lockImage 
@@ -1031,3 +1037,4 @@ typedef NS_ENUM(NSInteger, MediaType) {
 - (NSArray *)getQualities;
 - (void)setResolutionWithIndex:(NSInteger)index isManual:(BOOL)manual beginChange:(void (^)(void))beginChangeBlock completion:(void (^)(void))completionBlock;
 @end
+
