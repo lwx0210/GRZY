@@ -1034,3 +1034,8 @@ typedef NS_ENUM(NSInteger, MediaType) {
 - (void)setResolutionWithIndex:(NSInteger)index isManual:(BOOL)manual beginChange:(void (^)(void))beginChangeBlock completion:(void (^)(void))completionBlock;
 @end
 
+//资料页默认展示作品
+@interface AWEUserDetailViewControllerV2 : UIViewController
+- (void)setProfileShowTab:(NSInteger)tab;
+@end
+
