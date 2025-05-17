@@ -957,11 +957,6 @@ typedef NS_ENUM(NSInteger, MediaType) {
 - (void)updateDarkModeAppearance;
 @end
 
-//系统顶栏
-@interface IESLiveAudienceViewController : UIView
-- (BOOL)prefersStatusBarHidden;
-@end
-
 @interface AWEIMEmoticonModel : NSObject
 - (id)valueForKey:(NSString *)key;
 @end
