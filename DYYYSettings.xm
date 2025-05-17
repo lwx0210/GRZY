@@ -1677,7 +1677,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_boxarrowdown_outlined"},
 		            @{@"identifier" : @"DYYYLongPressCreateVideo",
-		              @"title" : @"长按面板生成视频",
+		              @"title" : @"长按面板合成视频",
 		              @"detail" : @"",
 		              @"cellType" : @6,
 		              @"imageName" : @"ic_videosearch_outlined_20"},
