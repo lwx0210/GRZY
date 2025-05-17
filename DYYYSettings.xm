@@ -488,7 +488,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		    @"cellType" : @6,
 		    @"imageName" : @"ic_broom_outlined"},
 		  @{@"identifier" : @"DYYYisEnableFullScreen",
-		    @"title" : @"启用首页全屏",
+		    @"title" : @"启用全屏播放",
 		    @"detail" : @"",
 		    @"cellType" : @6,
 		    @"imageName" : @"ic_fullscreen_outlined_16"}
