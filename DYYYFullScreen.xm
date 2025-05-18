@@ -628,30 +628,6 @@ static CGFloat currentScale = 1.0;
 
 %end
 
-%hook CommentInputContainerView
-
-- (void)layoutSubviews {
-	%orig;
-	UIViewController *parentVC = nil;
-	if ([self respondsToSelector:@selector(viewController)]) {
-		id viewController = [self performSelector:@selector(viewController)];
-		if ([viewController respondsToSelector:@selector(parentViewController)]) {
-			parentVC = [viewController parentViewController];
-		}
-	}
-
-	if (parentVC && ([parentVC isKindOfClass:%c(AWEAwemeDetailTableViewController)] || [parentVC isKindOfClass:%c(AWEAwemeDetailCellViewController)])) {
-		for (UIView *subview in [self subviews]) {
-			if ([subview class] == [UIView class]) {
-				subview.hidden = YES;
-				break;
-			}
-		}
-	}
-}
-
-%end
-
 %hook AWEMixVideoPanelMoreView
 
 - (void)setFrame:(CGRect)frame {
@@ -659,6 +635,35 @@ static CGFloat currentScale = 1.0;
         frame.origin.y -= 83;
     }
     %orig(frame);
+}
+
+%end
+
+//全屏背景逻辑
+%hook CommentInputContainerView
+
+- (void)layoutSubviews {
+    %orig;
+    UIViewController *parentVC = nil;
+    if ([self respondsToSelector:@selector(viewController)]) {
+        id viewController = [self performSelector:@selector(viewController)];
+        if ([viewController respondsToSelector:@selector(parentViewController)]) {
+            parentVC = [viewController parentViewController];
+        }
+    }
+
+    if (parentVC && ([parentVC isKindOfClass:%c(AWEAwemeDetailTableViewController)] || [parentVC isKindOfClass:%c(AWEAwemeDetailCellViewController)])) {
+        for (UIView *subview in [self subviews]) {
+            if ([subview class] == [UIView class]) {
+                if ([(UIView *)self frame].size.height == 83) {
+                    subview.hidden = YES;
+                } else {
+                    subview.hidden = NO;
+                }
+                break;
+            }
+        }
+    }
 }
 
 %end
