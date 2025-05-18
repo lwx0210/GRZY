@@ -1063,5 +1063,8 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @end
 
 //隐藏双列
+@interface AWEIMCommentShareUserHorizontalCollectionViewCell : UIView
+@end
+
 @interface AWENormalModeTabBarFeedView : UIView
 @end
