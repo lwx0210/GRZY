@@ -1058,5 +1058,7 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @property (nonatomic, strong) UITabBarController *tabBarController;
 @end
 
-
+@interface AWEIMCommentShareUserHorizontalSectionController : UIViewController
+- (void)configCell:(id)cell index:(NSInteger)index model:(id)model;
+@end
 
