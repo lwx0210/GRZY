@@ -1068,3 +1068,7 @@ typedef NS_ENUM(NSInteger, MediaType) {
 
 @interface AWENormalModeTabBarFeedView : UIView
 @end
+
+@interface AWEIMCommentShareUserHorizontalSectionController : UIViewController
+- (void)configCell:(id)cell index:(NSInteger)index model:(id)model;
+@end
