@@ -1888,6 +1888,18 @@ static CGFloat rightLabelRightMargin = -1;
 
 %group AutoPlay
 
+//取消自动翻页
+%hook DUXToast
+
++ (void)showText:(NSString *)text {
+    if (text && [text isEqualToString:@"已取消自动翻页"]) {
+        return;
+    }
+    %orig;
+}
+
+%end
+
 %hook UIViewController
 
 - (void)viewDidAppear:(BOOL)animated {
