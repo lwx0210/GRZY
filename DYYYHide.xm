@@ -1612,6 +1612,21 @@
 
 %end
 
+// 隐藏双栏入口
+%hook AWENormalModeTabBarFeedView
+- (void)layoutSubviews {
+    %orig;
+    
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideDoubleColumnEntry"]) {
+        for (UIView *subview in self.subviews) {
+            if (![subview isKindOfClass:[UILabel class]]) {
+                subview.hidden = YES;
+            }
+        }
+    }
+}
+%end
+
 // 隐藏直播广场
 %hook IESLiveFeedDrawerEntranceView
 - (void)layoutSubviews {
