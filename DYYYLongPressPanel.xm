@@ -1691,6 +1691,14 @@
 
 %end
 
+%hook AWEIMCommentShareUserHorizontalSectionController
+
+- (CGSize)sizeForItemAtIndex:(NSInteger)index model:(id)model collectionViewSize:(CGSize)size {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideCommentShareToFriends"]) {
+        return CGSizeZero;
+    }
+}
+%end
 
 %ctor {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYUserAgreementAccepted"]) {
