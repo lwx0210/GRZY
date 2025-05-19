@@ -251,42 +251,6 @@ static void *kViewModelKey = &kViewModelKey;
 }
 %end
 
-%hook AWELeftSideBarEntranceView
-- (void)leftSideBarEntranceViewTapped:(UITapGestureRecognizer *)gesture {
-
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYentrance"]) {
-
-        UIViewController *rootVC = nil;
-        UIResponder *resp       = self;
-        while (resp) {
-            if ([resp isKindOfClass:[UIViewController class]]) {
-                rootVC = (UIViewController *)resp;
-                break;
-            }
-            resp = [resp nextResponder];
-        }
-
-        if (!rootVC) {
-            UIWindow *keyWin = UIApplication.sharedApplication.keyWindow;
-            rootVC = keyWin.rootViewController;
-            while (rootVC.presentedViewController) {
-                rootVC = rootVC.presentedViewController;
-            }
-        }
-
-        if (rootVC) {
-            BOOL hasAgreed =
-                [[NSUserDefaults standardUserDefaults] boolForKey:
-                    @"DYYYUserAgreementAccepted"];
-            showDYYYSettingsVC(rootVC, hasAgreed);
-        }
-
-    } else {
-        %orig;
-    }
-}
-%end
-
 static AWESettingBaseViewController *createSubSettingsViewController(NSString *title, NSArray *sectionsArray) {
 	AWESettingBaseViewController *settingsVC = [[%c(AWESettingBaseViewController) alloc] init];
 
@@ -2048,11 +2012,6 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 	  // 【交互增强】分类
 	  NSMutableArray<AWESettingItemModel *> *interactionItems = [NSMutableArray array];
 	  NSArray *interactionSettings = @[
-		            @{@"identifier" : @"DYYYentrance",
-		              @"title" : @"左侧边栏快捷入口",
-		              @"detail" : @"",
-		              @"cellType" : @6,
-		              @"imageName" : @"ic_gearsimplify_outlined_20"},
 			    @{@"identifier" : @"DYYYCommentCopyText",
 			      @"title" : @"长按评论复制文案",
 			      @"detail" : @"",
