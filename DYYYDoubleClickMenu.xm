@@ -159,7 +159,7 @@
 			// 仅对图集且包含多张图片的内容显示此选项
 			if (isImageContent && awemeModel.albumImages.count > 1) {
 				AWEUserSheetAction *createVideoAction = [NSClassFromString(@"AWEUserSheetAction")
-				    actionWithTitle:@"制作视频"
+				    actionWithTitle:@"合成视频"
 					    imgName:nil
 					    handler:^{
 					      // 收集普通图片URL
