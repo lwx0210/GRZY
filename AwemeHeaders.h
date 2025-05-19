@@ -161,6 +161,12 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @interface AWEHPTopTabItemBadgeContentView : UIView
 @end
 
+@interface AWEIMFeedVideoQuickReplayInputViewController : UIViewController
+@end
+
+@interface AWEHPSearchBubbleEntranceView : UIView
+@end
+
 @interface AWEProgressLoadingView : UIView
 - (id)initWithType:(NSInteger)arg1 title:(NSString *)arg2;
 - (id)initWithType:(NSInteger)arg1 title:(NSString *)arg2 progressTextFont:(UIFont *)arg3 progressCircleWidth:(NSNumber *)arg4;
@@ -1026,9 +1032,9 @@ typedef NS_ENUM(NSInteger, MediaType) {
 
 // 视频播放控制处理器
 @interface AWEPlayerPlayControlHandler : NSObject
-@property (nonatomic, strong) AVAudioUnitEQ *audioEQ;
-@property (nonatomic, strong) AVAudioUnitReverb *reverb;
-@property (nonatomic, assign) BOOL noiseFilterEnabled;
+@property(nonatomic, strong) AVAudioUnitEQ *audioEQ;
+@property(nonatomic, strong) AVAudioUnitReverb *reverb;
+@property(nonatomic, assign) BOOL noiseFilterEnabled;
 - (void)setupNoiseFilter;
 - (void)addNoiseFilterButton;
 - (void)toggleNoiseFilter;
@@ -1071,7 +1077,7 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @end
 
 @interface AWENormalModeTabBarController : UIViewController
-@property (nonatomic, strong) AWENormalModeTabBar *awe_tabBar;
+@property(nonatomic, strong) AWENormalModeTabBar *awe_tabBar;
 - (void)handleApplicationWillEnterForeground:(NSNotification *)notification;
 @end
 
