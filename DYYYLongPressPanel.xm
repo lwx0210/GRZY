@@ -377,8 +377,6 @@
         allImagesViewModel.action = ^{
             AWEAwemeModel *awemeModel = self.awemeModel;
             NSMutableArray *imageURLs = [NSMutableArray array];
-            NSMutableArray *livePhotos = [NSMutableArray array];
-            
             for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
                 if (imageModel.urlList.count > 0) {
                     // 查找非.image后缀的URL
@@ -392,33 +390,48 @@
                         }
                     }
                     
-                    if (!downloadURL && imageModel.urlList.count > 0) {
-                        downloadURL = [NSURL URLWithString:imageModel.urlList.firstObject];
-                    }
-                    
-                    // 检查是否是实况照片
-                    if (imageModel.clipVideo != nil) {
-                        NSURL *videoURL = [imageModel.clipVideo.playURL getDYYYSrcURLDownload];
-                        [livePhotos addObject:@{@"imageURL" : downloadURL.absoluteString, @"videoURL" : videoURL.absoluteString}];
-                    } else {
+                    if (downloadURL) {
                         [imageURLs addObject:downloadURL.absoluteString];
                     }
                 }
             }
-            
-            // 分别处理普通图片和实况照片
-            if (livePhotos.count > 0) {
+            // 检查是否有实况照片
+            BOOL hasLivePhoto = NO;
+            for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
+                if (imageModel.clipVideo != nil) {
+                    hasLivePhoto = YES;
+                    break;
+                }
+            }
+            // 如果有实况照片，使用单独的downloadLivePhoto方法逐个下载
+            if (hasLivePhoto) {
+                NSMutableArray *livePhotos = [NSMutableArray array];
+                for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
+                    if (imageModel.urlList.count > 0 && imageModel.clipVideo != nil) {
+                        // 为实况照片也进行URL过滤
+                        NSURL *photoURL = nil;
+                        for (NSString *urlString in imageModel.urlList) {
+                            NSURL *url = [NSURL URLWithString:urlString];
+                            NSString *pathExtension = [url.path.lowercaseString pathExtension];
+                            if (![pathExtension isEqualToString:@"image"]) {
+                                photoURL = url;
+                                break;
+                            }
+                        }
+                        if (!photoURL && imageModel.urlList.count > 0) {
+                            photoURL = [NSURL URLWithString:imageModel.urlList.firstObject];
+                        }
+                        NSURL *videoURL = [imageModel.clipVideo.playURL getDYYYSrcURLDownload];
+                        [livePhotos addObject:@{@"imageURL" : photoURL.absoluteString, @"videoURL" : videoURL.absoluteString}];
+                    }
+                }
+                // 使用批量下载实况照片方法
                 [DYYYManager downloadAllLivePhotos:livePhotos];
-            }
-            
-            if (imageURLs.count > 0) {
+            } else if (imageURLs.count > 0) {
                 [DYYYManager downloadAllImages:imageURLs];
-            }
-            
-            if (livePhotos.count == 0 && imageURLs.count == 0) {
+            } else {
                 [DYYYManager showToast:@"没有找到合适格式的图片"];
             }
-            
             AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
             [panelManager dismissWithAnimation:YES completion:nil];
         };
@@ -1239,8 +1252,6 @@
         allImagesViewModel.action = ^{
             AWEAwemeModel *awemeModel = self.awemeModel;
             NSMutableArray *imageURLs = [NSMutableArray array];
-            NSMutableArray *livePhotos = [NSMutableArray array];
-            
             for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
                 if (imageModel.urlList.count > 0) {
                     // 查找非.image后缀的URL
@@ -1254,33 +1265,48 @@
                         }
                     }
                     
-                    if (!downloadURL && imageModel.urlList.count > 0) {
-                        downloadURL = [NSURL URLWithString:imageModel.urlList.firstObject];
-                    }
-                    
-                    // 检查是否是实况照片
-                    if (imageModel.clipVideo != nil) {
-                        NSURL *videoURL = [imageModel.clipVideo.playURL getDYYYSrcURLDownload];
-                        [livePhotos addObject:@{@"imageURL" : downloadURL.absoluteString, @"videoURL" : videoURL.absoluteString}];
-                    } else {
+                    if (downloadURL) {
                         [imageURLs addObject:downloadURL.absoluteString];
                     }
                 }
             }
-            
-            // 分别处理普通图片和实况照片
-            if (livePhotos.count > 0) {
+            // 检查是否有实况照片
+            BOOL hasLivePhoto = NO;
+            for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
+                if (imageModel.clipVideo != nil) {
+                    hasLivePhoto = YES;
+                    break;
+                }
+            }
+            // 如果有实况照片，使用单独的downloadLivePhoto方法逐个下载
+            if (hasLivePhoto) {
+                NSMutableArray *livePhotos = [NSMutableArray array];
+                for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
+                    if (imageModel.urlList.count > 0 && imageModel.clipVideo != nil) {
+                        // 为实况照片也进行URL过滤
+                        NSURL *photoURL = nil;
+                        for (NSString *urlString in imageModel.urlList) {
+                            NSURL *url = [NSURL URLWithString:urlString];
+                            NSString *pathExtension = [url.path.lowercaseString pathExtension];
+                            if (![pathExtension isEqualToString:@"image"]) {
+                                photoURL = url;
+                                break;
+                            }
+                        }
+                        if (!photoURL && imageModel.urlList.count > 0) {
+                            photoURL = [NSURL URLWithString:imageModel.urlList.firstObject];
+                        }
+                        NSURL *videoURL = [imageModel.clipVideo.playURL getDYYYSrcURLDownload];
+                        [livePhotos addObject:@{@"imageURL" : photoURL.absoluteString, @"videoURL" : videoURL.absoluteString}];
+                    }
+                }
+                // 使用批量下载实况照片方法
                 [DYYYManager downloadAllLivePhotos:livePhotos];
-            }
-            
-            if (imageURLs.count > 0) {
+            } else if (imageURLs.count > 0) {
                 [DYYYManager downloadAllImages:imageURLs];
-            }
-            
-            if (livePhotos.count == 0 && imageURLs.count == 0) {
+            } else {
                 [DYYYManager showToast:@"没有找到合适格式的图片"];
             }
-            
             AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
             [panelManager dismissWithAnimation:YES completion:nil];
         };
