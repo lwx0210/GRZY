@@ -10,13 +10,16 @@
 }
 %end
 
-%hook UIView
+%hook UIImageView
 - (void)layoutSubviews {
-	%orig;
+    %orig;
 
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideDiscover"] && [self.accessibilityLabel isEqualToString:@"搜索"]) {
-		[self removeFromSuperview];
-	}
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideDiscover"]) {
+    UIView *parentView = self.superview;
+    if (parentView && [parentView.accessibilityLabel isEqualToString:@"搜索"]) {
+        self.hidden = YES;
+    }
+  }
 }
 %end
 
