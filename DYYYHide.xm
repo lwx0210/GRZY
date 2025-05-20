@@ -10,17 +10,6 @@
 }
 %end
 
-//隐藏右上搜索
-%hook UIView
-- (void)layoutSubviews {
-	%orig;
-
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideDiscover"] && [self.accessibilityLabel isEqualToString:@"搜索"]) {
-		[self removeFromSuperview];
-	}
-}
-%end
-
 //隐藏去商城看看
 %hook AWEFeedTabJumpGuideView
 
