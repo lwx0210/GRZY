@@ -10,16 +10,14 @@
 }
 %end
 
-%hook UIImageView
+//隐藏右上搜索
+%hook UIView
 - (void)layoutSubviews {
-    %orig;
+	%orig;
 
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideDiscover"]) {
-    UIView *parentView = self.superview;
-    if (parentView && [parentView.accessibilityLabel isEqualToString:@"搜索"]) {
-        self.hidden = YES;
-    }
-  }
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideDiscover"] && [self.accessibilityLabel isEqualToString:@"搜索"]) {
+		[self removeFromSuperview];
+	}
 }
 %end
 
@@ -498,16 +496,13 @@
 }
 %end
 
-%hook UIImageView 
+%hook UIImageView
 - (void)layoutSubviews {
-    %orig; // 调用原始方法 
-    BOOL shouldHide = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideAiSearch"];
-    if (shouldHide && CGSizeEqualToSize(self.bounds.size, CGSizeMake(36, 36))) {
-        // 检查是否在AWESearchViewController中
-        UIViewController *vc = [self firstAvailableUIViewController];
-        if ([NSStringFromClass([vc class]) isEqualToString:@"AWESearchViewController"]) {
-            self.hidden = YES;
-        }
+    %orig;
+    
+    UIView *parentView = self.superview;
+    if (parentView && [parentView.accessibilityLabel isEqualToString:@"搜索"]) {
+        self.hidden = YES;
     }
 }
 %end
