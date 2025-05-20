@@ -12,11 +12,13 @@
 
 %hook UIView
 - (void)layoutSubviews {
-	%orig;
+    %orig;
 
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideDiscover"] && [self.accessibilityLabel isEqualToString:@"搜索"]) {
-		[self removeFromSuperview];
-	}
+    if (self.accessibilityLabel && [self.accessibilityLabel isEqualToString:@"搜索"]) {
+
+        self.hidden = YES;
+
+    }
 }
 %end
 
