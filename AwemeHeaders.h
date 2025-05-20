@@ -1107,6 +1107,3 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @interface AWEFeedContainerViewController : UIViewController
 @end
 
-@interface AWEFeedTabJumpGuideView : UIView
-@end
-
