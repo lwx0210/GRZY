@@ -315,6 +315,7 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @interface AWEFeedTableViewController : UIViewController
 @end
 
+//隐藏去商城看看
 @interface AWEFeedTabJumpGuideView : UIView
 @end
   
