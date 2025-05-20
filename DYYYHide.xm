@@ -547,14 +547,16 @@
 	
 	if ([accessibilityLabel isEqualToString:@"返回"]) {
 		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideBack"]) {
-			[self removeFromSuperview];
+			UIView *parent = self.superview;
+			if ([parent isKindOfClass:%c(AWEBaseElementView)]) {
+				[self removeFromSuperview];
+			}
 			return;
 		}
 	}
 }
 
 %end
-
 
 // 隐藏评论区免费去看短剧
 %hook AWEShowPlayletCommentHeaderView
