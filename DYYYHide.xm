@@ -1602,6 +1602,19 @@
 }
 %end
 
+// 隐藏上次看到
+%hook DUXPopover
+
+- (void)layoutSubviews {
+	%orig;
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePopover"]) {
+		[self removeFromSuperview];
+	}
+}
+
+%end
+
 // 隐藏礼物展馆
 %hook BDXWebView
 - (void)layoutSubviews {
