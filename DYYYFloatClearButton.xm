@@ -94,6 +94,7 @@ static void initTargetClassNames(void) {
         @"AWESearchFeedTagView", @"AWEPlayInteractionSearchAnchorView",
         @"AFDRecommendToFriendTagView", @"AWELandscapeFeedEntryView",
         @"AWEFeedAnchorContainerView", @"AFDAIbumFolioView"
+        @"AWEFeedAnchorContainerView", @"AFDAIbumFolioView", @"DUXPopover"
     ] mutableCopy];
     BOOL hideTabBar = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideTabBar"];
     if (hideTabBar) {
