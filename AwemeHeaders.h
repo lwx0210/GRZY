@@ -1059,6 +1059,8 @@ typedef NS_ENUM(NSInteger, MediaType) {
 
 @interface AWEMixVideoPanelMoreView : UIView
 @end
+@interface DUXPopover : UIView
+@end
 
 @interface AWESearchViewController : UIViewController
 @property (nonatomic, strong) UITabBarController *tabBarController;
