@@ -494,10 +494,13 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @interface AWEFeedRootViewController : UIViewController
 - (BOOL)prefersStatusBarHidden;
 @end
-@interface IESLiveAudienceViewController : UIView
+@interface IESLiveAudienceViewController : UIViewController
 - (BOOL)prefersStatusBarHidden;
 @end
-@interface AWEAwemeDetailTableViewController : UIView
+@interface AWEAwemeDetailTableViewController : UIViewController
+- (BOOL)prefersStatusBarHidden;
+@end
+@interface AWEFullPageFeedNewContainerViewController : UIViewController
 - (BOOL)prefersStatusBarHidden;
 @end
 
@@ -893,15 +896,15 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @end
 
 @interface AWEPrivacySettingActionSheetConfig : NSObject
-@property (copy, nonatomic) NSArray *models;
-@property (copy, nonatomic) NSString *headerText;
-@property (copy, nonatomic) NSString *headerTitleText;
-@property (nonatomic) BOOL needHighLight;
-@property (nonatomic) BOOL useCardUIStyle;
-@property (nonatomic) BOOL fromHalfScreen;
-@property (retain, nonatomic) UIImage *headerLabelIcon;
-@property (nonatomic) CGFloat sheetWidth;
-@property (nonatomic) BOOL adaptIpadFromHalfVC;
+@property(copy, nonatomic) NSArray *models;
+@property(copy, nonatomic) NSString *headerText;
+@property(copy, nonatomic) NSString *headerTitleText;
+@property(nonatomic) BOOL needHighLight;
+@property(nonatomic) BOOL useCardUIStyle;
+@property(nonatomic) BOOL fromHalfScreen;
+@property(retain, nonatomic) UIImage *headerLabelIcon;
+@property(nonatomic) CGFloat sheetWidth;
+@property(nonatomic) BOOL adaptIpadFromHalfVC;
 @end
 
 @interface AWEPrivacySettingActionSheet : UIView
@@ -1103,3 +1106,7 @@ typedef NS_ENUM(NSInteger, MediaType) {
 
 @interface AWEFeedContainerViewController : UIViewController
 @end
+
+@interface AWEFeedTabJumpGuideView : UIView
+@end
+
