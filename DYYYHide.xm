@@ -488,11 +488,12 @@
 %hook UIImageView
 - (void)layoutSubviews {
     %orig;
-    
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideDiscover"]) {
     UIView *parentView = self.superview;
     if (parentView && [parentView.accessibilityLabel isEqualToString:@"搜索"]) {
         self.hidden = YES;
     }
+  }
 }
 %end
 
