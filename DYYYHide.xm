@@ -485,6 +485,7 @@
 }
 %end
 
+//隐藏右上角搜索
 %hook UIImageView
 - (void)layoutSubviews {
     %orig;
@@ -842,6 +843,21 @@
 
 %end
 
+// 隐藏状态栏
+%hook AWEFeedRootViewController
+- (BOOL)prefersStatusBarHidden {
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHideStatusbar"]) {
+		return YES;
+	} else {
+		if (class_getInstanceMethod([self class], @selector(prefersStatusBarHidden)) !=
+		    class_getInstanceMethod([%c(AWEFeedRootViewController) class], @selector(prefersStatusBarHidden))) {
+			return %orig;
+		}
+		return NO;
+	}
+}
+%end
+
 // 直播状态栏
 %hook IESLiveAudienceViewController
 - (BOOL)prefersStatusBarHidden {
@@ -850,6 +866,36 @@
 	} else {
 		if (class_getInstanceMethod([self class], @selector(prefersStatusBarHidden)) !=
 		    class_getInstanceMethod([%c(IESLiveAudienceViewController) class], @selector(prefersStatusBarHidden))) {
+			return %orig;
+		}
+		return NO;
+	}
+}
+%end
+
+// 主页状态栏
+%hook AWEAwemeDetailTableViewController
+- (BOOL)prefersStatusBarHidden {
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHideStatusbar"]) {
+		return YES;
+	} else {
+		if (class_getInstanceMethod([self class], @selector(prefersStatusBarHidden)) !=
+		    class_getInstanceMethod([%c(AWEAwemeDetailTableViewController) class], @selector(prefersStatusBarHidden))) {
+			return %orig;
+		}
+		return NO;
+	}
+}
+%end
+
+// 图文状态栏
+%hook AWEFullPageFeedNewContainerViewController
+- (BOOL)prefersStatusBarHidden {
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHideStatusbar"]) {
+		return YES;
+	} else {
+		if (class_getInstanceMethod([self class], @selector(prefersStatusBarHidden)) !=
+		    class_getInstanceMethod([%c(AWEFullPageFeedNewContainerViewController) class], @selector(prefersStatusBarHidden))) {
 			return %orig;
 		}
 		return NO;
@@ -1044,36 +1090,6 @@
 	return;
 }
 
-%end
-
-// 隐藏状态栏
-%hook AWEFeedRootViewController
-- (BOOL)prefersStatusBarHidden {
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHideStatusbar"]) {
-		return YES;
-	} else {
-		if (class_getInstanceMethod([self class], @selector(prefersStatusBarHidden)) !=
-		    class_getInstanceMethod([%c(AWEFeedRootViewController) class], @selector(prefersStatusBarHidden))) {
-			return %orig;
-		}
-		return NO;
-	}
-}
-%end
-
-// 主页状态栏
-%hook AWEAwemeDetailTableViewController
-- (BOOL)prefersStatusBarHidden {
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHideStatusbar"]) {
-		return YES;
-	} else {
-		if (class_getInstanceMethod([self class], @selector(prefersStatusBarHidden)) !=
-		    class_getInstanceMethod([%c(IESLiveAudienceViewController) class], @selector(prefersStatusBarHidden))) {
-			return %orig;
-		}
-		return NO;
-	}
-}
 %end
 
 // 隐藏视频定位
