@@ -316,7 +316,7 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @end
 
 @interface AWEFeedTabJumpGuideView : UIView
-%end
+@end
   
 // 隐藏同城定位
 @interface AWEMarkView : UIView
