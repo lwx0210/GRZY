@@ -20,6 +20,19 @@
 }
 %end
 
+//隐藏去商城看看
+%hook AWEFeedTabJumpGuideView
+
+- (void)layoutSubviews {
+    %orig; 
+
+    if (DYYYGetBool(@"DYYYHideJumpGuide")) {
+        [self removeFromSuperview];
+    }
+}
+
+%end
+
 // 隐藏文案箭头
 %hook AWEPlayInteractionDescriptionLabel
 - (void)layoutSubviews {
