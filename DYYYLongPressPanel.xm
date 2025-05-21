@@ -40,9 +40,6 @@
 	hasAnyFeatureEnabled = enableSaveVideo || enableSaveCover || enableSaveAudio || enableSaveCurrentImage || enableSaveAllImages || enableCopyText || enableCopyLink || enableApiDownload ||
 			       enableFilterUser || enableFilterKeyword || enableTimerClose || enableCreateVideo;
 
-	// 处理原始面板按钮的显示/隐藏
-	NSMutableArray *officialButtons = [NSMutableArray array];
-
 	// 获取需要隐藏的按钮设置
 	BOOL hideDaily = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelDaily"];
 	BOOL hideRecommend = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelRecommend"];
@@ -60,6 +57,7 @@
 	BOOL hideListenDouyin = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelListenDouyin"];
 	BOOL hideBackgroundPlay = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelBackgroundPlay"];
 	BOOL hideBiserial = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelBiserial"];
+	BOOL hideTimerclose = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelTimerClose"];
 
 	// 存储处理后的原始组
 	NSMutableArray *modifiedOriginalGroups = [NSMutableArray array];
@@ -112,28 +110,11 @@
 						shouldHide = YES;
 					} else if ([descString isEqualToString:@"首页双列快捷入口"] && hideBiserial) {
 						shouldHide = YES;
+					} else if ([descString isEqualToString:@"定时关闭"] && hideTimerclose) {
+						shouldHide = YES;
 					}
 
 					if (!shouldHide) {
-						// 添加图标修改
-						if ([descString isEqualToString:@"后台播放设置"]) {
-							viewModel.duxIconName = @"ic_phonearrowup_outlined_20";
-						} else if ([descString isEqualToString:@"转发到日常"]) {
-							viewModel.duxIconName = @"ic_flash_outlined_20";
-						} else if ([descString isEqualToString:@"首页双列快捷入口"]) {
-							viewModel.duxIconName = @"ic_squaresplit_outlined_20";
-						} else if ([descString isEqualToString:@"推荐"]) {
-							viewModel.duxIconName = @"ic_thumbsup_outlined_20";
-						} else if ([descString isEqualToString:@"不感兴趣"]) {
-							viewModel.duxIconName = @"ic_heartbreak_outlined_20";
-						} else if ([descString isEqualToString:@"弹幕"] || [descString isEqualToString:@"弹幕开关"] || [descString isEqualToString:@"弹幕设置"]) {
-							viewModel.duxIconName = @"ic_dansquare_outlined_20";
-						}
-
-						// 将按钮添加到官方按钮列表
-						[officialButtons addObject:viewModel];
-
-						// 同时添加到当前组的过滤列表
 						[filteredGroupArr addObject:viewModel];
 					}
 				}
@@ -714,75 +695,56 @@
 	if (enableTimerClose) {
 		AWELongPressPanelBaseViewModel *timerCloseViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		timerCloseViewModel.awemeModel = self.awemeModel;
-		timerCloseViewModel.actionType = 677;
+		timerCloseViewModel.actionType = 676;
 		timerCloseViewModel.duxIconName = @"ic_c_alarm_outlined";
-
 		// 检查是否已有定时任务在运行
 		NSNumber *shutdownTime = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYTimerShutdownTime"];
 		BOOL hasActiveTimer = shutdownTime != nil && [shutdownTime doubleValue] > [[NSDate date] timeIntervalSince1970];
-
 		timerCloseViewModel.describeString = hasActiveTimer ? @"取消定时" : @"定时关闭";
-
 		timerCloseViewModel.action = ^{
 		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
 		  [panelManager dismissWithAnimation:YES completion:nil];
-
 		  NSNumber *shutdownTime = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYTimerShutdownTime"];
 		  BOOL hasActiveTimer = shutdownTime != nil && [shutdownTime doubleValue] > [[NSDate date] timeIntervalSince1970];
-
 		  if (hasActiveTimer) {
 			  [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"DYYYTimerShutdownTime"];
 			  [[NSUserDefaults standardUserDefaults] synchronize];
-
 			  [DYYYManager showToast:@"已取消定时关闭任务"];
 			  return;
 		  }
-
 		  // 读取上次设置的时间
 		  NSInteger defaultMinutes = [[NSUserDefaults standardUserDefaults] integerForKey:@"DYYYTimerCloseMinutes"];
 		  if (defaultMinutes <= 0) {
-		      defaultMinutes = 5;
+			  defaultMinutes = 5;
 		  }
 		  NSString *defaultText = [NSString stringWithFormat:@"%ld", (long)defaultMinutes];
-		  
 		  DYYYCustomInputView *inputView = [[DYYYCustomInputView alloc] initWithTitle:@"设置定时关闭时间" defaultText:defaultText placeholder:@"请输入关闭时间(单位:分钟)"];
-
 		  inputView.onConfirm = ^(NSString *inputText) {
 		    NSInteger minutes = [inputText integerValue];
 		    if (minutes <= 0) {
 			    minutes = 5;
 		    }
-		    
 		    // 保存用户设置的时间以供下次使用
 		    [[NSUserDefaults standardUserDefaults] setInteger:minutes forKey:@"DYYYTimerCloseMinutes"];
 		    [[NSUserDefaults standardUserDefaults] synchronize];
-		    
 		    NSInteger seconds = minutes * 60;
-
 		    NSTimeInterval shutdownTimeValue = [[NSDate date] timeIntervalSince1970] + seconds;
 		    [[NSUserDefaults standardUserDefaults] setObject:@(shutdownTimeValue) forKey:@"DYYYTimerShutdownTime"];
 		    [[NSUserDefaults standardUserDefaults] synchronize];
-
 		    [DYYYManager showToast:[NSString stringWithFormat:@"抖音将在%ld分钟后关闭...", (long)minutes]];
-
 		    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(seconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		      NSNumber *currentShutdownTime = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYTimerShutdownTime"];
 		      if (currentShutdownTime != nil && [currentShutdownTime doubleValue] <= [[NSDate date] timeIntervalSince1970]) {
 			      [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"DYYYTimerShutdownTime"];
 			      [[NSUserDefaults standardUserDefaults] synchronize];
-			      
 			      // 显示确认关闭弹窗，而不是直接退出
-			      DYYYConfirmCloseView *confirmView = [[DYYYConfirmCloseView alloc] 
-                              initWithTitle:@"定时关闭" 
-                              message:@"定时关闭时间已到，是否关闭抖音？"];
-                  [confirmView show];
+			      DYYYConfirmCloseView *confirmView = [[DYYYConfirmCloseView alloc] initWithTitle:@"定时关闭" message:@"定时关闭时间已到，是否关闭抖音？"];
+			      [confirmView show];
 		      }
 		    });
 		  };
-
 		  [inputView show];
 		};
-
 		[viewModels addObject:timerCloseViewModel];
 	}
 
@@ -931,9 +893,7 @@
 	BOOL hideListenDouyin = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelListenDouyin"];
 	BOOL hideBackgroundPlay = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelBackgroundPlay"];
 	BOOL hideBiserial = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelBiserial"];
-
-	// 收集所有未被隐藏的官方按钮
-	NSMutableArray *officialButtons = [NSMutableArray array];
+	BOOL hideTimerclose = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelTimerClose"];
 
 	// 处理原始面板
 	for (id group in originalArray) {
@@ -984,28 +944,12 @@
 						shouldHide = YES;
 					} else if ([descString isEqualToString:@"首页双列快捷入口"] && hideBiserial) {
 						shouldHide = YES;
+					} else if ([descString isEqualToString:@"定时关闭"] && hideTimerclose) {
+						shouldHide = YES;
 					}
+
 					if (!shouldHide) {
-						// 添加图标修改逻辑
-						if ([descString isEqualToString:@"后台播放设置"]) {
-							viewModel.duxIconName = @"ic_phonearrowup_outlined_20";
-						} else if ([descString isEqualToString:@"转发到日常"]) {
-							viewModel.duxIconName = @"ic_flash_outlined_20";
-						} else if ([descString isEqualToString:@"首页双列快捷入口"]) {
-							viewModel.duxIconName = @"ic_squaresplit_outlined_20";
-						} else if ([descString isEqualToString:@"推荐"]) {
-							viewModel.duxIconName = @"ic_thumbsup_outlined_20";
-						} else if ([descString isEqualToString:@"不感兴趣"]) {
-							viewModel.duxIconName = @"ic_heartbreak_outlined_20";
-						} else if ([descString isEqualToString:@"弹幕"] || [descString isEqualToString:@"弹幕开关"] || [descString isEqualToString:@"弹幕设置"]) {
-							viewModel.duxIconName = @"ic_dansquare_outlined_20";
-						}
-
-						// 添加到过滤后的按钮组
 						[filteredGroupArr addObject:viewModel];
-
-						// 同时添加到官方按钮列表，用于重组
-						[officialButtons addObject:viewModel];
 					}
 				} else {
 					// 不是视图模型的，直接添加
@@ -1586,80 +1530,63 @@
 		[viewModels addObject:filterKeywords];
 	}
 
+       //定时关闭
 	if (enableTimerClose) {
 		AWELongPressPanelBaseViewModel *timerCloseViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		timerCloseViewModel.awemeModel = self.awemeModel;
-		timerCloseViewModel.actionType = 677;
+		timerCloseViewModel.actionType = 676;
 		timerCloseViewModel.duxIconName = @"ic_c_alarm_outlined";
-
 		// 检查是否已有定时任务在运行
 		NSNumber *shutdownTime = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYTimerShutdownTime"];
 		BOOL hasActiveTimer = shutdownTime != nil && [shutdownTime doubleValue] > [[NSDate date] timeIntervalSince1970];
-
 		timerCloseViewModel.describeString = hasActiveTimer ? @"取消定时" : @"定时关闭";
-
 		timerCloseViewModel.action = ^{
 		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
 		  [panelManager dismissWithAnimation:YES completion:nil];
-
 		  NSNumber *shutdownTime = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYTimerShutdownTime"];
 		  BOOL hasActiveTimer = shutdownTime != nil && [shutdownTime doubleValue] > [[NSDate date] timeIntervalSince1970];
-
 		  if (hasActiveTimer) {
 			  [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"DYYYTimerShutdownTime"];
 			  [[NSUserDefaults standardUserDefaults] synchronize];
-
 			  [DYYYManager showToast:@"已取消定时关闭任务"];
 			  return;
 		  }
-
-		  // 读取上次设置的时间
+		  // 读取上次设置的时间，如果没有则使用默认值5分钟
 		  NSInteger defaultMinutes = [[NSUserDefaults standardUserDefaults] integerForKey:@"DYYYTimerCloseMinutes"];
 		  if (defaultMinutes <= 0) {
-		      defaultMinutes = 5;
+			  defaultMinutes = 5;
 		  }
 		  NSString *defaultText = [NSString stringWithFormat:@"%ld", (long)defaultMinutes];
-		  
 		  DYYYCustomInputView *inputView = [[DYYYCustomInputView alloc] initWithTitle:@"设置定时关闭时间" defaultText:defaultText placeholder:@"请输入关闭时间(单位:分钟)"];
-
 		  inputView.onConfirm = ^(NSString *inputText) {
 		    NSInteger minutes = [inputText integerValue];
 		    if (minutes <= 0) {
 			    minutes = 5;
 		    }
-		    
 		    // 保存用户设置的时间以供下次使用
 		    [[NSUserDefaults standardUserDefaults] setInteger:minutes forKey:@"DYYYTimerCloseMinutes"];
 		    [[NSUserDefaults standardUserDefaults] synchronize];
-		    
 		    NSInteger seconds = minutes * 60;
-
 		    NSTimeInterval shutdownTimeValue = [[NSDate date] timeIntervalSince1970] + seconds;
 		    [[NSUserDefaults standardUserDefaults] setObject:@(shutdownTimeValue) forKey:@"DYYYTimerShutdownTime"];
 		    [[NSUserDefaults standardUserDefaults] synchronize];
-
 		    [DYYYManager showToast:[NSString stringWithFormat:@"抖音将在%ld分钟后关闭...", (long)minutes]];
-
 		    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(seconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		      NSNumber *currentShutdownTime = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYTimerShutdownTime"];
 		      if (currentShutdownTime != nil && [currentShutdownTime doubleValue] <= [[NSDate date] timeIntervalSince1970]) {
 			      [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"DYYYTimerShutdownTime"];
 			      [[NSUserDefaults standardUserDefaults] synchronize];
-			      
 			      // 显示确认关闭弹窗，而不是直接退出
-			      DYYYConfirmCloseView *confirmView = [[DYYYConfirmCloseView alloc] 
-                              initWithTitle:@"定时关闭" 
-                              message:@"定时关闭时间已到，是否关闭抖音？"];
-                  [confirmView show];
+			      DYYYConfirmCloseView *confirmView = [[DYYYConfirmCloseView alloc] initWithTitle:@"定时关闭" message:@"定时关闭时间已到，是否关闭抖音？"];
+			      [confirmView show];
 		      }
 		    });
 		  };
-
 		  [inputView show];
 		};
-
 		[viewModels addObject:timerCloseViewModel];
 	}
+
 
     
     newGroupModel.groupArr = viewModels;
@@ -1680,13 +1607,13 @@
 %hook AWEIMCommentShareUserHorizontalCollectionViewCell
 
 - (void)layoutSubviews {
-    %orig;
-    
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideCommentShareToFriends"]) {
-        self.hidden = YES;
-    } else {
-        self.hidden = NO;
-    }
+	%orig;
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideCommentShareToFriends"]) {
+		self.hidden = YES;
+	} else {
+		self.hidden = NO;
+	}
 }
 
 %end
@@ -1694,10 +1621,19 @@
 %hook AWEIMCommentShareUserHorizontalSectionController
 
 - (CGSize)sizeForItemAtIndex:(NSInteger)index model:(id)model collectionViewSize:(CGSize)size {
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideCommentShareToFriends"]) {
-        return CGSizeZero;
-    }
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideCommentShareToFriends"]) {
+		return CGSizeZero;
+	}
+	return %orig;
 }
+
+- (void)configCell:(id)cell index:(NSInteger)index model:(id)model {
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideCommentShareToFriends"]) {
+		return;
+	}
+	%orig;
+}
+
 %end
 
 %ctor {
