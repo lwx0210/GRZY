@@ -104,10 +104,6 @@ static void initTargetClassNames(void) {
 	if (hideDanmaku) {
 		[list addObject:@"AWEVideoPlayDanmakuContainerView"];
 	}
-        BOOL hideDanmaku = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHideStatusbar"];
-	if (hideStatusbar) {
-		[list addObject:@"AWEFeedRootViewController"];
-        }
 	BOOL hideSlider = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideSlider"];
 	if (hideSlider) {
 		[list addObject:@"AWEStoryProgressSlideView"];
