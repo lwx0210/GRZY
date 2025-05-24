@@ -2054,7 +2054,6 @@ static AWEIMReusableCommonCell *currentCell;
                         completion:^(BOOL success){
                         }];
             }
-          }
         }
     };
     newMenuItem1.trackerName = @"保存表情";
