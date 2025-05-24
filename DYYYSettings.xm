@@ -622,7 +622,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			  item.detail = savedSpeed ?: @"1.0x";
 
 			  item.cellTappedBlock = ^{
-			    NSArray *speedOptions = @[ @"0.75x", @"1.0x", @"1.25x", @"1.5x", @"2.0x", @"2.5x", @"3.0x" ];
+			    NSArray *speedOptions = @[ @"0.5x", @"0.75x", @"1.0x", @"1.25x", @"1.5x", @"2.0x", @"2.5x", @"3.0x" ];
 
 			    // 显示选项选择视图并直接获取返回值
 			    NSString *selectedValue = [DYYYOptionsSelectionView showWithPreferenceKey:@"DYYYDefaultSpeed"
@@ -642,7 +642,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			  item.detail = savedSpeed ?: @"2.0x";
 
 			  item.cellTappedBlock = ^{
-			    NSArray *speedOptions = @[ @"0.5x",@"0.75x", @"1.0x", @"1.25x", @"1.5x", @"1.75x",@"2.0x", @"2.5x", @"3.0x" ];
+			    NSArray *speedOptions = @[ @"0.5x", @"0.75x", @"1.0x", @"1.25x", @"1.5x", @"2.0x", @"2.5x", @"3.0x" ];
 
 			    // 显示选项选择视图并直接获取返回值
 			    NSString *selectedValue = [DYYYOptionsSelectionView showWithPreferenceKey:@"DYYYLongPressSpeed"
