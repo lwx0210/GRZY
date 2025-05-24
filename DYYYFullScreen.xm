@@ -3,9 +3,6 @@
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
 
-// 底栏高度
-static CGFloat g_heightDifference = 0;
-
 static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 	if (!parentView)
 		return;
@@ -136,6 +133,23 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 		}
 	}
 }
+%end
+
+%hook AFDFastSpeedView
+- (void)layoutSubviews {
+	%orig;
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+		for (UIView *subview in self.subviews) {
+			if ([subview class] == [UIView class]) {
+				[subview setBackgroundColor:[UIColor clearColor]];
+			}
+		}
+	}
+}
+%end
+
+%hook UIView
+
 - (void)setFrame:(CGRect)frame {
 
 	if ([self isKindOfClass:%c(AWEIMSkylightListView)] && [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHiddenAvatarList"]) {
@@ -172,7 +186,7 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 			if (superviewFrame.size.height > 0 && frame.size.height > 0 && frame.size.height < superviewFrame.size.height && frame.origin.x == 0 && frame.origin.y == 0) {
 
 				CGFloat heightDifference = superviewFrame.size.height - frame.size.height;
-				if (fabs(heightDifference - g_heightDifference) < 1.0) {
+				if (fabs(heightDifference - 83) < 1.0) {
 					frame.size.height = superviewFrame.size.height;
 					%orig(frame);
 					return;
@@ -193,7 +207,7 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 		NSString *currentReferString = self.referString;
 		CGRect frame = self.view.frame;
 
-		// 根据referString来决定是否减去高度差值
+		// 根据referString来决定是否减去83点
 		if ([currentReferString isEqualToString:@"general_search"]) {
 			frame.size.height = self.view.superview.frame.size.height;
 		} else if ([currentReferString isEqualToString:@"chat"] || currentReferString == nil) {
@@ -203,9 +217,9 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 		} else if ([currentReferString isEqualToString:@"close_friends_moment"] || currentReferString == nil) {
 			frame.size.height = self.view.superview.frame.size.height;
 		} else if ([currentReferString isEqualToString:@"others_homepage"] || currentReferString == nil) {
-			frame.size.height = self.view.superview.frame.size.height - g_heightDifference;
+			frame.size.height = self.view.superview.frame.size.height - 83;
 		} else {
-			frame.size.height = self.view.superview.frame.size.height - g_heightDifference;
+			frame.size.height = self.view.superview.frame.size.height - 83;
 		}
 
 		self.view.frame = frame;
@@ -224,11 +238,11 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 			CGRect frame = contentView.frame;
 			CGFloat parentHeight = contentView.superview.frame.size.height;
 
-			if (frame.size.height == parentHeight - g_heightDifference) {
+			if (frame.size.height == parentHeight - 83) {
 				frame.size.height = parentHeight;
 				contentView.frame = frame;
-			} else if (frame.size.height == parentHeight - (g_heightDifference * 2)) {
-				frame.size.height = parentHeight - g_heightDifference;
+			} else if (frame.size.height == parentHeight - 166) {
+				frame.size.height = parentHeight - 83;
 				contentView.frame = frame;
 			}
 		}
@@ -241,13 +255,6 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 - (void)layoutSubviews {
 	%orig;
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-		if (self.superview) {
-			CGFloat currentDifference = self.superview.frame.size.height - self.frame.size.height;
-			if (currentDifference > 0 && currentDifference != g_heightDifference) {
-				g_heightDifference = currentDifference;
-			}
-		}
-		
 		CGRect frame = self.frame;
 		frame.size.height = self.superview.frame.size.height;
 		self.frame = frame;
@@ -273,153 +280,147 @@ static CGFloat stream_frame_y = 0;
 static CGFloat right_tx = 0;
 static CGFloat left_tx = 0;
 static CGFloat currentScale = 1.0;
-
 - (void)layoutSubviews {
 	%orig;
-
-	// 处理视频流直播间文案缩放
-	UIResponder *nextResponder = [self nextResponder];
-	if ([nextResponder isKindOfClass:[UIView class]]) {
-		UIView *parentView = (UIView *)nextResponder;
-		UIViewController *viewController = [parentView firstAvailableUIViewController];
-
-		if ([viewController isKindOfClass:%c(AWELiveNewPreStreamViewController)]) {
-			NSString *vcScaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
-			if (vcScaleValue.length > 0) {
-				CGFloat scale = [vcScaleValue floatValue];
-				self.transform = CGAffineTransformIdentity;
-
-				if (scale > 0 && scale != 1.0) {
-					NSArray *subviews = [self.subviews copy];
-					CGFloat ty = 0;
-
-					for (UIView *view in subviews) {
-						CGFloat viewHeight = view.frame.size.height;
-						CGFloat contribution = (viewHeight - viewHeight * scale) / 2;
-						ty += contribution;
-					}
-
-					CGFloat frameWidth = self.frame.size.width;
-					CGFloat tx = (frameWidth - frameWidth * scale) / 2 - frameWidth * (1 - scale);
-
-					CGAffineTransform newTransform = CGAffineTransformMakeScale(scale, scale);
-					newTransform = CGAffineTransformTranslate(newTransform, tx / scale, ty / scale);
-
-					self.transform = newTransform;
-				}
+	BOOL hasThreeBaseElementViews = NO;
+	if (self.subviews.count == 3) {
+		hasThreeBaseElementViews = YES;
+		for (UIView *subview in self.subviews) {
+			if (![subview isKindOfClass:%c(AWEBaseElementView)]) {
+				hasThreeBaseElementViews = NO;
+				break;
 			}
 		}
 	}
 
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-		UIResponder *nextResponder = [self nextResponder];
-		if ([nextResponder isKindOfClass:[UIView class]]) {
-			UIView *parentView = (UIView *)nextResponder;
-			UIViewController *viewController = [parentView firstAvailableUIViewController];
-
-			if ([viewController isKindOfClass:%c(AWELiveNewPreStreamViewController)]) {
+	if (hasThreeBaseElementViews) {
+		return;
+	}
+	// 获取缩放比例
+	NSString *nicknameScaleStr = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
+	CGFloat nicknameScale = nicknameScaleStr.length > 0 ? [nicknameScaleStr floatValue] : 1.0;
+	NSString *elementScaleStr = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYElementScale"];
+	CGFloat elementScale = elementScaleStr.length > 0 ? [elementScaleStr floatValue] : 1.0;
+	// 判断视图属于哪个VC
+	UIResponder *nextResponder = [self nextResponder];
+	if ([nextResponder isKindOfClass:[UIView class]]) {
+		UIView *parentView = (UIView *)nextResponder;
+		UIViewController *viewController = [parentView firstAvailableUIViewController];
+		if ([viewController isKindOfClass:%c(AWELiveNewPreStreamViewController)]) {
+			// 直播间整体文案缩放
+			if (nicknameScale > 0 && nicknameScale != 1.0) {
+				self.transform = CGAffineTransformIdentity;
+				CGFloat ty = 0;
+				for (UIView *view in [self.subviews copy]) {
+					CGFloat viewHeight = view.frame.size.height;
+					ty += (viewHeight - viewHeight * nicknameScale) / 2;
+				}
+				CGFloat frameWidth = self.frame.size.width;
+				CGFloat tx = (frameWidth - frameWidth * nicknameScale) / 2 - frameWidth * (1 - nicknameScale);
+				CGAffineTransform newTransform = CGAffineTransformMakeScale(nicknameScale, nicknameScale);
+				newTransform = CGAffineTransformTranslate(newTransform, tx / nicknameScale, ty / nicknameScale);
+				self.transform = newTransform;
+			}
+			// 全屏处理
+			if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
 				CGRect frame = self.frame;
-				frame.origin.y -= g_heightDifference;
+				frame.origin.y -= 83;
 				stream_frame_y = frame.origin.y;
 				self.frame = frame;
 			}
 		}
 	}
-
-	// 右侧元素的处理逻辑
-	NSString *scaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYElementScale"];
-	if ([self.accessibilityLabel isEqualToString:@"right"]) {
+	// 先检查accessibilityLabel
+	NSString *label = self.accessibilityLabel;
+	NSString *position = nil;
+	if (label != nil) {
+		if ([label isEqualToString:@"right"]) {
+			position = @"right";
+		} else if ([label isEqualToString:@"left"]) {
+			position = @"left";
+		}
+	} else {
+		// 只有在没有accessibilityLabel时才使用位置判断
+		CGFloat centerX = self.center.x;
+		CGFloat screenCenterX = [UIScreen mainScreen].bounds.size.width / 2.0;
+		if (centerX < screenCenterX - 5) {
+			position = @"left";
+		} else if (centerX > screenCenterX + 5) {
+			position = @"right";
+		}
+	}
+	// 根据推断位置进行变换
+	if ([position isEqualToString:@"right"] && elementScale > 0 && elementScale != 1.0) {
 		self.transform = CGAffineTransformIdentity;
-
-		if (scaleValue.length > 0) {
-			CGFloat scale = [scaleValue floatValue];
-
-			if (currentScale != scale) {
-				currentScale = scale;
-			}
-
-			if (scale > 0 && scale != 1.0) {
-				CGFloat ty = 0;
-
-				for (UIView *view in self.subviews) {
-					CGFloat viewHeight = view.frame.size.height;
-					CGFloat contribution = (viewHeight - viewHeight * scale) / 2;
-					ty += contribution;
-				}
-
-				CGFloat frameWidth = self.frame.size.width;
-				right_tx = (frameWidth - frameWidth * scale) / 2;
-
-				self.transform = CGAffineTransformMake(scale, 0, 0, scale, right_tx, ty);
-			} else {
-				self.transform = CGAffineTransformIdentity;
-			}
+		CGFloat ty = 0;
+		for (UIView *view in self.subviews) {
+			CGFloat viewHeight = view.frame.size.height;
+			ty += (viewHeight - viewHeight * elementScale) / 2;
 		}
-	}
-	// 左侧元素的处理逻辑
-	else if ([self.accessibilityLabel isEqualToString:@"left"]) {
-		NSString *scaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
-
-		if (scaleValue.length > 0) {
-			CGFloat scale = [scaleValue floatValue];
-
-			self.transform = CGAffineTransformIdentity;
-
-			if (scale > 0 && scale != 1.0) {
-				NSArray *subviews = [self.subviews copy];
-				CGFloat ty = 0;
-
-				for (UIView *view in subviews) {
-					CGFloat viewHeight = view.frame.size.height;
-					CGFloat contribution = (viewHeight - viewHeight * scale) / 2;
-					ty += contribution;
-				}
-
-				CGFloat frameWidth = self.frame.size.width;
-				CGFloat left_tx = (frameWidth - frameWidth * scale) / 2 - frameWidth * (1 - scale);
-
-				CGAffineTransform newTransform = CGAffineTransformMakeScale(scale, scale);
-				newTransform = CGAffineTransformTranslate(newTransform, left_tx / scale, ty / scale);
-
-				self.transform = newTransform;
-			}
+		CGFloat frameWidth = self.frame.size.width;
+		right_tx = (frameWidth - frameWidth * elementScale) / 2;
+		self.transform = CGAffineTransformMake(elementScale, 0, 0, elementScale, right_tx, ty);
+	} else if ([position isEqualToString:@"left"] && nicknameScale > 0 && nicknameScale != 1.0) {
+		self.transform = CGAffineTransformIdentity;
+		CGFloat ty = 0;
+		for (UIView *view in [self.subviews copy]) {
+			CGFloat viewHeight = view.frame.size.height;
+			ty += (viewHeight - viewHeight * nicknameScale) / 2;
 		}
+		CGFloat frameWidth = self.frame.size.width;
+		left_tx = (frameWidth - frameWidth * nicknameScale) / 2 - frameWidth * (1 - nicknameScale);
+		CGAffineTransform newTransform = CGAffineTransformMakeScale(nicknameScale, nicknameScale);
+		newTransform = CGAffineTransformTranslate(newTransform, left_tx / nicknameScale, ty / nicknameScale);
+		self.transform = newTransform;
 	}
 }
-
 - (NSArray<__kindof UIView *> *)arrangedSubviews {
-	if ([self.accessibilityLabel isEqualToString:@"left"]) {
-		NSString *scaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
+	BOOL hasThreeBaseElementViews = NO;
+	if (self.subviews.count == 3) {
+		hasThreeBaseElementViews = YES;
+		for (UIView *subview in self.subviews) {
+			if (![subview isKindOfClass:%c(AWEBaseElementView)]) {
+				hasThreeBaseElementViews = NO;
+				break;
+			}
+		}
+	}
 
+	if (hasThreeBaseElementViews) {
+		return %orig;
+	}
+	NSString *label = self.accessibilityLabel;
+	BOOL isLeft = NO;
+	if (label != nil && [label isEqualToString:@"left"]) {
+		isLeft = YES;
+	} else if (label == nil) {
+		CGFloat centerX = self.center.x;
+		CGFloat screenCenterX = [UIScreen mainScreen].bounds.size.width / 2.0;
+		if (centerX < screenCenterX - 5) {
+			isLeft = YES;
+		}
+	}
+	if (isLeft) {
+		NSString *scaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
 		if (scaleValue.length > 0) {
 			CGFloat scale = [scaleValue floatValue];
-
-			self.transform = CGAffineTransformIdentity;
-
 			if (scale > 0 && scale != 1.0) {
-				NSArray *subviews = [self.subviews copy];
+				self.transform = CGAffineTransformIdentity;
 				CGFloat ty = 0;
-
-				for (UIView *view in subviews) {
+				for (UIView *view in [self.subviews copy]) {
 					CGFloat viewHeight = view.frame.size.height;
-					CGFloat contribution = (viewHeight - viewHeight * scale) / 2;
-					ty += contribution;
+					ty += (viewHeight - viewHeight * scale) / 2;
 				}
-
 				CGFloat frameWidth = self.frame.size.width;
-				CGFloat left_tx = (frameWidth - frameWidth * scale) / 2 - frameWidth * (1 - scale);
-
+				CGFloat tx = (frameWidth - frameWidth * scale) / 2 - frameWidth * (1 - scale);
 				CGAffineTransform newTransform = CGAffineTransformMakeScale(scale, scale);
-				newTransform = CGAffineTransformTranslate(newTransform, left_tx / scale, ty / scale);
-
+				newTransform = CGAffineTransformTranslate(newTransform, tx / scale, ty / scale);
 				self.transform = newTransform;
 			}
 		}
 	}
-	NSArray *originalSubviews = %orig;
-	return originalSubviews;
+	return %orig;
 }
-
 %end
 
 %hook AWEStoryContainerCollectionView
@@ -459,7 +460,7 @@ static CGFloat currentScale = 1.0;
 
 				CGRect frame = subview.frame;
 				if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-					frame.size.height = subview.superview.frame.size.height - g_heightDifference;
+					frame.size.height = subview.superview.frame.size.height - 83;
 					subview.frame = frame;
 				}
 			}
@@ -479,22 +480,9 @@ static CGFloat currentScale = 1.0;
 				if (isWorkImage) {
 					// 修复作者主页作品图片上移问题
 					CGRect frame = subview.frame;
-					frame.origin.y += g_heightDifference;
+					frame.origin.y += 83;
 					subview.frame = frame;
 				}
-			}
-		}
-	}
-}
-%end
-
-%hook AFDFastSpeedView
-- (void)layoutSubviews {
-	%orig;
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-		for (UIView *subview in self.subviews) {
-			if ([subview class] == [UIView class]) {
-				[subview setBackgroundColor:[UIColor clearColor]];
 			}
 		}
 	}
@@ -641,10 +629,10 @@ static CGFloat currentScale = 1.0;
 %hook AWEMixVideoPanelMoreView
 
 - (void)setFrame:(CGRect)frame {
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-        frame.origin.y -= g_heightDifference;
-    }
-    %orig(frame);
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+		frame.origin.y -= 83;
+	}
+	%orig(frame);
 }
 
 %end
@@ -652,27 +640,27 @@ static CGFloat currentScale = 1.0;
 %hook CommentInputContainerView
 
 - (void)layoutSubviews {
-    %orig;
-    UIViewController *parentVC = nil;
-    if ([self respondsToSelector:@selector(viewController)]) {
-        id viewController = [self performSelector:@selector(viewController)];
-        if ([viewController respondsToSelector:@selector(parentViewController)]) {
-            parentVC = [viewController parentViewController];
-        }
-    }
+	%orig;
+	UIViewController *parentVC = nil;
+	if ([self respondsToSelector:@selector(viewController)]) {
+		id viewController = [self performSelector:@selector(viewController)];
+		if ([viewController respondsToSelector:@selector(parentViewController)]) {
+			parentVC = [viewController parentViewController];
+		}
+	}
 
-    if (parentVC && ([parentVC isKindOfClass:%c(AWEAwemeDetailTableViewController)] || [parentVC isKindOfClass:%c(AWEAwemeDetailCellViewController)])) {
-        for (UIView *subview in [self subviews]) {
-            if ([subview class] == [UIView class]) {
-                if ([(UIView *)self frame].size.height == g_heightDifference) {
-                    subview.hidden = YES;
-                } else {
-                    subview.hidden = NO;
-                }
-                break;
-            }
-        }
-    }
+	if (parentVC && ([parentVC isKindOfClass:%c(AWEAwemeDetailTableViewController)] || [parentVC isKindOfClass:%c(AWEAwemeDetailCellViewController)])) {
+		for (UIView *subview in [self subviews]) {
+			if ([subview class] == [UIView class]) {
+				if ([(UIView *)self frame].size.height == 83) {
+					subview.hidden = YES;
+				} else {
+					subview.hidden = NO;
+				}
+				break;
+			}
+		}
+	}
 }
 
 %end
