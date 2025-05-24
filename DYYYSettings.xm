@@ -1964,6 +1964,11 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		    @"title" : @"保存预览页表情包",
 		    @"detail" : @"",
 		    @"cellType" : @6,
+		    @"imageName" : @"ic_emoji_outlined"},
+                  @{@"identifier" : @"DYYYDownloadmessageEmotion",
+		    @"title" : @"保存消息页表情包",
+		    @"detail" : @"",
+		    @"cellType" : @6,
 		    @"imageName" : @"ic_emoji_outlined"}
 	  ];
 
