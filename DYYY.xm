@@ -2027,6 +2027,44 @@ static CGFloat rightLabelRightMargin = -1;
 
 %end
 
+//私聊保存表情
+static AWEIMReusableCommonCell *currentCell;
+
+%hook AWEIMCustomMenuComponent
+
+if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYSaveExpression"]) {
+- (void)msg_showMenuForBubbleFrameInScreen:(CGRect)bubbleFrame tapLocationInScreen:(CGPoint)tapLocation menuItemList:(id)menuItems moreEmoticon:(BOOL)moreEmoticon onCell:(id)cell extra:(id)extra {
+    NSArray *originalMenuItems = menuItems;
+    
+	NSMutableArray *newMenuItems = [originalMenuItems mutableCopy];
+	currentCell = (AWEIMReusableCommonCell *)cell;
+
+    AWEIMCustomMenuModel *newMenuItem1 = [%c(AWEIMCustomMenuModel) new];
+    newMenuItem1.title = @"保存表情";
+    newMenuItem1.imageName = @"im_image_ensure_download";
+    newMenuItem1.willPerformMenuActionSelectorBlock = ^(id arg1) {
+        AWEIMMessageComponentContext *context = (AWEIMMessageComponentContext *)currentCell.currentContext;
+        if ([context.message isKindOfClass:%c(AWEIMGiphyMessage)]) {
+            AWEIMGiphyMessage *giphyMessage = (AWEIMGiphyMessage *)context.message;
+            if (giphyMessage.giphyURL && giphyMessage.giphyURL.originURLList.count > 0) {
+                NSURL *url = [NSURL URLWithString:giphyMessage.giphyURL.originURLList.firstObject];
+                [DYYYManager downloadMedia:url
+                        mediaType:MediaTypeHeic
+                        completion:^(BOOL success){
+                        }];
+            }
+          }
+        }
+    };
+    newMenuItem1.trackerName = @"保存表情";
+    AWEIMMessageComponentContext *context = (AWEIMMessageComponentContext *)currentCell.currentContext;
+    if ([context.message isKindOfClass:%c(AWEIMGiphyMessage)]) {
+        [newMenuItems addObject:newMenuItem1];
+    }
+    %orig(bubbleFrame, tapLocation, newMenuItems, moreEmoticon, cell, extra);
+}
+
+%end
 
 %ctor {
 	%init(DYYYSettingsGesture);
