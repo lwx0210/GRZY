@@ -1987,17 +1987,16 @@ static CGFloat rightLabelRightMargin = -1;
 //侧边三倍速
 %hook AWEPlayInteractionSpeedController
 
-if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYSDoublespeed"]) {
+BOOL isHiddenJia = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYSDoublespeed"];
 - (CGFloat)longPressFastSpeedValue {
 	return 3.0;
   }
-}
 
 %end
 
 %hook UILabel
 
-if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYSDoublespeed"]) {
+BOOL isHiddenJia = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYSDoublespeed"];
 - (void)setText:(NSString *)text {
     UIView *superview = self.superview;
     
@@ -2007,7 +2006,6 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYSDoublespeed"]) {
     
     %orig(text);
  }
-}
 %end
 
 
