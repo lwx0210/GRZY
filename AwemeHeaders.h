@@ -1107,3 +1107,24 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @interface AWEFeedContainerViewController : UIViewController
 @end
 
+//评论区保存表情
+@interface AWEIMGiphyMessage : NSObject
+@property (nonatomic, copy, readwrite) AWEURLModel *giphyURL;
+@end
+
+@interface AWEIMMessageComponentContext : NSObject
+@property (nonatomic, weak, readwrite) AWEIMGiphyMessage *message;
+@end
+
+@interface AWEIMReusableCommonCell : UITableViewCell
+@property (nonatomic, weak, readwrite) id currentContext;
+@end
+
+@interface AWEIMCustomMenuModel : NSObject
+@property (nonatomic, copy, readwrite) NSString *title;
+@property (nonatomic, copy, readwrite) NSString *imageName;
+@property (nonatomic, copy, readwrite) id willPerformMenuActionSelectorBlock;
+@property (nonatomic, copy, readwrite) NSString *trackerName;
+@property (nonatomic, assign, readwrite) NSUInteger type;
+@end
+
