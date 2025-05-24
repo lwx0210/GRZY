@@ -1984,19 +1984,15 @@ static CGFloat rightLabelRightMargin = -1;
 
 %end
 
-//自定义侧边长按倍速
+//侧边长按倍速
 %hook AWEPlayInteractionSpeedController
 
 - (CGFloat)longPressFastSpeedValue {
-	NSString *speedValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYLongPressSpeed"];
-	CGFloat speed = 2.0;
-	if (speedValue.length > 0) {
-		CGFloat customSpeed = [speedValue floatValue];
-		if (customSpeed >= 0.1 && customSpeed <= 16.0) {
-			speed = customSpeed;
-		}
-	}
-	return speed;
+    float longPressSpeed = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYLongPressSpeed"];
+    if (longPressSpeed == 0) {
+        longPressSpeed = 2.0;
+    }
+    return longPressSpeed;
 }
 
 %end
@@ -2004,67 +2000,146 @@ static CGFloat rightLabelRightMargin = -1;
 %hook UILabel
 
 - (void)setText:(NSString *)text {
-	UIView *superview = self.superview;
-	if ([superview isKindOfClass:%c(AFDFastSpeedView)] && text && [text containsString:@"2"]) {
-		NSString *speedValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYLongPressSpeed"];
-		CGFloat speed = 2.0;
-		if (speedValue.length > 0) {
-			CGFloat customSpeed = [speedValue floatValue];
-			if (customSpeed >= 0.1 && customSpeed <= 16.0) {
-				speed = customSpeed;
-			}
+    UIView *superview = self.superview;
+
+    if ([superview isKindOfClass:%c(AFDFastSpeedView)] && text) {
+        float longPressSpeed = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYLongPressSpeed"];
+        if (longPressSpeed == 0) {
+            longPressSpeed = 2.0; 
+        }
+        
+        NSString *speedString = [NSString stringWithFormat:@"%.2f", longPressSpeed];
+        if ([speedString hasSuffix:@".00"]) {
+            speedString = [speedString substringToIndex:speedString.length - 3];
+        }
+        
+        if ([text containsString:@"2"]) {
+            text = [text stringByReplacingOccurrencesOfString:@"2" withString:speedString];
+        }
+    }
+
+    %orig(text);
+}
+%end
+
+%hook AWEIMEmoticonPreviewV2
+
+// 添加保存按钮
+- (void)layoutSubviews {
+	%orig;
+	static char kHasSaveButtonKey;
+	BOOL DYYYForceDownloadPreviewEmotion = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYForceDownloadPreviewEmotion"];
+	if (DYYYForceDownloadPreviewEmotion) {
+		if (!objc_getAssociatedObject(self, &kHasSaveButtonKey)) {
+			UIButton *saveButton = [UIButton buttonWithType:UIButtonTypeSystem];
+			UIImage *downloadIcon = [UIImage systemImageNamed:@"arrow.down.circle"];
+			[saveButton setImage:downloadIcon forState:UIControlStateNormal];
+			[saveButton setTintColor:[UIColor whiteColor]];
+			saveButton.backgroundColor = [UIColor colorWithRed:0.0 green:0.5 blue:0.9 alpha:0.5];
+
+			saveButton.layer.shadowColor = [UIColor blackColor].CGColor;
+			saveButton.layer.shadowOffset = CGSizeMake(0, 2);
+			saveButton.layer.shadowOpacity = 0.3;
+			saveButton.layer.shadowRadius = 3;
+
+			saveButton.translatesAutoresizingMaskIntoConstraints = NO;
+			[self addSubview:saveButton];
+			CGFloat buttonSize = 24.0;
+			saveButton.layer.cornerRadius = buttonSize / 2;
+
+			[NSLayoutConstraint activateConstraints:@[
+				[saveButton.bottomAnchor constraintEqualToAnchor:self.bottomAnchor constant:-15], [saveButton.rightAnchor constraintEqualToAnchor:self.rightAnchor constant:-10],
+				[saveButton.widthAnchor constraintEqualToConstant:buttonSize], [saveButton.heightAnchor constraintEqualToConstant:buttonSize]
+			]];
+
+			saveButton.userInteractionEnabled = YES;
+			[saveButton addTarget:self action:@selector(dyyy_saveButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+			objc_setAssociatedObject(self, &kHasSaveButtonKey, @YES, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 		}
-		NSString *speedString;
-		if (floor(speed) == speed) {
-			speedString = [NSString stringWithFormat:@"%.0f", speed];
-		} else {
-			speedString = [NSString stringWithFormat:@"%.1f", speed];
-		}
-		text = [text stringByReplacingOccurrencesOfString:@"2" withString:speedString];
 	}
-	%orig(text);
+}
+
+%new
+- (void)dyyy_saveButtonTapped:(UIButton *)sender {
+	// 获取表情包URL
+	AWEIMEmoticonModel *emoticonModel = self.model;
+	if (!emoticonModel) {
+		[DYYYManager showToast:@"无法获取表情包信息"];
+		return;
+	}
+
+	NSString *urlString = nil;
+	MediaType mediaType = MediaTypeImage;
+
+	// 尝试动态URL
+	if ([emoticonModel valueForKey:@"animate_url"]) {
+		urlString = [emoticonModel valueForKey:@"animate_url"];
+	}
+	// 如果没有动态URL，则使用静态URL
+	else if ([emoticonModel valueForKey:@"static_url"]) {
+		urlString = [emoticonModel valueForKey:@"static_url"];
+	}
+	// 使用animateURLModel获取URL
+	else if ([emoticonModel valueForKey:@"animateURLModel"]) {
+		AWEURLModel *urlModel = [emoticonModel valueForKey:@"animateURLModel"];
+		if (urlModel.originURLList.count > 0) {
+			urlString = urlModel.originURLList[0];
+		}
+	}
+
+	if (!urlString) {
+		[DYYYManager showToast:@"无法获取表情包链接"];
+		return;
+	}
+
+	NSURL *url = [NSURL URLWithString:urlString];
+	[DYYYManager downloadMedia:url
+			 mediaType:MediaTypeHeic
+			completion:^(BOOL success){
+			}];
 }
 
 %end
 
-//私聊保存表情
+//聊天页表情包
 static AWEIMReusableCommonCell *currentCell;
 
 %hook AWEIMCustomMenuComponent
-
-
 - (void)msg_showMenuForBubbleFrameInScreen:(CGRect)bubbleFrame tapLocationInScreen:(CGPoint)tapLocation menuItemList:(id)menuItems moreEmoticon:(BOOL)moreEmoticon onCell:(id)cell extra:(id)extra {
-    NSArray *originalMenuItems = menuItems;
-    NSString *messageEmotion = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYDownloadmessageEmotion"];
-    
+	if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYForceDownloadIMEmotion"]) {
+		%orig(bubbleFrame, tapLocation, menuItems, moreEmoticon, cell, extra);
+		return;
+	}
+	NSArray *originalMenuItems = menuItems;
+
 	NSMutableArray *newMenuItems = [originalMenuItems mutableCopy];
 	currentCell = (AWEIMReusableCommonCell *)cell;
 
-    AWEIMCustomMenuModel *newMenuItem1 = [%c(AWEIMCustomMenuModel) new];
-    newMenuItem1.title = @"保存表情";
-    newMenuItem1.imageName = @"im_image_ensure_download";
-    newMenuItem1.willPerformMenuActionSelectorBlock = ^(id arg1) {
-        AWEIMMessageComponentContext *context = (AWEIMMessageComponentContext *)currentCell.currentContext;
-        if ([context.message isKindOfClass:%c(AWEIMGiphyMessage)]) {
-            AWEIMGiphyMessage *giphyMessage = (AWEIMGiphyMessage *)context.message;
-            if (giphyMessage.giphyURL && giphyMessage.giphyURL.originURLList.count > 0) {
-                NSURL *url = [NSURL URLWithString:giphyMessage.giphyURL.originURLList.firstObject];
-                [DYYYManager downloadMedia:url
-                        mediaType:MediaTypeHeic
-                        completion:^(BOOL success){
-                        }];
-            }
-        }
-    };
-    newMenuItem1.trackerName = @"保存表情";
-    AWEIMMessageComponentContext *context = (AWEIMMessageComponentContext *)currentCell.currentContext;
-    if ([context.message isKindOfClass:%c(AWEIMGiphyMessage)]) {
-        [newMenuItems addObject:newMenuItem1];
-    }
-    %orig(bubbleFrame, tapLocation, newMenuItems, moreEmoticon, cell, extra);
+	AWEIMCustomMenuModel *newMenuItem1 = [%c(AWEIMCustomMenuModel) new];
+	newMenuItem1.title = @"保存表情";
+	newMenuItem1.imageName = @"im_image_ensure_download";
+	newMenuItem1.willPerformMenuActionSelectorBlock = ^(id arg1) {
+	  AWEIMMessageComponentContext *context = (AWEIMMessageComponentContext *)currentCell.currentContext;
+	  if ([context.message isKindOfClass:%c(AWEIMGiphyMessage)]) {
+		  AWEIMGiphyMessage *giphyMessage = (AWEIMGiphyMessage *)context.message;
+		  if (giphyMessage.giphyURL && giphyMessage.giphyURL.originURLList.count > 0) {
+			  NSURL *url = [NSURL URLWithString:giphyMessage.giphyURL.originURLList.firstObject];
+			  [DYYYManager downloadMedia:url
+					   mediaType:MediaTypeHeic
+					  completion:^(BOOL success){
+					  }];
+		  }
+	  }
+	};
+	newMenuItem1.trackerName = @"保存表情";
+	AWEIMMessageComponentContext *context = (AWEIMMessageComponentContext *)currentCell.currentContext;
+	if ([context.message isKindOfClass:%c(AWEIMGiphyMessage)]) {
+		[newMenuItems addObject:newMenuItem1];
+	}
+	%orig(bubbleFrame, tapLocation, newMenuItems, moreEmoticon, cell, extra);
 }
 
-%end
+%
 
 %ctor {
 	%init(DYYYSettingsGesture);
