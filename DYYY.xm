@@ -1995,16 +1995,17 @@ static CGFloat rightLabelRightMargin = -1;
 
 %hook UILabel
 
-BOOL isHiddenJia = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYSDoublespeed"];
 - (void)setText:(NSString *)text {
     UIView *superview = self.superview;
+if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYSDoublespeed"]) {
     
     if ([superview isKindOfClass:%c(AFDFastSpeedView)] && text && [text containsString:@"2"]) {
         text = [text stringByReplacingOccurrencesOfString:@"2" withString:@"3"];
     }
-    
+    }
     %orig(text);
  }
+
 %end
 
 
