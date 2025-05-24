@@ -588,7 +588,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			      @"imageName" : @"ic_speed_outlined_20"},
 	                    @{@"identifier" : @"DYYYLongPressSpeed",
 		              @"title" : @"设置长按倍速",
-		              @"detail" : @"不填默认",
+		              @"detail" : @"1-3小数，不填默认",
 		              @"cellType" : @26,
 		              @"imageName" : @"ic_speed_outlined_20"},
 			    @{@"identifier" : @"DYYYisEnableArea",
