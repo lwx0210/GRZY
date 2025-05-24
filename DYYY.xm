@@ -2032,9 +2032,10 @@ static AWEIMReusableCommonCell *currentCell;
 
 %hook AWEIMCustomMenuComponent
 
-if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYSaveExpression"]) {
+
 - (void)msg_showMenuForBubbleFrameInScreen:(CGRect)bubbleFrame tapLocationInScreen:(CGPoint)tapLocation menuItemList:(id)menuItems moreEmoticon:(BOOL)moreEmoticon onCell:(id)cell extra:(id)extra {
     NSArray *originalMenuItems = menuItems;
+    NSString *SaveExpression = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYSaveExpression"];
     
 	NSMutableArray *newMenuItems = [originalMenuItems mutableCopy];
 	currentCell = (AWEIMReusableCommonCell *)cell;
