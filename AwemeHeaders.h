@@ -1128,3 +1128,15 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @property (nonatomic, assign, readwrite) NSUInteger type;
 @end
 
+//下滑锁定倍速
+@interface AWEPlayInteractionSpeedController : NSObject
+@property (nonatomic, strong) id progressSliderDelegate;
+- (CGFloat)longPressFastSpeedValue;
+- (void)changeSpeed:(double)speed;
+- (void)handleLongPressLockedDoubleSpeedChanged:(id)arg1 gesture:(UIGestureRecognizer *)gesture;
+- (void)handleLongPressLockedSpeedBegan;
+- (void)handleLongPressLockedDoubleSpeedEnded:(id)arg1 gesture:(UIGestureRecognizer *)gesture;
+- (void)longPressSpeedControlDidChangeSpeed:(double)speed;
+@end
+
+
