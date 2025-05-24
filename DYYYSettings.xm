@@ -588,7 +588,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			      @"imageName" : @"ic_speed_outlined_20"},
 	                    @{@"identifier" : @"DYYYLongPressSpeed",
 		              @"title" : @"设置长按倍速",
-		              @"detail" : @"0-3小数，不填默认",
+		              @"detail" : @"",
 		              @"cellType" : @26,
 		              @"imageName" : @"ic_speed_outlined_20"},
 			    @{@"identifier" : @"DYYYisEnableArea",
@@ -628,6 +628,26 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			    NSString *selectedValue = [DYYYOptionsSelectionView showWithPreferenceKey:@"DYYYDefaultSpeed"
 											 optionsArray:speedOptions
 											   headerText:@"选择默认倍速"
+										       onPresentingVC:topView()];
+
+			    // 设置详情文本为选中的值
+			    item.detail = selectedValue;
+			    [DYYYSettingsHelper refreshTableView];
+			  };
+		  }
+
+                        else if ([item.identifier isEqualToString:@"DYYYLongPressSpeed"]) {
+			  // 获取已保存的默认倍速值
+			  NSString *savedSpeed = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYLongPressSpeed"];
+			  item.detail = savedSpeed ?: @"2.0x";
+
+			  item.cellTappedBlock = ^{
+			    NSArray *speedOptions = @[ @"0.5x",@"0.75x", @"1.0x", @"1.25x", @"1.5x", @"1.75x",@"2.0x", @"2.5x", @"3.0x" ];
+
+			    // 显示选项选择视图并直接获取返回值
+			    NSString *selectedValue = [DYYYOptionsSelectionView showWithPreferenceKey:@"DYYYLongPressSpeed"
+											 optionsArray:speedOptions
+											   headerText:@"选择右侧长按倍速"
 										       onPresentingVC:topView()];
 
 			    // 设置详情文本为选中的值
@@ -1965,8 +1985,8 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		    @"detail" : @"",
 		    @"cellType" : @6,
 		    @"imageName" : @"ic_emoji_outlined"},
-                  @{@"identifier" : @"DYYYDownloadmessageEmotion",
-		    @"title" : @"保存消息页表情包",
+                  @{@"identifier" : @"DYYYForceDownloadIMEmotion",
+		    @"title" : @"保存聊天页表情包",
 		    @"detail" : @"",
 		    @"cellType" : @6,
 		    @"imageName" : @"ic_emoji_outlined"}
