@@ -1984,6 +1984,33 @@ static CGFloat rightLabelRightMargin = -1;
 
 %end
 
+//侧边三倍速
+%hook AWEPlayInteractionSpeedController
+
+if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYSDoublespeed"]) {
+- (CGFloat)longPressFastSpeedValue {
+	return 3.0;
+  }
+}
+
+%end
+
+%hook UILabel
+
+if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYSDoublespeed"]) {
+- (void)setText:(NSString *)text {
+    UIView *superview = self.superview;
+    
+    if ([superview isKindOfClass:%c(AFDFastSpeedView)] && text && [text containsString:@"2"]) {
+        text = [text stringByReplacingOccurrencesOfString:@"2" withString:@"3"];
+    }
+    
+    %orig(text);
+ }
+}
+%end
+
+
 %ctor {
 	%init(DYYYSettingsGesture);
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYUserAgreementAccepted"]) {
