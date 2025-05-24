@@ -658,7 +658,7 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) {
                                                                    message:nil
                                                             preferredStyle:UIAlertControllerStyleActionSheet];
     
-    NSArray *speeds = @[@0.75, @1.0, @1.25, @1.5, @2.0, @2.5, @3.0];
+    NSArray *speeds = @[@0.5, @0.75, @1.0, @1.25, @1.5, @2.0, @2.5, @3.0];
     for (NSNumber *speed in speeds) {
         UIAlertAction *action = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"%.2f", speed.floatValue]
                                                         style:UIAlertActionStyleDefault
