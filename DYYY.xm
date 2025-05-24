@@ -2139,15 +2139,21 @@ static AWEIMReusableCommonCell *currentCell;
 	%orig(bubbleFrame, tapLocation, newMenuItems, moreEmoticon, cell, extra);
 }
 
-%
+%end
 
 %ctor {
-	%init(DYYYSettingsGesture);
+	// 注册键盘通知
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYUserAgreementAccepted"]) {
-		%init;
-		BOOL isAutoPlayEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableAutoPlay"];
-		if (isAutoPlayEnabled) {
-			%init(AutoPlay);
-		}
+		[[NSNotificationCenter defaultCenter] addObserverForName:UIKeyboardWillShowNotification
+								  object:nil
+								   queue:[NSOperationQueue mainQueue]
+							      usingBlock:^(NSNotification *notification) {
+								// 检查开关状态
+								if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"]) {
+									for (UIWindow *window in [UIApplication sharedApplication].windows) {
+										findTargetViewInView(window);
+									}
+								}
+							      }];
 	}
 }
