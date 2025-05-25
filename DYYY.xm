@@ -1987,6 +1987,8 @@ static CGFloat rightLabelRightMargin = -1;
 //侧边长按倍速
 %hook AWEPlayInteractionSpeedController
 
+static BOOL isCustomSpeedActive = NO;
+
 - (CGFloat)longPressFastSpeedValue {
 	float longPressSpeed = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYLongPressSpeed"];
 	if (longPressSpeed == 0) {
@@ -1997,17 +1999,36 @@ static CGFloat rightLabelRightMargin = -1;
 
 - (void)changeSpeed:(double)speed {
 	float longPressSpeed = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYLongPressSpeed"];
+
 	if (longPressSpeed == 0) {
 		longPressSpeed = 2.0;
 	}
 
-	if (speed == 2.0) {
-		%orig(longPressSpeed);
+	if (speed == longPressSpeed) {
+		// 传入的速度是自定义倍速
+		if (isCustomSpeedActive) {
+			isCustomSpeedActive = NO;
+			%orig(1.0);
+		} else {
+			isCustomSpeedActive = YES;
+			%orig(longPressSpeed);
+		}
+	} else if (speed == 2.0) {
+		// 传入的是默认倍速2.0
+		if (!isCustomSpeedActive) {
+			isCustomSpeedActive = YES;
+			%orig(longPressSpeed);
+		} else {
+			%orig(speed);
+		}
+	} else if (speed == 1.0) {
+		isCustomSpeedActive = NO;
+		%orig(1.0);
 	} else {
+		isCustomSpeedActive = (speed == longPressSpeed);
 		%orig(speed);
 	}
 }
-
 %end
 
 %hook UILabel
@@ -2075,63 +2096,6 @@ static AWEIMReusableCommonCell *currentCell;
 	%orig(bubbleFrame, tapLocation, newMenuItems, moreEmoticon, cell, extra);
 }
 
-%end
-
-//隐藏AI搜索
-%hook AWESearchKeyboardVoiceSearchEntranceView 
-- (id)initWithFrame:(CGRect)frame {
-    id orig = %orig;
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"]) {
-        [(UIView *)orig setHidden:YES];
-        [(UIView *)orig removeFromSuperview];
-    }
-    return orig;
-}
-- (void)didMoveToWindow {
-    %orig;
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"]) {
-        [self setHidden:YES];
-        [self removeFromSuperview];
-    }
-}
-- (void)setHidden:(BOOL)hidden {
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"]) {
-        %orig(YES);
-        [self removeFromSuperview];
-    } else {
-        %orig(hidden);
-    } 
-}
-- (void)willMoveToSuperview:(UIView *)newSuperview {
-    %orig;
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"] && newSuperview) {
-        [self setHidden:YES];
-        [self removeFromSuperview];
-    }
-}
-%end 
-%hook UIView 
-- (void)addSubview:(UIView *)view {
-    %orig;
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"] &&
-       [view isKindOfClass:NSClassFromString(@"AWESearchKeyboardVoiceSearchEntranceView")]) {
-        [view setHidden:YES];
-        [self removeFromSuperview];
-    }
-}
-%end
-%hook UIImageView 
-- (void)layoutSubviews {
-    %orig; // 调用原始方法 
-    BOOL shouldHide = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"];
-    if (shouldHide && CGSizeEqualToSize(self.bounds.size, CGSizeMake(36, 36))) {
-        // 检查是否在AWESearchViewController中
-        UIViewController *vc = [self firstAvailableUIViewController];
-        if ([NSStringFromClass([vc class]) isEqualToString:@"AWESearchViewController"]) {
-            self.hidden = YES;
-        }
-    }
-}
 %end
 
 %ctor {
