@@ -2078,73 +2078,9 @@ static AWEIMReusableCommonCell *currentCell;
 %end
 
 
-%hook AWELongVideoControlModel
-- (bool)allowDownload {
-	return YES;
-}
-%end
-
-%hook AWELongVideoControlModel
-- (long long)preventDownloadType {
-	return 0;
-}
-%end
-
 %ctor {
 	%init(DYYYSettingsGesture);
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYUserAgreementAccepted"]) {
 		%init;
-		BOOL isAutoPlayEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableAutoPlay"];
-		if (isAutoPlayEnabled) {
-			%init(AutoPlay);
-		}
-	}
-}
-// 隐藏键盘ai
-static void hideParentViewsSubviews(UIView *view) {
-	if (!view)
-		return;
-	// 获取第一层父视图
-	UIView *parentView = [view superview];
-	if (!parentView)
-		return;
-	// 获取第二层父视图
-	UIView *grandParentView = [parentView superview];
-	if (!grandParentView)
-		return;
-	// 获取第三层父视图
-	UIView *greatGrandParentView = [grandParentView superview];
-	if (!greatGrandParentView)
-		return;
-	// 隐藏所有子视图
-	for (UIView *subview in greatGrandParentView.subviews) {
-		subview.hidden = YES;
-	}
-}
-// 递归查找目标视图
-static void findTargetViewInView(UIView *view) {
-	if ([view isKindOfClass:NSClassFromString(@"AWESearchKeyboardVoiceSearchEntranceView")]) {
-		hideParentViewsSubviews(view);
-		return;
-	}
-	for (UIView *subview in view.subviews) {
-		findTargetViewInView(subview);
-	}
-}
-
-%ctor {
-	// 注册键盘通知
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYUserAgreementAccepted"]) {
-		[[NSNotificationCenter defaultCenter] addObserverForName:UIKeyboardWillShowNotification
-								  object:nil
-								   queue:[NSOperationQueue mainQueue]
-							      usingBlock:^(NSNotification *notification) {
-								// 检查开关状态
-								if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"]) {
-									for (UIWindow *window in [UIApplication sharedApplication].windows) {
-										findTargetViewInView(window);
-									}
-								}
-							      }];
 	}
 }
