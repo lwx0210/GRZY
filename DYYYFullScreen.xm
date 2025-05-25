@@ -207,7 +207,7 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 		NSString *currentReferString = self.referString;
 		CGRect frame = self.view.frame;
 
-		// 根据referString来决定是否减去高度差值
+		// 根据referString来决定是否减去83点
 		if ([currentReferString isEqualToString:@"general_search"]) {
 			frame.size.height = self.view.superview.frame.size.height;
 		} else if ([currentReferString isEqualToString:@"chat"] || currentReferString == nil) {
@@ -219,9 +219,9 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 		} else if ([currentReferString isEqualToString:@"offline_mode"] || currentReferString == nil) {
 			frame.size.height = self.view.superview.frame.size.height;
 		} else if ([currentReferString isEqualToString:@"others_homepage"] || currentReferString == nil) {
-			frame.size.height = self.view.superview.frame.size.height - g_heightDifference;
+			frame.size.height = self.view.superview.frame.size.height - 83;
 		} else {
-			frame.size.height = self.view.superview.frame.size.height - g_heightDifference;
+			frame.size.height = self.view.superview.frame.size.height - 83;
 		}
 
 		self.view.frame = frame;
