@@ -714,18 +714,25 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideDiscover"]) {
 
 //侧栏红点
 %hook AWELeftSideBarEntranceView
-
 - (void)layoutSubviews {
-	%orig;
-
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHiddenLeftSideBar"]) {
-		for (UIView *subview in self.subviews) {
-			if ([subview isKindOfClass:%c(DUXBaseImageView)]) {
-				subview.hidden = YES;
-			}
-		}
-	}
-
+    %orig;
+    
+    UIResponder *responder = self;
+    UIViewController *parentVC = nil;
+    while ((responder = [responder nextResponder])) {
+        if ([responder isKindOfClass:%c(AWEFeedContainerViewController)]) {
+            parentVC = (UIViewController *)responder;
+            break;
+        }
+    }
+    
+    if (parentVC && [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHiddenLeftSideBar"]) {
+        for (UIView *subview in self.subviews) {
+            if ([subview isKindOfClass:%c(DUXBaseImageView)]) {
+                subview.hidden = YES;
+            }
+        }
+    }
 }
 
 %end
@@ -1863,6 +1870,63 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideDiscover"]) {
 		[self removeFromSuperview];
 		return;
 	}
+}
+%end
+
+//隐藏AI搜索
+%hook AWESearchKeyboardVoiceSearchEntranceView 
+- (id)initWithFrame:(CGRect)frame {
+    id orig = %orig;
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"]) {
+        [(UIView *)orig setHidden:YES];
+        [(UIView *)orig removeFromSuperview];
+    }
+    return orig;
+}
+- (void)didMoveToWindow {
+    %orig;
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"]) {
+        [self setHidden:YES];
+        [self removeFromSuperview];
+    }
+}
+- (void)setHidden:(BOOL)hidden {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"]) {
+        %orig(YES);
+        [self removeFromSuperview];
+    } else {
+        %orig(hidden);
+    } 
+}
+- (void)willMoveToSuperview:(UIView *)newSuperview {
+    %orig;
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"] && newSuperview) {
+        [self setHidden:YES];
+        [self removeFromSuperview];
+    }
+}
+%end 
+%hook UIView 
+- (void)addSubview:(UIView *)view {
+    %orig;
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"] &&
+       [view isKindOfClass:NSClassFromString(@"AWESearchKeyboardVoiceSearchEntranceView")]) {
+        [view setHidden:YES];
+        [self removeFromSuperview];
+    }
+}
+%end
+%hook UIImageView 
+- (void)layoutSubviews {
+    %orig; // 调用原始方法 
+    BOOL shouldHide = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"];
+    if (shouldHide && CGSizeEqualToSize(self.bounds.size, CGSizeMake(36, 36))) {
+        // 检查是否在AWESearchViewController中
+        UIViewController *vc = [self firstAvailableUIViewController];
+        if ([NSStringFromClass([vc class]) isEqualToString:@"AWESearchViewController"]) {
+            self.hidden = YES;
+        }
+    }
 }
 %end
 
