@@ -2082,5 +2082,9 @@ static AWEIMReusableCommonCell *currentCell;
 	%init(DYYYSettingsGesture);
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYUserAgreementAccepted"]) {
 		%init;
+		BOOL isAutoPlayEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableAutoPlay"];
+		if (isAutoPlayEnabled) {
+			%init(AutoPlay);
+		}
 	}
 }
