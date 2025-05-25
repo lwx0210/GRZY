@@ -1139,4 +1139,6 @@ typedef NS_ENUM(NSInteger, MediaType) {
 - (void)longPressSpeedControlDidChangeSpeed:(double)speed;
 @end
 
+@interface AWEAwemeOfflineBottomView : UIView
+@end
 
