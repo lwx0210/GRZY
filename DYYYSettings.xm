@@ -1184,7 +1184,12 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			      @"title" : @"隐藏文案箭头",
 			      @"detail" : @"",
 			      @"cellType" : @6,
-			      @"imageName" : @"ic_eyeslash_outlined_16"}
+			      @"imageName" : @"ic_eyeslash_outlined_16"},
+		            @{@"identifier" : @"DYYYHideGradient",
+		              @"title" : @"隐藏展开渐变",
+		              @"detail" : @"",
+		              @"cellType" : @6,
+		              @"imageName" : @"ic_eyeslash_outlined_16"}
 	  ];
 
 	  for (NSDictionary *dict in videoUiSettings) {
