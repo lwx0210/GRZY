@@ -47,6 +47,11 @@ static BOOL isCommentViewVisible = NO;
 static HideUIButton *hideButton;
 static BOOL isAppInTransition = NO;
 static NSArray *targetClassNames;
+static CGFloat DYGetGlobalAlpha(void) {
+    NSString *value = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYGlobalTransparency"];
+    CGFloat a = value.length ? value.floatValue : 1.0;
+    return (a >= 0.0 && a <= 1.0) ? a : 1.0;
+}
 static void findViewsOfClassHelper(UIView *view, Class viewClass, NSMutableArray *result) {
 	if ([view isKindOfClass:viewClass]) {
 		[result addObject:view];
@@ -69,6 +74,7 @@ static void forceResetAllUIElements(void) {
 	UIWindow *window = getKeyWindow();
 	if (!window)
 		return;
+	Class StackViewClass = NSClassFromString(@"AWEElementStackView");
 	for (NSString *className in targetClassNames) {
 		Class viewClass = NSClassFromString(className);
 		if (!viewClass)
@@ -76,7 +82,12 @@ static void forceResetAllUIElements(void) {
 		NSMutableArray *views = [NSMutableArray array];
 		findViewsOfClassHelper(window, viewClass, views);
 		for (UIView *view in views) {
-			view.alpha = 1.0;
+			if([view isKindOfClass:StackViewClass]) {
+				view.alpha = DYGetGlobalAlpha();
+			}
+			else{
+				view.alpha = 1.0; // 恢复透明度
+			}
 		}
 	}
 }
@@ -93,7 +104,6 @@ static void initTargetClassNames(void) {
         @"ACCEditTagStickerView", @"AWEFeedTemplateAnchorView",
         @"AWESearchFeedTagView", @"AWEPlayInteractionSearchAnchorView",
         @"AFDRecommendToFriendTagView", @"AWELandscapeFeedEntryView",
-        @"AWEFeedAnchorContainerView", @"AFDAIbumFolioView"
         @"AWEFeedAnchorContainerView", @"AFDAIbumFolioView", @"DUXPopover"
     ] mutableCopy];
     BOOL hideTabBar = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideTabBar"];
@@ -124,7 +134,7 @@ static void initTargetClassNames(void) {
         
         // 设置默认状态为半透明
         self.originalAlpha = 1.0;  // 交互时为完全不透明
-        self.alpha = 0.7;  // 初始为半透明
+        self.alpha = 0.5;  // 初始为半透明
 		// 加载保存的锁定状态
 		[self loadLockState];
 		[self loadIcons];
@@ -162,7 +172,7 @@ static void initTargetClassNames(void) {
 							   block:^(NSTimer *timer) {
 							     [UIView animateWithDuration:0.3
 									      animations:^{
-										self.alpha = 0.7;  // 变为半透明
+										self.alpha = 0.5;  // 变为半透明
 									      }];
 							   }];
 	// 交互时变为完全不透明
@@ -325,7 +335,7 @@ static void initTargetClassNames(void) {
 			view.hidden = NO;
 		} else {
 			// 恢复透明度
-    		view.alpha = 1.0; 
+    		view.alpha = DYGetGlobalAlpha();
 		}
         return;
     }
