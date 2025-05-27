@@ -173,6 +173,29 @@
 }
 %end
 
+//隐藏展开渐变
+%hook AWEPlayInteractionElementMaskView
+- (void)layoutSubviews {
+	%orig;
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideGradient"]) {
+		[self removeFromSuperview];
+		return;
+	}
+}
+%end
+
+%hook AWEGradientView
+- (void)layoutSubviews {
+	%orig;
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideGradient"]) {
+		[self removeFromSuperview];
+		return;
+	}
+}
+%end
+
 // 隐藏弹幕按钮
 %hook AWEPlayDanmakuInputContainView
 
