@@ -1142,3 +1142,8 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @interface AWEAwemeOfflineBottomView : UIView
 @end
 
+//展开渐变
+@interface AWEPlayInteractionElementMaskView : UIView
+@end
+@interface AWEGradientView : UIView
+@end
