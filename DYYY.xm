@@ -2098,6 +2098,49 @@ static AWEIMReusableCommonCell *currentCell;
 
 %end
 
+// 隐藏评论音乐
+%hook AWECommentGuideLunaAnchorView
+- (void)layoutSubviews {
+	%orig;
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideCommentViews"]) {
+		[self setHidden:YES];
+	}
+
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYMusicCopyText"]) {
+    	UILabel *label = nil;
+		if ([self respondsToSelector:@selector(preTitleLabel)]) {
+			label = [self valueForKey:@"preTitleLabel"];
+		}
+		if (label && [label isKindOfClass:[UILabel class]]) {
+			label.text = @"";
+		}
+	}
+}
+
+- (void)p_didClickSong {
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYMusicCopyText"]) {
+		// 通过 KVC 拿到内部的 songButton
+		UIButton *btn = nil;
+		if ([self respondsToSelector:@selector(songButton)]) {
+			btn = (UIButton *)[self valueForKey:@"songButton"];
+		}
+
+		// 获取歌曲名并复制到剪贴板
+		if (btn && [btn isKindOfClass:[UIButton class]]) {
+			NSString *song = btn.currentTitle;
+			if (song.length) {
+				[UIPasteboard generalPasteboard].string = song;
+				[DYYYToast showSuccessToastWithMessage:@"歌曲名已复制"];
+			}
+		}
+	} else {
+		%orig;
+	}
+}
+
+%end
+
 //隐藏AI搜索
 %hook AWESearchKeyboardVoiceSearchEntranceView 
 - (id)initWithFrame:(CGRect)frame {
