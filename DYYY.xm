@@ -2141,6 +2141,69 @@ static AWEIMReusableCommonCell *currentCell;
 
 %end
 
+// Swift 类组 - 这些会在 %ctor 中动态初始化
+%group CommentHeaderGeneralGroup
+%hook AWECommentPanelHeaderSwiftImpl_CommentHeaderGeneralView
+- (void)layoutSubviews {
+	%orig;
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideCommentViews"]) {
+		[self setHidden:YES];
+	}
+}
+%end
+%end
+%group CommentHeaderGoodsGroup
+%hook AWECommentPanelHeaderSwiftImpl_CommentHeaderGoodsView
+- (void)layoutSubviews {
+	%orig;
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideCommentViews"]) {
+		[self setHidden:YES];
+	}
+}
+%end
+%end
+%group CommentHeaderTemplateGroup
+%hook AWECommentPanelHeaderSwiftImpl_CommentHeaderTemplateAnchorView
+- (void)layoutSubviews {
+	%orig;
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideCommentViews"]) {
+		[self setHidden:YES];
+	}
+}
+%end
+%end
+// Swift 类初始化
+%ctor {
+
+	// 动态获取 Swift 类并初始化对应的组
+	Class commentHeaderGeneralClass = objc_getClass("AWECommentPanelHeaderSwiftImpl.CommentHeaderGeneralView");
+	if (commentHeaderGeneralClass) {
+		%init(CommentHeaderGeneralGroup, AWECommentPanelHeaderSwiftImpl_CommentHeaderGeneralView = commentHeaderGeneralClass);
+	}
+
+	Class commentHeaderGoodsClass = objc_getClass("AWECommentPanelHeaderSwiftImpl.CommentHeaderGoodsView");
+	if (commentHeaderGoodsClass) {
+		%init(CommentHeaderGoodsGroup, AWECommentPanelHeaderSwiftImpl_CommentHeaderGoodsView = commentHeaderGoodsClass);
+	}
+
+	Class commentHeaderTemplateClass = objc_getClass("AWECommentPanelHeaderSwiftImpl.CommentHeaderTemplateAnchorView");
+	if (commentHeaderTemplateClass) {
+		%init(CommentHeaderTemplateGroup, AWECommentPanelHeaderSwiftImpl_CommentHeaderTemplateAnchorView = commentHeaderTemplateClass);
+	}
+}
+
+// 去除隐藏大家都在搜后的留白
+%hook AWESearchAnchorListModel
+
+- (BOOL)hideWords {
+	return [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideCommentViews"];
+}
+
+%end
+
 //隐藏AI搜索
 %hook AWESearchKeyboardVoiceSearchEntranceView 
 - (id)initWithFrame:(CGRect)frame {
