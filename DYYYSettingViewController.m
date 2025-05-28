@@ -181,7 +181,7 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) {
             [DYYYSettingItem itemWithTitle:@"设置朋友标题" key:@"DYYYFriendsTitle" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
             [DYYYSettingItem itemWithTitle:@"设置消息标题" key:@"DYYYMsgTitle" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
             [DYYYSettingItem itemWithTitle:@"设置我的标题" key:@"DYYYSelfTitle" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
-            [DYYYSettingItem itemWithTitle:@"启用伪造参数" key:@"DYYYEnableSocialStatsCustom" type:DYYYSettingItemTypeSwitch],
+            [DYYYSettingItem itemWithTitle:@"启用数量伪造" key:@"DYYYEnableSocialStatsCustom" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"获赞数量伪造" key:@"DYYYCustomLikes" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
             [DYYYSettingItem itemWithTitle:@"互关数量伪造" key:@"DYYYCustomMutual" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
             [DYYYSettingItem itemWithTitle:@"关注数量伪造" key:@"DYYYCustomFollowing" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
