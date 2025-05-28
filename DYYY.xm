@@ -2175,6 +2175,16 @@ static AWEIMReusableCommonCell *currentCell;
 }
 %end
 %end
+%group CommentBottomTipsVCGroup
+%hook AWECommentPanelListSwiftImpl_CommentBottomTipsContainerViewController
+- (void)viewWillAppear:(BOOL)animated {
+    %orig(animated);
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideCommentTips"]){
+        ((UIViewController *)self).view.hidden = YES;
+    }
+}
+%end
+%end
 // Swift 类初始化
 %ctor {
 
@@ -2193,8 +2203,11 @@ static AWEIMReusableCommonCell *currentCell;
 	if (commentHeaderTemplateClass) {
 		%init(CommentHeaderTemplateGroup, AWECommentPanelHeaderSwiftImpl_CommentHeaderTemplateAnchorView = commentHeaderTemplateClass);
 	}
+       Class tipsVCClass = objc_getClass("AWECommentPanelListSwiftImpl.CommentBottomTipsContainerViewController");
+        if (tipsVCClass) {
+        %init(CommentBottomTipsVCGroup,AWECommentPanelListSwiftImpl_CommentBottomTipsContainerViewController = tipsVCClass);
+    }
 }
-
 // 去除隐藏大家都在搜后的留白
 %hook AWESearchAnchorListModel
 
