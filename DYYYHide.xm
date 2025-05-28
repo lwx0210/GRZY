@@ -37,6 +37,17 @@
 }
 %end
 
+// 强制启用保存他人头像
+%hook AFDProfileAvatarFunctionManager
+- (BOOL)shouldShowSaveAvatarItem {
+	BOOL shouldEnable = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableSaveAvatar"];
+	if (shouldEnable) {
+		return YES;
+	}
+	return %orig;
+}
+%end
+
 // 隐藏头像加号和透明
 %hook LOTAnimationView
 - (void)layoutSubviews {
