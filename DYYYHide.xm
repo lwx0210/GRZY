@@ -598,29 +598,6 @@
 }
 %end
 
-//隐藏右上角搜索
-%hook UIImageView
-- (void)layoutSubviews {
-    %orig;
-
-if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideDiscover"]) {
-    if (!self.accessibilityLabel) {
-        UIView *parentView = self.superview;
-        
-        if (parentView && [parentView class] == [UIView class] && 
-            [parentView.accessibilityLabel isEqualToString:@"搜索"]) {
-            self.hidden = YES;
-        }
-
-        else if (parentView && [NSStringFromClass([parentView class]) isEqualToString:@"AWESearchEntryHalfScreenElement"] &&
-                 [parentView.accessibilityLabel isEqualToString:@"搜索"]) {
-            self.hidden = YES;
-        }
-    }
-  }
-}
-%end
-
 //隐藏加入挑战及顶栏输入框扫一扫
 %hook UIButton
 
