@@ -180,7 +180,12 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) {
             [DYYYSettingItem itemWithTitle:@"设置首页标题" key:@"DYYYIndexTitle" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
             [DYYYSettingItem itemWithTitle:@"设置朋友标题" key:@"DYYYFriendsTitle" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
             [DYYYSettingItem itemWithTitle:@"设置消息标题" key:@"DYYYMsgTitle" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
-            [DYYYSettingItem itemWithTitle:@"设置我的标题" key:@"DYYYSelfTitle" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"]
+            [DYYYSettingItem itemWithTitle:@"设置我的标题" key:@"DYYYSelfTitle" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
+            [DYYYSettingItem itemWithTitle:@"自定义总开关" key:@"DYYYEnableSocialStatsCustom" type:DYYYSettingItemTypeSwitch],
+            [DYYYSettingItem itemWithTitle:@"获赞数量自定" key:@"DYYYCustomLikes" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
+            [DYYYSettingItem itemWithTitle:@"互关数量自定" key:@"DYYYCustomMutual" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
+            [DYYYSettingItem itemWithTitle:@"关注数量自定" key:@"DYYYCustomFollowing" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
+            [DYYYSettingItem itemWithTitle:@"粉丝数量自定" key:@"DYYYCustomFollowers" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"]
         ],
         @[
             [DYYYSettingItem itemWithTitle:@"隐藏全屏观看" key:@"DYYYisHiddenEntry" type:DYYYSettingItemTypeSwitch],

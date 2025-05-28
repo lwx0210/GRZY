@@ -1156,3 +1156,16 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @interface AWEHotSearchInnerBottomView : UIView
 @end
 
+//个人自定义
+@interface AWEProfileSocialStatisticView : UIView
+- (void)setFansCount:(NSNumber *)count;
+- (void)setPraiseCount:(NSNumber *)count;
+- (void)setFollowingCount:(NSNumber *)count;
+- (void)setFriendCount:(NSNumber *)count;
+- (void)p_updateSocialStatisticContent:(BOOL)animated;
+@end
+
+@interface AWEProfileHeaderMyProfileViewController : UIViewController
+- (void)reloadSettings;
+@end
+

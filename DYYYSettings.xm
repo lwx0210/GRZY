@@ -928,6 +928,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_eye_outlined_20"}
 
+
 	  ];
 
 	  for (NSDictionary *dict in transparencySettings) {
@@ -998,11 +999,49 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			      @"detail" : @"不填默认",
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_user_outlined_20"}
+
+
 	  ];
 
 	  for (NSDictionary *dict in titleSettings) {
 		  AWESettingItemModel *item = [DYYYSettingsHelper createSettingItem:dict cellTapHandlers:cellTapHandlers];
 		  [titleItems addObject:item];
+	  }
+
+	  // 【个人自定义】分类
+	  NSMutableArray<AWESettingItemModel *> *Masturbation = [NSMutableArray array];
+	  NSArray *MasturbationSettings = @[
+     		            @{@"identifier" : @"DYYYEnableSocialStatsCustom",
+			      @"title" : @"个人自定开关",
+			      @"detail" : @"",
+			      @"cellType" : @6,
+			      @"imageName" : @"ic_personcircleclean_outlined_20"},
+			    @{@"identifier" : @"DYYYCustomLikes",
+			      @"title" : @"获赞数量自定",
+			      @"detail" : @"",
+			      @"cellType" : @26,
+			      @"imageName" : @"ic_heart_outlined_20"},
+			    @{@"identifier" : @"DYYYCustomMutual",
+			      @"title" : @"互关数量自定",
+			      @"detail" : @"",
+			      @"cellType" : @26,
+			      @"imageName" : @"ic_usertwo_outlined_20"},
+			    @{@"identifier" : @"DYYYCustomFollowing",
+			      @"title" : @"关注数量自定",
+			      @"detail" : @"",
+			      @"cellType" : @26,
+			      @"imageName" : @"ic_usertwo_outlined_20"},
+			    @{@"identifier" : @"DYYYCustomFollowers",
+			      @"title" : @"粉丝数量自定",
+			      @"detail" : @"",
+			      @"cellType" : @26,
+			      @"imageName" : @"ic_usertwo_outlined_20"}
+
+	  ];
+
+	  for (NSDictionary *dict in MasturbationSettings) {
+		  AWESettingItemModel *item = [DYYYSettingsHelper createSettingItem:dict cellTapHandlers:cellTapHandlers];
+		  [Masturbation addObject:item];
 	  }
 
 	  // 【图标自定义】分类
@@ -1021,6 +1060,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 	  [sections addObject:createSection(@"透明度设置", transparencyItems)];
 	  [sections addObject:createSection(@"缩放与大小", scaleItems)];
 	  [sections addObject:createSection(@"标题自定义", titleItems)];
+	  [sections addObject:createSection(@"个人自定义", Masturbation)];
 	  [sections addObject:createSection(@"图标自定义", iconItems)];
 	  // 创建并组织所有section
 	  // 创建并推入二级设置页面
