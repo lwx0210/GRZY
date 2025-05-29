@@ -412,6 +412,113 @@ static void updateModelData(id model) {
     }
 }
 
+// 数据Hook
+%hook AWEUserModel
+- (id)init {
+    id instance = %orig;
+    if (socialStatsEnabled && instance) {
+        updateModelData(instance);
+    }
+    return instance;
+}
+
+- (NSNumber *)followerCount {
+    return socialStatsEnabled && cachedFollowersNumber ? cachedFollowersNumber : %orig;
+}
+
+- (void)setFollowerCount:(NSNumber *)count {
+    if (socialStatsEnabled && cachedFollowersNumber) {
+        %orig(cachedFollowersNumber);
+    } else {
+        %orig;
+    }
+}
+
+- (NSNumber *)followingCount {
+    return socialStatsEnabled && cachedFollowingNumber ? cachedFollowingNumber : %orig;
+}
+
+- (void)setFollowingCount:(NSNumber *)count {
+    if (socialStatsEnabled && cachedFollowingNumber) {
+        %orig(cachedFollowingNumber);
+    } else {
+        %orig;
+    }
+}
+
+- (NSNumber *)totalFavorited {
+    return socialStatsEnabled && cachedLikesNumber ? cachedLikesNumber : %orig;
+}
+
+- (void)setTotalFavorited:(NSNumber *)count {
+    if (socialStatsEnabled && cachedLikesNumber) {
+        %orig(cachedLikesNumber);
+    } else {
+        %orig;
+    }
+}
+
+- (NSNumber *)diggCount {
+    return socialStatsEnabled && cachedLikesNumber ? cachedLikesNumber : %orig;
+}
+
+- (void)setDiggCount:(NSNumber *)count {
+    if (socialStatsEnabled && cachedLikesNumber) {
+        %orig(cachedLikesNumber);
+    } else {
+        %orig;
+    }
+}
+
+- (NSNumber *)likeCount {
+    return socialStatsEnabled && cachedLikesNumber ? cachedLikesNumber : %orig;
+}
+
+- (void)setLikeCount:(NSNumber *)count {
+    if (socialStatsEnabled && cachedLikesNumber) {
+        %orig(cachedLikesNumber);
+    } else {
+        %orig;
+    }
+}
+
+- (NSNumber *)friendCount {
+    return socialStatsEnabled && cachedMutualNumber ? cachedMutualNumber : %orig;
+}
+
+- (void)setFriendCount:(NSNumber *)count {
+    if (socialStatsEnabled && cachedMutualNumber) {
+        %orig(cachedMutualNumber);
+    } else {
+        %orig;
+    }
+}
+
+- (NSNumber *)mutualFriendCount {
+    return socialStatsEnabled && cachedMutualNumber ? cachedMutualNumber : %orig;
+}
+
+- (void)setMutualFriendCount:(NSNumber *)count {
+    if (socialStatsEnabled && cachedMutualNumber) {
+        %orig(cachedMutualNumber);
+    } else {
+        %orig;
+    }
+}
+
+- (NSNumber *)followFriendCount {
+    return socialStatsEnabled && cachedMutualNumber ? cachedMutualNumber : %orig;
+}
+
+- (void)setFollowFriendCount:(NSNumber *)count {
+    if (socialStatsEnabled && cachedMutualNumber) {
+        %orig(cachedMutualNumber);
+    } else {
+        %orig;
+    }
+}
+%end
+
 // 统计视图
 %hook AWEProfileSocialStatisticView
 - (void)setFansCount:(NSNumber *)count {
