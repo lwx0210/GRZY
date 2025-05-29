@@ -639,36 +639,6 @@ static void updateModelData(id model) {
 }
 %end
 
-// 通用生命周期Hook
-%hook AWEProfileHeaderMyProfileViewController
-- (void)viewDidLoad {
-    %orig;
-    
-    // 监听设置变化
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(reloadSettings)
-                                                 name:NSUserDefaultsDidChangeNotification
-                                               object:nil];
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    %orig;
-    
-    // 每次进入页面刷新数据
-    loadCustomSocialStats();
-}
-
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    %orig;
-}
-
-%new
-- (void)reloadSettings {
-    loadCustomSocialStats();
-}
-%end
-
 %hook NSUserDefaults
 - (void)setObject:(id)value forKey:(NSString *)defaultName {
     %orig;
