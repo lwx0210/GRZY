@@ -1,8 +1,6 @@
 #import "AwemeHeaders.h"
 
 
-static __weak UICollectionView *gFeedCV = nil;
-
 %hook AWEFeedLiveMarkView
 - (void)setHidden:(BOOL)hidden {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideAvatarButton"]) {
@@ -1870,6 +1868,8 @@ static __weak UICollectionView *gFeedCV = nil;
 	}
 }
 %end
+
+static __weak UICollectionView *gFeedCV = nil;
 
 %hook AWEFeedChannelManager
 
