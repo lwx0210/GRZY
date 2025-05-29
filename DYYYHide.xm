@@ -1,5 +1,8 @@
 #import "AwemeHeaders.h"
 
+
+static __weak UICollectionView *gFeedCV = nil;
+
 %hook AWEFeedLiveMarkView
 - (void)setHidden:(BOOL)hidden {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideAvatarButton"]) {
@@ -1936,6 +1939,38 @@
 	}
 
 	%orig(newChannelModels, newCurrentChannelIDList, arg3, arg4);
+}
+
+%end
+
+%hook AWELandscapeFeedViewController
+- (void)viewDidLoad {
+    %orig;
+
+    // 尝试优先走属性
+    gFeedCV = self.collectionView;
+
+    // 保险起见再 fallback：遍历 subviews
+    if (!gFeedCV) {
+        for (UIView *v in self.view.subviews) {
+            if ([v isKindOfClass:[UICollectionView class]]) {
+                gFeedCV = (UICollectionView *)v;
+                break;
+            }
+        }
+    }
+}
+%end
+
+%hook UICollectionView
+
+- (void)handlePan:(UIPanGestureRecognizer *)pan {
+    if (self == gFeedCV) {
+        // 👉 你的自定义逻辑（例如屏蔽、修改速度、统计埋点 …）
+    }
+    else{
+		%orig;                         
+	}
 }
 
 %end
