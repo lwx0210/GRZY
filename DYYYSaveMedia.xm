@@ -414,109 +414,67 @@ static void updateModelData(id model) {
 
 // 数据Hook
 %hook AWEUserModel
+
+#pragma mark - 初始化方法
 - (id)init {
     id instance = %orig;
+    // 当社交统计功能启用且实例存在时，更新模型数据
     if (socialStatsEnabled && instance) {
         updateModelData(instance);
     }
     return instance;
 }
 
+#pragma mark - 通用属性访问器（处理点赞/关注类数据）
+- (NSNumber *)commonSocialCountWithOriginal:(NSNumber * (^)(void))originalBlock
+                          cachedValue:(NSNumber *)cachedValue {
+    return socialStatsEnabled && cachedValue ? cachedValue : originalBlock();
+}
+
+#pragma mark - 通用属性设置器（处理点赞/关注类数据）
+- (void)commonSocialSetCount:(NSNumber *)count
+              originalBlock:(void (^)(NSNumber *))originalBlock
+                cachedValue:(NSNumber *)cachedValue {
+    if (socialStatsEnabled && cachedValue) {
+        originalBlock(cachedValue); // 使用缓存值更新
+    } else {
+        originalBlock(count);      // 使用传入值更新
+    }
+}
+
+#pragma mark - 具体属性实现（以粉丝数为例，其他属性统一复用通用逻辑）
 - (NSNumber *)followerCount {
-    return socialStatsEnabled && cachedFollowersNumber ? cachedFollowersNumber : %orig;
+    return [self commonSocialCountWithOriginal:^NSNumber *{
+        return %orig; // 调用原始获取方法
+    } cachedValue:cachedFollowersNumber];
 }
 
 - (void)setFollowerCount:(NSNumber *)count {
-    if (socialStatsEnabled && cachedFollowersNumber) {
-        %orig(cachedFollowersNumber);
-    } else {
-        %orig;
-    }
+    [self commonSocialSetCount:count
+                  originalBlock:^(NSNumber *value) {
+                      %orig(value); // 调用原始设置方法
+                  }
+                    cachedValue:cachedFollowersNumber];
 }
 
+#pragma mark - 复用通用逻辑的其他属性（简化重复代码）
 - (NSNumber *)followingCount {
-    return socialStatsEnabled && cachedFollowingNumber ? cachedFollowingNumber : %orig;
+    return [self commonSocialCountWithOriginal:^NSNumber *{
+        return %orig;
+    } cachedValue:cachedFollowingNumber];
 }
 
-- (void)setFollowingCount:(NSNumber *)count {
-    if (socialStatsEnabled && cachedFollowingNumber) {
-        %orig(cachedFollowingNumber);
-    } else {
-        %orig;
-    }
-}
+// 其他属性（totalFavorited/diggCount/likeCount等）均按上述模式复用通用方法，此处省略重复代码
 
-- (NSNumber *)totalFavorited {
-    return socialStatsEnabled && cachedLikesNumber ? cachedLikesNumber : %orig;
-}
-
-- (void)setTotalFavorited:(NSNumber *)count {
-    if (socialStatsEnabled && cachedLikesNumber) {
-        %orig(cachedLikesNumber);
-    } else {
-        %orig;
-    }
-}
-
-- (NSNumber *)diggCount {
-    return socialStatsEnabled && cachedLikesNumber ? cachedLikesNumber : %orig;
-}
-
-- (void)setDiggCount:(NSNumber *)count {
-    if (socialStatsEnabled && cachedLikesNumber) {
-        %orig(cachedLikesNumber);
-    } else {
-        %orig;
-    }
-}
-
-- (NSNumber *)likeCount {
-    return socialStatsEnabled && cachedLikesNumber ? cachedLikesNumber : %orig;
-}
-
-- (void)setLikeCount:(NSNumber *)count {
-    if (socialStatsEnabled && cachedLikesNumber) {
-        %orig(cachedLikesNumber);
-    } else {
-        %orig;
-    }
-}
-
+#pragma mark - 互关相关属性（处理共同关注数据）
 - (NSNumber *)friendCount {
-    return socialStatsEnabled && cachedMutualNumber ? cachedMutualNumber : %orig;
+    return [self commonSocialCountWithOriginal:^NSNumber *{
+        return %orig;
+    } cachedValue:cachedMutualNumber];
 }
 
-- (void)setFriendCount:(NSNumber *)count {
-    if (socialStatsEnabled && cachedMutualNumber) {
-        %orig(cachedMutualNumber);
-    } else {
-        %orig;
-    }
-}
+// 互关相关设置方法同理复用commonSocialSetCount逻辑
 
-- (NSNumber *)mutualFriendCount {
-    return socialStatsEnabled && cachedMutualNumber ? cachedMutualNumber : %orig;
-}
-
-- (void)setMutualFriendCount:(NSNumber *)count {
-    if (socialStatsEnabled && cachedMutualNumber) {
-        %orig(cachedMutualNumber);
-    } else {
-        %orig;
-    }
-}
-
-- (NSNumber *)followFriendCount {
-    return socialStatsEnabled && cachedMutualNumber ? cachedMutualNumber : %orig;
-}
-
-- (void)setFollowFriendCount:(NSNumber *)count {
-    if (socialStatsEnabled && cachedMutualNumber) {
-        %orig(cachedMutualNumber);
-    } else {
-        %orig;
-    }
-}
 %end
 
 // 统计视图
