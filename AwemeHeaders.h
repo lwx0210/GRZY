@@ -1169,5 +1169,4 @@ typedef NS_ENUM(NSInteger, MediaType) {
 - (void)reloadSettings;
 @end
 
-@interface AWEUserModel : UIView
-@end 
+
