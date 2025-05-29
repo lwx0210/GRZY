@@ -519,6 +519,67 @@ static void updateModelData(id model) {
 }
 %end
 
+// 统计视图
+%hook AWEProfileSocialStatisticView
+- (void)setFansCount:(NSNumber *)count {
+    if (socialStatsEnabled && cachedFollowersNumber) {
+        %orig(cachedFollowersNumber);
+    } else {
+        %orig;
+    }
+}
+
+- (void)setPraiseCount:(NSNumber *)count {
+    if (socialStatsEnabled && cachedLikesNumber) {
+        %orig(cachedLikesNumber);
+    } else {
+        %orig;
+    }
+}
+
+- (void)setFollowingCount:(NSNumber *)count {
+    if (socialStatsEnabled && cachedFollowingNumber) {
+        %orig(cachedFollowingNumber);
+    } else {
+        %orig;
+    }
+}
+
+- (void)setFriendCount:(NSNumber *)count {
+    if (socialStatsEnabled && cachedMutualNumber) {
+        %orig(cachedMutualNumber);
+    } else {
+        %orig;
+    }
+}
+
+- (void)p_updateSocialStatisticContent:(BOOL)animated {
+    %orig;
+    if (socialStatsEnabled) {
+        // 强制二次更新
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (cachedFollowersNumber) [self setFansCount:cachedFollowersNumber];
+            if (cachedLikesNumber) [self setPraiseCount:cachedLikesNumber];
+            if (cachedFollowingNumber) [self setFollowingCount:cachedFollowingNumber];
+            if (cachedMutualNumber) [self setFriendCount:cachedMutualNumber];
+        });
+    }
+}
+
+- (void)layoutSubviews {
+    %orig;
+    if (socialStatsEnabled) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (cachedFollowersNumber) [self setFansCount:cachedFollowersNumber];
+            if (cachedLikesNumber) [self setPraiseCount:cachedLikesNumber];
+            if (cachedFollowingNumber) [self setFollowingCount:cachedFollowingNumber];
+            if (cachedMutualNumber) [self setFriendCount:cachedMutualNumber];
+            [self p_updateSocialStatisticContent:YES];
+        });
+    }
+}
+%end
+
 // 字典数据源
 %hook NSDictionary
 - (id)objectForKey:(id)aKey {
