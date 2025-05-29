@@ -3,7 +3,14 @@
 
 #define DYYYGetBool(key) [[NSUserDefaults standardUserDefaults] boolForKey:key]
 #define DYYY_IGNORE_GLOBAL_ALPHA_TAG 114514
+typedef NS_ENUM(NSInteger, MediaType) {
+    MediaTypeVideo,
+    MediaTypeImage,
+    MediaTypeAudio,
+    MediaTypeHeic
+};
 static __weak UICollectionView *gFeedCV = nil;
+// ============ iOS 18 音量控制 ============ //
 @interface AVSystemController : NSObject
 + (instancetype)sharedAVSystemController;
 - (BOOL)setVolumeTo:(float)value forCategory:(NSString *)cat;
@@ -11,20 +18,10 @@ static __weak UICollectionView *gFeedCV = nil;
 @end
 
 // ============ 亮度 HUD ============ //
-@interface SBBacklightController : NSObject
+@interface SBHUDController : NSObject
 + (instancetype)sharedInstance;
-- (float)backlightFactor;                          // ← 补这行
-- (void)setBacklightFactor:(float)factor source:(int)source;
-- (void)setBacklightFactor:(float)factor;
+- (void)presentHUDWithIcon:(NSString *)name level:(float)level;
 @end
-
-/* ❷ 如果 MediaType 枚举在别的文件没用到，可删 */
-typedef NS_ENUM(NSInteger, MediaType) {
-    MediaTypeVideo,
-    MediaTypeImage,
-    MediaTypeAudio,
-    MediaTypeHeic
-};
 
 // ============ 调节模式枚举 & 全局状态 ============ //
 typedef NS_ENUM(NSUInteger, DYEdgeMode) {
