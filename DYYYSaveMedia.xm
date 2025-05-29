@@ -580,6 +580,65 @@ static void updateModelData(id model) {
 }
 %end
 
+// 字典数据源
+%hook NSDictionary
+- (id)objectForKey:(id)aKey {
+    id originalValue = %orig;
+    if (!socialStatsEnabled || !aKey || !originalValue || ![aKey isKindOfClass:[NSString class]]) {
+        return originalValue;
+    }
+    
+    NSString *keyString = (NSString *)aKey;
+    
+    // 粉丝
+    if (cachedFollowersNumber && 
+        ([keyString isEqualToString:@"follower_count"] ||
+         [keyString isEqualToString:@"fans_count"] ||
+         [keyString isEqualToString:@"follower"] ||
+         [keyString isEqualToString:@"fans"])) {
+        if ([originalValue isKindOfClass:[NSNumber class]]) {
+            return cachedFollowersNumber;
+        }
+    }
+    
+    // 获赞
+    if (cachedLikesNumber && 
+        ([keyString isEqualToString:@"total_favorited"] ||
+         [keyString isEqualToString:@"favorite_count"] ||
+         [keyString isEqualToString:@"digg_count"] ||
+         [keyString isEqualToString:@"like_count"] ||
+         [keyString isEqualToString:@"praise_count"])) {
+        if ([originalValue isKindOfClass:[NSNumber class]]) {
+            return cachedLikesNumber;
+        }
+    }
+    
+    // 关注
+    if (cachedFollowingNumber && 
+        ([keyString isEqualToString:@"following_count"] ||
+         [keyString isEqualToString:@"follow_count"] ||
+         [keyString isEqualToString:@"following"] ||
+         [keyString isEqualToString:@"follow"])) {
+        if ([originalValue isKindOfClass:[NSNumber class]]) {
+            return cachedFollowingNumber;
+        }
+    }
+    
+    // 互关
+    if (cachedMutualNumber && 
+        ([keyString isEqualToString:@"friend_count"] ||
+         [keyString isEqualToString:@"mutual_friend_count"] ||
+         [keyString isEqualToString:@"mutual_count"] ||
+         [keyString isEqualToString:@"friendship_count"])) {
+        if ([originalValue isKindOfClass:[NSNumber class]]) {
+            return cachedMutualNumber;
+        }
+    }
+    
+    return originalValue;
+}
+%end
+
 // 通用生命周期Hook
 %hook AWEProfileHeaderMyProfileViewController
 - (void)viewDidLoad {
