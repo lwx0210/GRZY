@@ -669,17 +669,6 @@ static void updateModelData(id model) {
 }
 %end
 
-%hook NSUserDefaults
-- (void)setObject:(id)value forKey:(NSString *)defaultName {
-    %orig;
-    if ([defaultName hasPrefix:@"DYYYCustom"]) {
-        // 当自定义数据变化时，重新加载
-        dispatch_async(dispatch_get_main_queue(), ^{
-            loadCustomSocialStats();
-        });
-    }
-}
-%end
 
 %ctor {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYUserAgreementAccepted"]) {
