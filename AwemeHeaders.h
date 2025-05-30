@@ -1178,17 +1178,6 @@ static CGFloat    gStartVal = 0.0;
 @interface AWEAwemeOfflineBottomView : UIView
 @end
 
-//展开渐变
-@interface AWEPlayInteractionElementMaskView : UIView
-@end
-@interface AWEGradientView : UIView
-@end
-
-@interface AWEHotSpotBlurView : UIView
-@end
-@interface AWEHotSearchInnerBottomView : UIView
-@end
-
 //个人自定义
 @interface AWEProfileSocialStatisticView : UIView
 - (void)setFansCount:(NSNumber *)count;
@@ -1200,6 +1189,9 @@ static CGFloat    gStartVal = 0.0;
 
 @interface AWEProfileHeaderMyProfileViewController : UIViewController
 - (void)reloadSettings;
+@end
+
+@interface AWEPlayInteractionUserAvatarView : UIView
 @end
 
 //精简侧边
