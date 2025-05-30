@@ -11,6 +11,19 @@
 }
 %end
 
+// 禁用自动进入直播间
+%hook AWELiveNewPreStreamViewController
+
+- (void)setAutoEnterEnable:(BOOL)enable {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableAutoEnterLive"]) {
+        %orig(NO);
+    } else {
+        %orig(enable);
+    }
+}
+
+%end
+
 //隐藏去商城看看
 %hook AWEFeedTabJumpGuideView
 
