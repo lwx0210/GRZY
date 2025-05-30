@@ -1128,8 +1128,7 @@ static CGFloat    gStartVal = 0.0;
 - (UITapGestureRecognizer *)tapGestureForSubview:(UIView *)subview;
 - (void)openDYYYSettings;
 @end
-@interface AWELeftSideBarViewController : UIViewController
-@end
+
 
 @interface AWEFeedContainerViewController : UIViewController
 @end
@@ -1193,4 +1192,18 @@ static CGFloat    gStartVal = 0.0;
 - (void)reloadSettings;
 @end
 
+//精简侧边
+@interface AWELeftSideBarViewController : UIViewController <UICollectionViewDelegate, UICollectionViewDataSource>
+- (UICollectionView *)collectionView;
+- (void)adjustContainerViewLayout:(UICollectionViewCell *)cell;
+@end
+@interface UIView (Helper)
+- (BOOL)containsClassNamed:(NSString *)className;
+- (UIView *)findViewWithClassName:(NSString *)className;
+@end
+
+@interface AWESettingsTableViewController : AWESettingBaseViewController
+- (id)viewModel;
+- (void)removeAboutSection;
+@end
 
