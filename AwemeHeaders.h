@@ -1020,6 +1020,16 @@ static CGFloat    gStartVal = 0.0;
 - (void)setVideoControllerPlaybackRate:(double)arg0;
 @end
 
+//全局透明
+@interface AWEPlayInteractionElementMaskView : UIView
+@end
+@interface AWEGradientView : UIView
+@end
+@interface AWEHotSpotBlurView : UIView
+@end
+@interface AWEHotSearchInnerBottomView : UIView
+@end
+
 //底部热点提示框
 @interface AWENewHotSpotBottomBarView : UIView
 @property (nonatomic, strong, readonly) UIView *superview;
