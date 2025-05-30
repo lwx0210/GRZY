@@ -14,7 +14,6 @@
 #import "DYYYManager.h"
 
 #import "DYYYConstants.h"
-#import "DYYYSettingViewController.h"
 #import "DYYYToast.h"
 
 %hook AWEPlayInteractionUserAvatarElement
@@ -490,7 +489,7 @@
 
 %end
 
-// 重写全局透明方法
+//全局透明
 %hook AWEPlayInteractionViewController
 - (void)viewDidLayoutSubviews {
 	%orig;
@@ -502,7 +501,7 @@
         }
         parentVC = parentVC.parentViewController;
     }
-	
+
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
 		NSString *currentReferString = self.referString;
 		CGRect frame = self.view.frame;
