@@ -1259,6 +1259,16 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		    @"title" : @"隐藏左侧返回",
 		    @"detail" : @"",
 		    @"cellType" : @6,
+		    @"imageName" : @"ic_eyeslash_outlined_16"},
+                @{@"identifier" : @"DYYYStreamlinethesidebar",
+		    @"title" : @"隐藏侧栏元素",
+		    @"detail" : @"",
+		    @"cellType" : @6,
+		    @"imageName" : @"ic_eyeslash_outlined_16"},
+		  @{@"identifier" : @"DYYYHideSettingsAbout",
+		    @"title" : @"隐藏设置关于",
+		    @"detail" : @"",
+		    @"cellType" : @6,
 		    @"imageName" : @"ic_eyeslash_outlined_16"}
 	  ];
 
