@@ -1955,6 +1955,21 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 	  // 【长按面板设置】分类
 	  NSMutableArray<AWESettingItemModel *> *longPressItems = [NSMutableArray array];
 	  NSArray *longPressSettings = @[
+			    @{@"identifier" : @"DYYYisEnableModern",
+			      @"title" : @"启用新版玻璃面板",
+			      @"detail" : @"",
+			      @"cellType" : @6,
+			      @"imageName" : @"ic_gearsimplify_outlined_20"},
+		            @{@"identifier" : @"DYYYisEnableModernLight",
+			      @"title" : @"启用新版浅色面板",
+			      @"detail" : @"",
+			      @"cellType" : @6,
+			      @"imageName" : @"ic_gearsimplify_outlined_20"},
+			    @{@"identifier" : @"DYYYModernPanelFollowSystem",
+			      @"title" : @"启用面板跟随系统",
+			      @"detail" : @"",
+			      @"cellType" : @6,
+			      @"imageName" : @"ic_gearsimplify_outlined_20"},
 			    @{@"identifier" : @"DYYYLongPressSaveVideo",
 			      @"title" : @"长按保存当前视频",
 			      @"detail" : @"",
@@ -2335,21 +2350,6 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_video_outlined_20"},
-			    @{@"identifier" : @"DYYYisEnableModern",
-			      @"title" : @"启用新版玻璃面板",
-			      @"detail" : @"",
-			      @"cellType" : @6,
-			      @"imageName" : @"ic_gearsimplify_outlined_20"},
-		            @{@"identifier" : @"DYYYisEnableModernLight",
-			      @"title" : @"启用新版浅色面板",
-			      @"detail" : @"",
-			      @"cellType" : @6,
-			      @"imageName" : @"ic_gearsimplify_outlined_20"},
-			    @{@"identifier" : @"DYYYModernPanelFollowSystem",
-			      @"title" : @"启用面板跟随系统",
-			      @"detail" : @"",
-			      @"cellType" : @6,
-			      @"imageName" : @"ic_gearsimplify_outlined_20"},
 		            @{@"identifier" : @"DYYYVideoGesture",
 		              @"title" : @"启用横屏交互增强",
 		              @"detail" : @"",
@@ -2729,6 +2729,14 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		    @"cellType" : @6,
 		    @"imageName" : @"ic_eyeslash_outlined_16"}];
 	  [clearButtonItems addObject:hideTabButton];
+              AWESettingItemModel *hideChapterButton = [DYYYSettingsHelper
+	      createSettingItem:
+		  @{@"identifier" : @"DYYYHideChapter",
+		    @"title" : @"清屏隐藏章节目录",
+		    @"detail" : @"",
+		    @"cellType" : @6,
+		    @"imageName" : @"ic_eyeslash_outlined_16"}];
+	  [clearButtonItems addObject:hideChapterButton];
 	  AWESettingItemModel *hideSpeedButton = [DYYYSettingsHelper
 	      createSettingItem:
 		  @{@"identifier" : @"DYYYHideSpeed",
