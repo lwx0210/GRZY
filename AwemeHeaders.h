@@ -1212,3 +1212,7 @@ static CGFloat gStartVal = 0.0;
 @interface AWEProfileMixCollectionView : UICollectionView
 @property(nonatomic, assign) BOOL fromHome;
 @end
+
+@interface AFDViewedBottomView : UIView
+@property (nonatomic, strong, readonly) UIView *effectView;
+@end
