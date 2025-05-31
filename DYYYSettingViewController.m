@@ -401,6 +401,7 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) {
             [DYYYSettingItem itemWithTitle:@"清屏隐藏所有弹幕" key:@"DYYYHideDanmaku" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"清屏隐藏底栏滑条" key:@"DYYYHideSlider" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"清屏隐藏首页底栏" key:@"DYYYHideTabBar" type:DYYYSettingItemTypeSwitch],
+            [DYYYSettingItem itemWithTitle:@"清屏隐藏章节目录" key:@"DYYYHideChapter" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"清屏隐藏倍速按钮" key:@"DYYYHideSpeed" type:DYYYSettingItemTypeSwitch]
         ]
     ];
