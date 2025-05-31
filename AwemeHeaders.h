@@ -4,35 +4,34 @@
 #define DYYYGetBool(key) [[NSUserDefaults standardUserDefaults] boolForKey:key]
 #define DYYY_IGNORE_GLOBAL_ALPHA_TAG 114514
 typedef NS_ENUM(NSInteger, MediaType) {
-    MediaTypeVideo,
-    MediaTypeImage,
-    MediaTypeAudio,
-    MediaTypeHeic
+  MediaTypeVideo,
+  MediaTypeImage,
+  MediaTypeAudio,
+  MediaTypeHeic
 };
+
 static __weak UICollectionView *gFeedCV = nil;
-// ============ iOS 18 音量控制 ============ //
+// 音量控制
 @interface AVSystemController : NSObject
 + (instancetype)sharedAVSystemController;
 - (BOOL)setVolumeTo:(float)value forCategory:(NSString *)cat;
 - (float)volumeForCategory:(NSString *)cat;
 @end
-
-// ============ 亮度 HUD ============ //
+// 亮度控制
 @interface SBHUDController : NSObject
 + (instancetype)sharedInstance;
 - (void)presentHUDWithIcon:(NSString *)name level:(float)level;
 @end
-
-// ============ 调节模式枚举 & 全局状态 ============ //
+// 调节模式&全局状态
 typedef NS_ENUM(NSUInteger, DYEdgeMode) {
-    DYEdgeModeNone       = 0,
-    DYEdgeModeBrightness = 1,
-    DYEdgeModeVolume     = 2,
+  DYEdgeModeNone = 0,
+  DYEdgeModeBrightness = 1,
+  DYEdgeModeVolume = 2,
 };
+static DYEdgeMode gMode = DYEdgeModeNone;
+static CGFloat gStartY = 0.0;
+static CGFloat gStartVal = 0.0;
 
-static DYEdgeMode gMode   = DYEdgeModeNone;
-static CGFloat    gStartY = 0.0;
-static CGFloat    gStartVal = 0.0;
 @interface URLModel : NSObject
 @property (nonatomic, strong) NSArray *originURLList;
 @end
