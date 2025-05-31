@@ -321,12 +321,13 @@ static CGFloat gStartVal = 0.0;
 @property (nonatomic, assign, readonly) UITabBarController *yy_viewController;
 @end
 
-@interface AWEPlayInteractionListenFeedView : UIView
+@interface AWENoxusHighlightButton : UIButton
+@end
 
+@interface AWEPlayInteractionListenFeedView : UIView
 @end
 
 @interface AWEFeedLiveMarkView : UIView
-
 @end
 
 @interface AWEPlayInteractionTimestampElement : UIView
