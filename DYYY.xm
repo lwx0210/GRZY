@@ -514,6 +514,19 @@
 
 %end
 
+%hook AFDViewedBottomView
+- (void)layoutSubviews {
+    %orig;
+    
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+
+        self.backgroundColor = [UIColor clearColor];
+        
+        self.effectView.hidden = YES;
+    }
+}
+%end
+
 // 处理视频流直播文案透明度
 %hook AWEElementStackView
 
