@@ -2159,6 +2159,7 @@ static NSString * const kStreamlineSidebarKey = @"DYYYStreamlinethesidebar";
 
 %end
 
+//横屏两侧增强
 %hook AWELandscapeFeedViewController
 - (void)viewDidLoad {
     %orig;
@@ -2166,7 +2167,7 @@ static NSString * const kStreamlineSidebarKey = @"DYYYStreamlinethesidebar";
     // 尝试优先走属性
     gFeedCV = self.collectionView;
 
-    // 保险起见再 fallback：遍历 subviews
+    // 保险起见再fallback,遍历 subviews
     if (!gFeedCV) {
         for (UIView *v in self.view.subviews) {
             if ([v isKindOfClass:[UICollectionView class]]) {
@@ -2183,19 +2184,19 @@ static NSString * const kStreamlineSidebarKey = @"DYYYStreamlinethesidebar";
 // 拦截手指拖动
 - (void)handlePan:(UIPanGestureRecognizer *)pan {
 
-    /* 0️⃣ 仅处理目标 Feed 列表。其余 collectionView 直接走系统逻辑 */
-    if (self != gFeedCV) {
+    /* 仅处理横屏Feed列表。其余collectionView直接走系统逻辑 */
+    if (self != gFeedCV || ![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYVideoGesture"]) {
         %orig;
         return;
     }
 
-    /* 1️⃣ 取触点坐标、手势状态 */
+    /* 取触点坐标、手势状态 */
     CGPoint loc   = [pan locationInView:self];
     CGFloat w     = self.bounds.size.width;
     CGFloat xPct  = loc.x / w;                          // 0.0 ~ 1.0
     UIGestureRecognizerState st = pan.state;
 
-    /* 2️⃣ BEGAN：判定左右 20 % 区域 → 进入亮度 / 音量模式 */
+    /* BEGAN：判定左右 20 % 区域 → 进入亮度 / 音量模式 */
     if (st == UIGestureRecognizerStateBegan) {
 
         gStartY = loc.y;
@@ -2214,7 +2215,7 @@ static NSString * const kStreamlineSidebarKey = @"DYYYStreamlinethesidebar";
         }
     }
 
-    /* 3️⃣ 调节阶段：左右边缘时吞掉滚动、修改亮度/音量 */
+    /* 调节阶段：左右边缘时吞掉滚动、修改亮度/音量 */
     if (gMode != DYEdgeModeNone) {
 
         if (st == UIGestureRecognizerStateChanged) {
@@ -2239,21 +2240,22 @@ static NSString * const kStreamlineSidebarKey = @"DYYYStreamlinethesidebar";
             [pan setTranslation:CGPointZero inView:self];
         }
 
-        /* 4️⃣ 结束／取消：状态复位 */
+        /* 结束／取消：状态复位 */
         if (st == UIGestureRecognizerStateEnded     ||
             st == UIGestureRecognizerStateCancelled ||
             st == UIGestureRecognizerStateFailed) {
             gMode = DYEdgeModeNone;
         }
 
-        return;    // ⚠️ 左右边缘：彻底阻断 %orig，避免翻页
+        return;    // 左右边缘：彻底阻断 %orig，避免翻页
     }
 
-    /* 5️⃣ 中间区域：直接执行原先翻页逻辑 */
+    /* 中间区域：直接执行原先翻页逻辑 */
     %orig;
 }
 
 %end
+
 
 %ctor {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYUserAgreementAccepted"]) {
