@@ -517,41 +517,41 @@
 }
 %end
 
-//隐藏加入挑战及顶栏输入框扫一扫
+//隐藏加入挑战及左侧返回
 %hook UIButton
 
 - (void)setTitle:(NSString *)title forState:(UIControlState)state {
-    %orig;
-    
-    if ([title isEqualToString:@"加入挑战"]) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideChallengeStickers"]) {
-                UIResponder *responder = self;
-                BOOL isInPlayInteractionViewController = NO;
+	%orig;
 
-                while ((responder = [responder nextResponder])) {
-                    if ([responder isKindOfClass:%c(AWEPlayInteractionViewController)]) {
-                        isInPlayInteractionViewController = YES;
-                        break;
-                    }
-                }
+	if ([title isEqualToString:@"加入挑战"]) {
+		dispatch_async(dispatch_get_main_queue(), ^{
+		  if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideChallengeStickers"]) {
+			  UIResponder *responder = self;
+			  BOOL isInPlayInteractionViewController = NO;
 
-                if (isInPlayInteractionViewController) {
-                    UIView *parentView = self.superview;
-                    if (parentView) {
-                        UIView *grandParentView = parentView.superview;
-                        if (grandParentView) {
-                            grandParentView.hidden = YES;
-                        } else {
-                            parentView.hidden = YES;
-                        }
-                    } else {
-                        self.hidden = YES;
-                    }
-                }
-            }
-        });
-    }
+			  while ((responder = [responder nextResponder])) {
+				  if ([responder isKindOfClass:%c(AWEPlayInteractionViewController)]) {
+					  isInPlayInteractionViewController = YES;
+					  break;
+				  }
+			  }
+
+			  if (isInPlayInteractionViewController) {
+				  UIView *parentView = self.superview;
+				  if (parentView) {
+					  UIView *grandParentView = parentView.superview;
+					  if (grandParentView) {
+						  grandParentView.hidden = YES;
+					  } else {
+						  parentView.hidden = YES;
+					  }
+				  } else {
+					  self.hidden = YES;
+				  }
+			  }
+		  }
+		});
+	}
 }
 
 - (void)layoutSubviews {
@@ -565,11 +565,12 @@
 			return;
 		}
 	}
-	
+
 	if ([accessibilityLabel isEqualToString:@"返回"]) {
 		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideBack"]) {
 			UIView *parent = self.superview;
-			if ([parent isKindOfClass:%c(AWEBaseElementView)]) {
+			// 父视图是AWEBaseElementView(排除用户主页返回按钮) 按钮类是AWENoxusHighlightButton(排除横屏返回按钮)
+			if ([parent isKindOfClass:%c(AWEBaseElementView)] && ![self isKindOfClass:%c(AWENoxusHighlightButton)]) {
 				[self removeFromSuperview];
 			}
 			return;
