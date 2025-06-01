@@ -2331,7 +2331,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		              @"cellType" : @6,
 		              @"imageName" : @"ic_at_outlined_20"},
 		            @{@"identifier" : @"DYYYDisableSidebarGesture",
-		              @"title" : @"禁用侧滑进入边栏",
+		              @"title" : @"禁用主页左滑入口",
 		              @"detail" : @"",
 		              @"cellType" : @6,
 		              @"imageName" : @"ic_gearsimplify_outlined_20"},
