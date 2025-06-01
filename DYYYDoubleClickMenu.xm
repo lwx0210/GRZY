@@ -19,31 +19,8 @@
 		// 获取当前视频模型
 		AWEAwemeModel *awemeModel = nil;
 
-		// 尝试通过可能的方法/属性获取模型
-		if ([self respondsToSelector:@selector(awemeModel)]) {
-			awemeModel = [self performSelector:@selector(awemeModel)];
-		} else if ([self respondsToSelector:@selector(currentAwemeModel)]) {
-			awemeModel = [self performSelector:@selector(currentAwemeModel)];
-		} else if ([self respondsToSelector:@selector(getAwemeModel)]) {
-			awemeModel = [self performSelector:@selector(getAwemeModel)];
-		}
-
-		// 如果仍然无法获取模型，尝试从视图控制器获取
-		if (!awemeModel) {
-			UIViewController *baseVC = [self valueForKey:@"awemeBaseViewController"];
-			if (baseVC && [baseVC respondsToSelector:@selector(model)]) {
-				awemeModel = [baseVC performSelector:@selector(model)];
-			} else if (baseVC && [baseVC respondsToSelector:@selector(awemeModel)]) {
-				awemeModel = [baseVC performSelector:@selector(awemeModel)];
-			}
-		}
-
-		// 如果无法获取模型，执行默认行为并返回
-		if (!awemeModel) {
-			%orig;
-			return;
-		}
-
+		awemeModel = [self performSelector:@selector(awemeModel)];
+		
 		AWEVideoModel *videoModel = awemeModel.video;
 		AWEMusicModel *musicModel = awemeModel.music;
 
@@ -75,11 +52,7 @@
 						      NSURL *url = [NSURL URLWithString:currentImageModel.urlList.firstObject];
 						      [DYYYManager downloadMedia:url
 								       mediaType:MediaTypeImage
-								      completion:^(BOOL success) {
-									if (success) {
-									} else {
-										[DYYYManager showToast:@"图片保存失败"];
-									}
+								      completion:^(BOOL success){
 								      }];
 					      }
 				      } else {
@@ -88,11 +61,7 @@
 						      NSURL *url = [NSURL URLWithString:videoModel.h264URL.originURLList.firstObject];
 						      [DYYYManager downloadMedia:url
 								       mediaType:MediaTypeVideo
-								      completion:^(BOOL success) {
-									if (success) {
-									} else {
-										[DYYYManager showToast:@"视频保存失败"];
-									}
+								      completion:^(BOOL success){
 								      }];
 					      }
 				      }
