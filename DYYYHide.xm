@@ -13,6 +13,7 @@
 
 //突破录制视频时间
 %hook ACCRecordConfigServiceImpl
+
 if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYRecordingVideo"]) {
 - (void)configPublishModelMaxDurationWithAsset:(id)asset showRecordLengthTipBlock:(BOOL)block isFirstEmbed:(BOOL)isFirstEmbed {
     %orig(asset, block, isFirstEmbed);
