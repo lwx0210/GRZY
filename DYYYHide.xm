@@ -2291,6 +2291,7 @@ static NSString * const kStreamlineSidebarKey = @"DYYYStreamlinethesidebar";
 
 %end
 
+//禁用侧滑进入边栏
 %hook AWELeftSideBarAddChildTransitionObject
 
 - (void)handleShowSliderPanGesture:(id)gr {
