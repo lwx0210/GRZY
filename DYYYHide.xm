@@ -12,13 +12,28 @@
 %end
 
 // 禁用自动进入直播间
-%hook AWELiveNewPreStreamViewController
+%hook AWELiveFeedStatusViewModel
 
-- (void)setAutoEnterEnable:(BOOL)enable {
+- (BOOL)enableAutoEnterLive {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableAutoEnterLive"]) {
+        return NO;
+    }
+    return %orig;
+}
+
+- (void)updateAutoEnterTips {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableAutoEnterLive"]) {
+        // 禁止更新自动进入提示
+        return;
+    }
+    %orig;
+}
+
+- (void)setDirectShowAutoEnterStyle:(BOOL)style {
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableAutoEnterLive"]) {
         %orig(NO);
     } else {
-        %orig(enable);
+        %orig(style);
     }
 }
 
