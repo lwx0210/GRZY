@@ -1216,3 +1216,7 @@ static CGFloat gStartVal = 0.0;
 @interface AFDViewedBottomView : UIView
 @property (nonatomic, strong, readonly) UIView *effectView;
 @end
+
+//禁用手势
+@interface AWELeftSideBarAddChildTransitionObject : NSObject
+@end
