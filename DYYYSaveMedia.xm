@@ -314,6 +314,7 @@ static BOOL isDownloadFlied = NO;
 %end
 
 // 个人自定义
+// 控制开关 & 自定义数据持久化
 #define DYYY_SOCIAL_STATS_ENABLED_KEY @"DYYYEnableSocialStatsCustom"
 #define DYYY_SOCIAL_FOLLOWERS_KEY @"DYYYCustomFollowers"
 #define DYYY_SOCIAL_LIKES_KEY @"DYYYCustomLikes"
@@ -412,7 +413,6 @@ static void updateModelData(id model) {
     }
 }
 
-// 数据Hook
 %hook AWEUserModel
 - (id)init {
     id instance = %orig;
@@ -519,6 +519,7 @@ static void updateModelData(id model) {
 }
 %end
 
+
 // 统计视图
 %hook AWEProfileSocialStatisticView
 - (void)setFansCount:(NSNumber *)count {
@@ -536,7 +537,6 @@ static void updateModelData(id model) {
         %orig;
     }
 }
-
 - (void)setFollowingCount:(NSNumber *)count {
     if (socialStatsEnabled && cachedFollowingNumber) {
         %orig(cachedFollowingNumber);
@@ -544,7 +544,6 @@ static void updateModelData(id model) {
         %orig;
     }
 }
-
 - (void)setFriendCount:(NSNumber *)count {
     if (socialStatsEnabled && cachedMutualNumber) {
         %orig(cachedMutualNumber);
@@ -552,33 +551,52 @@ static void updateModelData(id model) {
         %orig;
     }
 }
-
 - (void)p_updateSocialStatisticContent:(BOOL)animated {
     %orig;
-    if (socialStatsEnabled) {
-        // 强制二次更新
+    if (socialStatsEnabled && !isUpdatingViews) {
+        isUpdatingViews = YES;
+        NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
+        if (now - lastUpdateTimestamp < 0.5) {
+            isUpdatingViews = NO;
+            return;
+        }
+        lastUpdateTimestamp = now;
+        
+        __weak __typeof__(self) weakSelf = self;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            if (cachedFollowersNumber) [self setFansCount:cachedFollowersNumber];
-            if (cachedLikesNumber) [self setPraiseCount:cachedLikesNumber];
-            if (cachedFollowingNumber) [self setFollowingCount:cachedFollowingNumber];
-            if (cachedMutualNumber) [self setFriendCount:cachedMutualNumber];
+            __strong __typeof__(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) {
+                isUpdatingViews = NO;
+                return;
+            }
+            
+            @try {
+                if (cachedFollowersNumber) [strongSelf setFansCount:cachedFollowersNumber];
+                if (cachedLikesNumber) [strongSelf setPraiseCount:cachedLikesNumber];
+                if (cachedFollowingNumber) [strongSelf setFollowingCount:cachedFollowingNumber];
+                if (cachedMutualNumber) [strongSelf setFriendCount:cachedMutualNumber];
+            } @catch (NSException *e) {
+                NSLog(@"[DYYY] Exception in updating stats: %@", e);
+            } @finally {
+                isUpdatingViews = NO;
+            }
         });
     }
 }
-
 - (void)layoutSubviews {
     %orig;
-    if (socialStatsEnabled) {
+    
+    if (socialStatsEnabled && !isUpdatingViews) {
+        NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
+        if (now - lastUpdateTimestamp < 0.5) return;
+        
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (cachedFollowersNumber) [self setFansCount:cachedFollowersNumber];
-            if (cachedLikesNumber) [self setPraiseCount:cachedLikesNumber];
-            if (cachedFollowingNumber) [self setFollowingCount:cachedFollowingNumber];
-            if (cachedMutualNumber) [self setFriendCount:cachedMutualNumber];
             [self p_updateSocialStatisticContent:YES];
         });
     }
 }
 %end
+
 
 // 字典数据源
 %hook NSDictionary
@@ -636,48 +654,6 @@ static void updateModelData(id model) {
     }
     
     return originalValue;
-}
-%end
-
-// 通用生命周期Hook
-%hook AWEProfileHeaderMyProfileViewController
-- (void)viewDidLoad {
-    %orig;
-    
-    // 监听设置变化
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(reloadSettings)
-                                                 name:NSUserDefaultsDidChangeNotification
-                                               object:nil];
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    %orig;
-    
-    // 每次进入页面刷新数据
-    loadCustomSocialStats();
-}
-
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    %orig;
-}
-
-%new
-- (void)reloadSettings {
-    loadCustomSocialStats();
-}
-%end
-
-%hook NSUserDefaults
-- (void)setObject:(id)value forKey:(NSString *)defaultName {
-    %orig;
-    if ([defaultName hasPrefix:@"DYYYCustom"]) {
-        // 当自定义数据变化时，重新加载
-        dispatch_async(dispatch_get_main_queue(), ^{
-            loadCustomSocialStats();
-        });
-    }
 }
 %end
 
