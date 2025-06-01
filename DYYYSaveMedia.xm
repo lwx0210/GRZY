@@ -314,7 +314,6 @@ static BOOL isDownloadFlied = NO;
 %end
 
 // 个人自定义
-// 控制开关 & 自定义数据持久化
 #define DYYY_SOCIAL_STATS_ENABLED_KEY @"DYYYEnableSocialStatsCustom"
 #define DYYY_SOCIAL_FOLLOWERS_KEY @"DYYYCustomFollowers"
 #define DYYY_SOCIAL_LIKES_KEY @"DYYYCustomLikes"
@@ -658,7 +657,5 @@ static void updateModelData(id model) {
 %end
 
 %ctor {
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYUserAgreementAccepted"]) {
-		%init;
-	}
+    loadCustomSocialStats();
 }
