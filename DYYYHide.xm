@@ -11,18 +11,6 @@
 }
 %end
 
-//突破录制视频时间
-%hook ACCRecordConfigServiceImpl
-
-- (void)configPublishModelMaxDurationWithAsset:(id)asset showRecordLengthTipBlock:(BOOL)block isFirstEmbed:(BOOL)isFirstEmbed {
-    %orig(asset, block, isFirstEmbed);
-if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYRecordingVideo"]) {
-
-    [self startFixedMaxDurationMode:@(5400.0)];
-  }
-}
-%end
-
 // 禁用自动进入直播间
 %hook AWELiveFeedStatusViewModel
 
