@@ -1178,7 +1178,7 @@ static CGFloat gStartVal = 0.0;
 @interface AWEAwemeOfflineBottomView : UIView
 @end
 
-//个人自定义
+//数据伪造
 @interface AWEProfileSocialStatisticView : UIView
 - (void)setFansCount:(NSNumber *)count;
 - (void)setPraiseCount:(NSNumber *)count;
