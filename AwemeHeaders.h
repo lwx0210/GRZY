@@ -1220,7 +1220,3 @@ static CGFloat gStartVal = 0.0;
 //禁用手势
 @interface AWELeftSideBarAddChildTransitionObject : NSObject
 @end
-
-//突破录屏限制
-@interface ACCRecordConfigServiceImpl : UIView
-@end
