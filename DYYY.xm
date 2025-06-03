@@ -16,6 +16,99 @@
 #import "DYYYConstants.h"
 #import "DYYYToast.h"
 
+//最高画质
+%hook AWEVideoModel
+
+- (AWEURLModel *)playURL {
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableVideoHighestQuality"]) {
+        return %orig;
+    }
+    
+    // 获取比特率模型数组
+    NSArray *bitrateModels = [self bitrateModels];
+    if (!bitrateModels || bitrateModels.count == 0) {
+        return %orig;
+    }
+    
+    // 查找比特率最高的模型
+    id highestBitrateModel = nil;
+    NSInteger highestBitrate = 0;
+    
+    for (id model in bitrateModels) {
+        NSInteger bitrate = 0;
+        BOOL validModel = NO;
+        
+        if ([model isKindOfClass:NSClassFromString(@"AWEVideoBSModel")]) {
+            id bitrateValue = [model bitrate];
+            if (bitrateValue) {
+                bitrate = [bitrateValue integerValue];
+                validModel = YES;
+            }
+        }
+        
+        if (validModel && bitrate > highestBitrate) {
+            highestBitrate = bitrate;
+            highestBitrateModel = model;
+        }
+    }
+    
+    // 如果找到了最高比特率模型，获取其播放地址
+    if (highestBitrateModel) {
+        id playAddr = [highestBitrateModel valueForKey:@"playAddr"];
+        if (playAddr && [playAddr isKindOfClass:%c(AWEURLModel)]) {
+            return playAddr;
+        }
+    }
+    
+    return %orig;
+}
+
+- (NSArray *)bitrateModels {
+
+	NSArray *originalModels = %orig;
+
+	if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableVideoHighestQuality"]) {
+		return originalModels;
+	}
+
+	if (originalModels.count == 0) {
+		return originalModels;
+	}
+
+	// 查找比特率最高的模型
+	id highestBitrateModel = nil;
+	NSInteger highestBitrate = 0;
+
+	for (id model in originalModels) {
+
+		NSInteger bitrate = 0;
+		BOOL validModel = NO;
+
+		if ([model isKindOfClass:NSClassFromString(@"AWEVideoBSModel")]) {
+			id bitrateValue = [model bitrate];
+			if (bitrateValue) {
+				bitrate = [bitrateValue integerValue];
+				validModel = YES;
+			}
+		}
+
+		if (validModel) {
+			if (bitrate > highestBitrate) {
+				highestBitrate = bitrate;
+				highestBitrateModel = model;
+			}
+		}
+	}
+
+	if (highestBitrateModel) {
+		return @[ highestBitrateModel ];
+	}
+
+	return originalModels;
+}
+
+%end
+
 %hook AWEPlayInteractionUserAvatarElement
 - (void)onFollowViewClicked:(UITapGestureRecognizer *)gesture {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYfollowTips"]) {
@@ -1744,58 +1837,6 @@ static CGFloat rightLabelRightMargin = -1;
 	} else {
 		return %orig;
 	}
-}
-
-%end
-
-//推荐页视频最高清晰度
-%hook AWEURLModel
-
-- (id)originURLList {
-    NSArray *originalList = %orig;
-
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableVideoHighestQuality"]) {
-        return originalList;
-    }
-
-    BOOL containsVideoURL = NO;
-    for (NSString *url in originalList) {
-        if ([url containsString:@"video_mp4"] || [url containsString:@".mp4"]) {
-            containsVideoURL = YES;
-            break;
-        }
-    }
-    
-    if (containsVideoURL) {
-        NSString *highestQualityURL = nil;
-        NSInteger highestBitrate = 0;
-        
-        for (NSString *url in originalList) {
-            if ([url containsString:@"video_mp4"] || [url containsString:@".mp4"]) {
-                // 从URL中提取比特率参数
-                NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"br=(\\d+)" options:0 error:nil];
-                NSTextCheckingResult *match = [regex firstMatchInString:url options:0 range:NSMakeRange(0, url.length)];
-                
-                if (match) {
-                    NSRange bitrateRange = [match rangeAtIndex:1];
-                    NSString *bitrateString = [url substringWithRange:bitrateRange];
-                    NSInteger bitrate = [bitrateString integerValue];
-                    
-                    if (bitrate > highestBitrate) {
-                        highestBitrate = bitrate;
-                        highestQualityURL = url;
-                    }
-                }
-            }
-        }
-        
-        if (highestQualityURL) {
-            return @[highestQualityURL];
-        }
-    }
-    
-    // 如果不是视频URL或者找不到比特率参数，则返回原始列表
-    return originalList;
 }
 
 %end
