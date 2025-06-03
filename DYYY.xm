@@ -514,6 +514,52 @@
 
 %end
 
+%hook AWECommentInputViewController
+
+- (UIView *)view {
+	UIView *originalView = %orig;
+
+	NSString *transparentValue = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYGlobalTransparency"];
+	if (transparentValue.length > 0) {
+		CGFloat alphaValue = transparentValue.floatValue;
+		if (alphaValue >= 0.0 && alphaValue <= 1.0) {
+			for (UIView *subview in originalView.subviews) {
+				if (subview.tag != DYYY_IGNORE_GLOBAL_ALPHA_TAG) {
+					if (subview.alpha > 0) {
+						subview.alpha = alphaValue;
+					}
+				}
+			}
+		}
+	}
+
+	return originalView;
+}
+
+%end
+
+%hook AWEAwemeDetailNaviBarContainerView
+
+- (void)layoutSubviews {
+    %orig;
+    
+    NSString *transparentValue = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYGlobalTransparency"];
+    if (transparentValue.length > 0) {
+        CGFloat alphaValue = transparentValue.floatValue;
+        if (alphaValue >= 0.0 && alphaValue <= 1.0) {
+            for (UIView *subview in self.subviews) {
+                if (subview.tag != DYYY_IGNORE_GLOBAL_ALPHA_TAG) {
+                    if (subview.alpha > 0) {
+                        subview.alpha = alphaValue;
+                    }
+                }
+            }
+        }
+    }
+}
+
+%end
+
 %hook AFDViewedBottomView
 - (void)layoutSubviews {
     %orig;
