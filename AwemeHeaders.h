@@ -1220,3 +1220,6 @@ static CGFloat gStartVal = 0.0;
 //禁用手势
 @interface AWELeftSideBarAddChildTransitionObject : NSObject
 @end
+
+@interface AWEAwemeDetailNaviBarContainerView : UIView
+@end
