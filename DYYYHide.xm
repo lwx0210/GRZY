@@ -1693,15 +1693,29 @@
 
 // 隐藏上次看到
 %hook DUXPopover
+- (void)layoutSubviews
+{
+    %orig;
 
-- (void)layoutSubviews {
-	%orig;
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePopover"]) {
+        return;
+    }
 
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePopover"]) {
-		[self removeFromSuperview];
-	}
+    id rawContent = nil;
+    @try {
+        rawContent = [self valueForKey:@"content"];
+    } @catch (__unused NSException *e) {
+        return;
+    }
+
+    NSString *text = [rawContent isKindOfClass:NSString.class]
+                     ? (NSString *)rawContent
+                     : [rawContent description];
+
+    if ([text containsString:@"上次看到"]) {
+        [self removeFromSuperview];
+    }
 }
-
 %end
 
 // 隐藏礼物展馆
