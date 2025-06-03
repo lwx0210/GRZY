@@ -15,26 +15,25 @@
 %hook AWELiveFeedStatusViewModel
 
 - (BOOL)enableAutoEnterLive {
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableAutoEnterLive"]) {
-        return NO;
-    }
-    return %orig;
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableAutoEnterLive"]) {
+		return NO;
+	}
+	return %orig;
 }
 
 - (void)updateAutoEnterTips {
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableAutoEnterLive"]) {
-        // 禁止更新自动进入提示
-        return;
-    }
-    %orig;
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableAutoEnterLive"]) {
+		return;
+	}
+	%orig;
 }
 
 - (void)setDirectShowAutoEnterStyle:(BOOL)style {
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableAutoEnterLive"]) {
-        %orig(NO);
-    } else {
-        %orig(style);
-    }
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableAutoEnterLive"]) {
+		%orig(NO);
+	} else {
+		%orig(style);
+	}
 }
 
 %end
