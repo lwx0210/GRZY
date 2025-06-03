@@ -133,59 +133,6 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 		}
 	}
 }
-
-- (void)setFrame:(CGRect)frame {
-	if (![NSThread isMainThread]) {
-		dispatch_async(dispatch_get_main_queue(), ^{
-		  [self setFrame:frame];
-		});
-		return;
-	}
-
-	BOOL enableBlur = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"];
-	BOOL enableFS = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"];
-	BOOL hideAvatar = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHiddenAvatarList"];
-
-	Class SkylightListViewClass = NSClassFromString(@"AWEIMSkylightListView");
-	if (hideAvatar && SkylightListViewClass && [self isKindOfClass:SkylightListViewClass]) {
-		frame = CGRectZero;
-		%orig(frame);
-		return;
-	}
-
-	UIViewController *vc = [self firstAvailableUIViewController];
-	Class DetailVCClass = NSClassFromString(@"AWEMixVideoPanelDetailTableViewController");
-	Class PlayVCClass1 = NSClassFromString(@"AWEAwemePlayVideoViewController");
-	Class PlayVCClass2 = NSClassFromString(@"AWEDPlayerFeedPlayerViewController");
-
-	BOOL isDetailVC = (DetailVCClass && [vc isKindOfClass:DetailVCClass]);
-	BOOL isPlayVC = ((PlayVCClass1 && [vc isKindOfClass:PlayVCClass1]) || (PlayVCClass2 && [vc isKindOfClass:PlayVCClass2]));
-
-	if (isPlayVC && enableBlur) {
-		if (frame.origin.x != 0) {
-			return;
-		}
-	}
-
-	if (isPlayVC && enableFS) {
-		if (frame.origin.x != 0 && frame.origin.y != 0) {
-			%orig(frame);
-			return;
-		}
-		CGRect superF = self.superview.frame;
-		if (CGRectGetHeight(superF) > 0 && CGRectGetHeight(frame) > 0 && CGRectGetHeight(frame) < CGRectGetHeight(superF)) {
-			CGFloat diff = CGRectGetHeight(superF) - CGRectGetHeight(frame);
-			if (fabs(diff - g_heightDifference) < 1.0) {
-				frame.size.height = CGRectGetHeight(superF);
-			}
-		}
-		%orig(frame);
-		return;
-	}
-
-	%orig(frame);
-}
-
 %end
 
 %hook AFDFastSpeedView
