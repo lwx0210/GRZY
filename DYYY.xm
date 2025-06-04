@@ -15,6 +15,172 @@
 
 #import "DYYYConstants.h"
 #import "DYYYToast.h"
+#import "DYYYCdyy.h"
+
+//-----------------游戏作弊声明-----------------//
+ NSArray<NSString *> *diceImageURLs = @[@"url1", @"url2"];
+ NSArray<NSString *> *rpsImageURLs = @[@"url1", @"url2"];
+
+// 声明 ViewControllerForView 函数
+UIViewController *ViewControllerForView(UIView *view) {
+    UIResponder *responder = view;
+    while (responder && ![responder isKindOfClass:[UIViewController class]]) {
+        responder = [responder nextResponder];
+    }
+    return (UIViewController *)responder;
+}
+
+// 定义游戏类型枚举
+typedef NS_ENUM(NSInteger, GameType) {
+    GameTypeDice,
+    GameTypeRPS
+};
+
+void ShowGameSelectorAlert(UIViewController *presentingVC, GameType type, void (^onSelected)(NSInteger selectedIndex));
+
+void ShowGameSelectorAlert(UIViewController *presentingVC, GameType type, void (^onSelected)(NSInteger selectedIndex)) {
+    NSString *title = (type == GameTypeDice) ? @"选择骰子点数" : @"选择猜拳类型";
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
+                                                                   message:nil
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+
+    NSArray<NSString *> *options;
+    if (type == GameTypeDice) {
+        options = @[@"1 点", @"2 点", @"3 点", @"4 点", @"5 点", @"6 点"];
+    } else {
+        options = @[@"石头", @"布", @"剪刀"];
+    }
+
+    for (NSInteger i = 0; i < options.count; i++) {
+        NSString *optionTitle = options[i];
+        UIAlertAction *action = [UIAlertAction actionWithTitle:optionTitle
+                                                         style:UIAlertActionStyleDefault
+                                                       handler:^(UIAlertAction * _Nonnull action) {
+            if (type == GameTypeDice) {
+                [[NSUserDefaults standardUserDefaults] setInteger:i + 1 forKey:@"selectedDicePoint"];
+            } else {
+                [[NSUserDefaults standardUserDefaults] setInteger:i forKey:@"selectedRPS"];
+            }
+            [[NSUserDefaults standardUserDefaults] synchronize];
+
+            if (onSelected) {
+                onSelected(i);
+            }
+        }];
+        [alert addAction:action];
+    }
+
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消"
+                                                     style:UIAlertActionStyleCancel
+                                                   handler:^(UIAlertAction * _Nonnull action) {
+        if (onSelected) {
+            onSelected(-1); 
+        }
+    }];
+    [alert addAction:cancel];
+
+    if (presentingVC) {
+        [presentingVC presentViewController:alert animated:YES completion:nil];
+    }
+}
+//-----------------声明结束-----------------//
+
+//游戏作弊
+%hook AWEIMEmoticonInteractivePage
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    UICollectionViewCell *cell = [collectionView cellForItemAtIndexPath:indexPath];
+
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYGameCheat"]) {
+        %orig;
+        return;
+    }
+
+    UIViewController *vc = ViewControllerForView(collectionView);
+
+    if ([cell.accessibilityLabel isEqualToString:@"摇骰子"]) {
+        ShowGameSelectorAlert(vc, GameTypeDice, ^(NSInteger selectedIndex) {
+            if (selectedIndex >= 0) {
+                [[NSUserDefaults standardUserDefaults] setInteger:selectedIndex + 1 forKey:@"selectedDicePoint"];
+                [[NSUserDefaults standardUserDefaults] synchronize];
+
+                %orig;
+            }
+        });
+        return;
+    }
+
+    if ([cell.accessibilityLabel isEqualToString:@"猜拳"]) {
+        ShowGameSelectorAlert(vc, GameTypeRPS, ^(NSInteger selectedIndex) {
+            if (selectedIndex >= 0) {
+                [[NSUserDefaults standardUserDefaults] setInteger:selectedIndex forKey:@"selectedRPS"];
+                [[NSUserDefaults standardUserDefaults] synchronize];
+
+                %orig;
+            }
+        });
+        return;
+    }
+
+    %orig;
+}
+
+%end
+
+%hook TIMXOSendMessage
+
+- (void)setContent:(id)arg1 {
+
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYGameCheat"]) {
+        %orig(arg1); 
+        return;
+    }
+
+    NSMutableDictionary *mutableContent = [arg1 mutableCopy];
+    if ([mutableContent isKindOfClass:[NSMutableDictionary class]]) {
+        NSNumber *resourceType = mutableContent[@"resource_type"];
+        NSNumber *stickerType = mutableContent[@"sticker_type"];
+        NSString *displayName = mutableContent[@"display_name"];
+
+        // 替换骰子图像
+        if ([resourceType intValue] == 5 &&
+            [stickerType intValue] == 12 &&
+            [displayName isEqualToString:@"摇骰子"]) {
+
+            NSMutableDictionary *urlDict = [mutableContent[@"url"] mutableCopy];
+            if ([urlDict isKindOfClass:[NSMutableDictionary class]]) {
+                NSInteger selectedDicePoint = [[NSUserDefaults standardUserDefaults] integerForKey:@"selectedDicePoint"];
+                if (selectedDicePoint > 0 && selectedDicePoint <= 6) {
+                    NSString *selectedURL = diceImageURLs[selectedDicePoint - 1];
+                    urlDict[@"url_list"] = @[selectedURL];
+                    mutableContent[@"url"] = urlDict;
+                    
+                }
+            }
+        }
+
+        // 替换猜拳图像
+        if ([resourceType intValue] == 5 &&
+            [stickerType intValue] == 12 &&
+            [displayName isEqualToString:@"猜拳"]) {
+
+            NSMutableDictionary *urlDict = [mutableContent[@"url"] mutableCopy];
+            if ([urlDict isKindOfClass:[NSMutableDictionary class]]) {
+                NSInteger selectedRPS = [[NSUserDefaults standardUserDefaults] integerForKey:@"selectedRPS"];
+                if (selectedRPS >= 0 && selectedRPS <= 2) {
+                    NSString *selectedURL = rpsImageURLs[selectedRPS];
+                    urlDict[@"url_list"] = @[selectedURL];
+                    mutableContent[@"url"] = urlDict;
+                    
+                }
+            }
+        }
+    }
+
+    %orig(mutableContent);
+}
+
+%end
 
 //最高画质
 %hook AWEVideoModel
@@ -2096,6 +2262,72 @@ static AWEIMReusableCommonCell *currentCell;
 
 %end
 
+//隐藏AI搜索
+%hook AWESearchKeyboardVoiceSearchEntranceView 
+- (id)initWithFrame:(CGRect)frame {
+    id orig = %orig;
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"]) {
+        [(UIView *)orig setHidden:YES];
+        [(UIView *)orig removeFromSuperview];
+    }
+    return orig;
+}
+- (void)didMoveToWindow {
+    %orig;
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"]) {
+        [self setHidden:YES];
+        [self removeFromSuperview];
+    }
+}
+- (void)setHidden:(BOOL)hidden {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"]) {
+        %orig(YES);
+        [self removeFromSuperview];
+    } else {
+        %orig(hidden);
+    } 
+}
+- (void)willMoveToSuperview:(UIView *)newSuperview {
+    %orig;
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"] && newSuperview) {
+        [self setHidden:YES];
+        [self removeFromSuperview];
+    }
+}
+%end 
+%hook UIView 
+- (void)addSubview:(UIView *)view {
+    %orig;
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"] &&
+       [view isKindOfClass:NSClassFromString(@"AWESearchKeyboardVoiceSearchEntranceView")]) {
+        [view setHidden:YES];
+        [self removeFromSuperview];
+    }
+}
+%end
+%hook UIImageView 
+- (void)layoutSubviews {
+    %orig; // 调用原始方法 
+    BOOL shouldHide = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"];
+    if (shouldHide && CGSizeEqualToSize(self.bounds.size, CGSizeMake(36, 36))) {
+        // 检查是否在AWESearchViewController中
+        UIViewController *vc = [self firstAvailableUIViewController];
+        if ([NSStringFromClass([vc class]) isEqualToString:@"AWESearchViewController"]) {
+            self.hidden = YES;
+        }
+    }
+}
+%end
+
+// 去除隐藏大家都在搜后的留白
+%hook AWESearchAnchorListModel
+
+- (BOOL)hideWords {
+	return [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideCommentViews"];
+}
+
+%end
+
 // Swift 类组 - 这些会在 %ctor 中动态初始化
 %group CommentHeaderGeneralGroup
 %hook AWECommentPanelHeaderSwiftImpl_CommentHeaderGeneralView
@@ -2163,73 +2395,23 @@ static AWEIMReusableCommonCell *currentCell;
         %init(CommentBottomTipsVCGroup,AWECommentPanelListSwiftImpl_CommentBottomTipsContainerViewController = tipsVCClass);
     }
 }
-// 去除隐藏大家都在搜后的留白
-%hook AWESearchAnchorListModel
-
-- (BOOL)hideWords {
-	return [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideCommentViews"];
-}
-
-%end
-
-//隐藏AI搜索
-%hook AWESearchKeyboardVoiceSearchEntranceView 
-- (id)initWithFrame:(CGRect)frame {
-    id orig = %orig;
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"]) {
-        [(UIView *)orig setHidden:YES];
-        [(UIView *)orig removeFromSuperview];
-    }
-    return orig;
-}
-- (void)didMoveToWindow {
-    %orig;
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"]) {
-        [self setHidden:YES];
-        [self removeFromSuperview];
-    }
-}
-- (void)setHidden:(BOOL)hidden {
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"]) {
-        %orig(YES);
-        [self removeFromSuperview];
-    } else {
-        %orig(hidden);
-    } 
-}
-- (void)willMoveToSuperview:(UIView *)newSuperview {
-    %orig;
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"] && newSuperview) {
-        [self setHidden:YES];
-        [self removeFromSuperview];
-    }
-}
-%end 
-%hook UIView 
-- (void)addSubview:(UIView *)view {
-    %orig;
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"] &&
-       [view isKindOfClass:NSClassFromString(@"AWESearchKeyboardVoiceSearchEntranceView")]) {
-        [view setHidden:YES];
-        [self removeFromSuperview];
-    }
-}
-%end
-%hook UIImageView 
-- (void)layoutSubviews {
-    %orig; // 调用原始方法 
-    BOOL shouldHide = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"];
-    if (shouldHide && CGSizeEqualToSize(self.bounds.size, CGSizeMake(36, 36))) {
-        // 检查是否在AWESearchViewController中
-        UIViewController *vc = [self firstAvailableUIViewController];
-        if ([NSStringFromClass([vc class]) isEqualToString:@"AWESearchViewController"]) {
-            self.hidden = YES;
-        }
-    }
-}
-%end
-
 %ctor {
+      // 骰子图像 URL 数组
+    diceImageURLs = @[
+        @"https://p26-sign.douyinpic.com/obj/im-resource/1687261843554-ts-e9aab0e5ad90312e706e67?lk3s=91c5b7cb&x-expires=1776769200&x-signature=baB%2FIZcAdhLwmwypQAVayoGDCGw%3D&from=2445653963&s=im_111&se=false&sc=image&biz_tag=aweme_im",
+        @"https://p3-sign.douyinpic.com/obj/im-resource/1687261849121-ts-e9aab0e5ad90322e706e67?lk3s=91c5b7cb&x-expires=1776783600&x-signature=9OjeBKFsrwsSvDbJ7zgYW438GkA%3D&from=2445653963&s=im_111&se=false&sc=image&biz_tag=aweme_im",
+        @"https://p3-sign.douyinpic.com/obj/im-resource/1687261857819-ts-e9aab0e5ad90332e706e67?lk3s=91c5b7cb&x-expires=1776769200&x-signature=kai68kuaaX98V4kt0OlBpEAF1vM%3D&from=2445653963&s=im_111&se=false&sc=image&biz_tag=aweme_im",
+        @"https://p11-sign.douyinpic.com/obj/im-resource/1687261865141-ts-e9aab0e5ad90342e706e67?lk3s=91c5b7cb&x-expires=1776769200&x-signature=LcVn%2Bw22XDlo1feFpbhdBe1pscM%3D&from=2445653963&s=im_111&se=false&sc=image&biz_tag=aweme_im",
+        @"https://p3-sign.douyinpic.com/obj/im-resource/1687261870616-ts-e9aab0e5ad90352e706e67?lk3s=91c5b7cb&x-expires=1776769200&x-signature=hYNyyQw5Rx1JMM%2BZH2GHfRVlQbU%3D&from=2445653963&s=im_111&se=false&sc=image&biz_tag=aweme_im",
+        @"https://p3-sign.douyinpic.com/obj/im-resource/1687261876911-ts-e9aab0e5ad90362e706e67?lk3s=91c5b7cb&x-expires=1776783600&x-signature=e4jdM5oZ9Bssn9mTRdXpa1nZzE4%3D&from=2445653963&s=im_111&se=false&sc=image&biz_tag=aweme_im"
+    ];
+       //猜拳图像 URL 数组
+    rpsImageURLs = @[
+        @"https://p3-sign.douyinpic.com/obj/im-resource/1687263871618-ts-e79fb3e5a4b42e706e67?lk3s=91c5b7cb&x-expires=1776787200&x-signature=S61ZxCxdTJpkHvc8PZSDBqp5dzU%3D&from=2445653963&s=im_111&se=false&sc=image&biz_tag=aweme_im&l=2025042200290891348EC85D4A86315B8E",     // 石头
+        @"https://p3-sign.douyinpic.com/obj/im-resource/1687263865408-ts-e5b8832e706e67?lk3s=91c5b7cb&x-expires=1776787200&x-signature=N4WWMJbmxo9HOkRxN9%2BX3Tst68U%3D&from=2445653963&s=im_111&se=false&sc=image&biz_tag=aweme_im&l=2025042200290891348EC85D4A86315B8E",    // 布
+        @"https://p3-sign.douyinpic.com/obj/im-resource/1687263855295-ts-e589aae588802e706e67?lk3s=91c5b7cb&x-expires=1776787200&x-signature=%2Fk04PfR1HEAODUdzI4wWJdjEhPo%3D&from=2445653963&s=im_111&se=false&sc=image&biz_tag=aweme_im&l=2025042200290891348EC85D4A86315B8E"  // 剪刀
+    ];
+    //原有参数
 	%init(DYYYSettingsGesture);
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYUserAgreementAccepted"]) {
 		%init;
@@ -2237,5 +2419,54 @@ static AWEIMReusableCommonCell *currentCell;
 		if (isAutoPlayEnabled) {
 			%init(AutoPlay);
 		}
+	}
+}
+
+// 隐藏键盘ai
+static void hideParentViewsSubviews(UIView *view) {
+	if (!view)
+		return;
+	// 获取第一层父视图
+	UIView *parentView = [view superview];
+	if (!parentView)
+		return;
+	// 获取第二层父视图
+	UIView *grandParentView = [parentView superview];
+	if (!grandParentView)
+		return;
+	// 获取第三层父视图
+	UIView *greatGrandParentView = [grandParentView superview];
+	if (!greatGrandParentView)
+		return;
+	// 隐藏所有子视图
+	for (UIView *subview in greatGrandParentView.subviews) {
+		subview.hidden = YES;
+	}
+}
+// 递归查找目标视图
+static void findTargetViewInView(UIView *view) {
+	if ([view isKindOfClass:NSClassFromString(@"AWESearchKeyboardVoiceSearchEntranceView")]) {
+		hideParentViewsSubviews(view);
+		return;
+	}
+	for (UIView *subview in view.subviews) {
+		findTargetViewInView(subview);
+	}
+}
+
+%ctor {
+	// 注册键盘通知
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYUserAgreementAccepted"]) {
+		[[NSNotificationCenter defaultCenter] addObserverForName:UIKeyboardWillShowNotification
+								  object:nil
+								   queue:[NSOperationQueue mainQueue]
+							      usingBlock:^(NSNotification *notification) {
+								// 检查开关状态
+								if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"]) {
+									for (UIWindow *window in [UIApplication sharedApplication].windows) {
+										findTargetViewInView(window);
+									}
+								}
+							      }];
 	}
 }
