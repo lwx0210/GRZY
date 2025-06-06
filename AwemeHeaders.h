@@ -414,10 +414,11 @@ static CGFloat gStartVal = 0.0;
 @end
 
 @interface AWEElementStackView : UIView
-@property (nonatomic, copy) NSString *accessibilityLabel;
-@property (nonatomic, assign) CGRect frame;
-@property (nonatomic, strong) NSArray *subviews;
-@property (nonatomic, assign) CGAffineTransform transform;
+@property(nonatomic, copy) NSString *accessibilityLabel;
+@property(nonatomic, assign) CGRect frame;
+@property(nonatomic, strong) NSArray *subviews;
+@property(nonatomic, assign) CGAffineTransform transform;
+- (BOOL)view:(UIView *)view containsSubviewOfClass:(Class)viewClass;
 @end
 
 @interface AWECommentImageModel : NSObject
