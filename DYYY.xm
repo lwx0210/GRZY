@@ -884,7 +884,6 @@ static CGFloat currentScale = 1.0;
 			UIViewController *viewController = [parentView firstAvailableUIViewController];
 			if ([viewController isKindOfClass:%c(AWELiveNewPreStreamViewController)]) {
 				CGRect frame = self.frame;
-				frame.origin.y -= g_heightDifference;
 				stream_frame_y = frame.origin.y;
 				self.frame = frame;
 			}
