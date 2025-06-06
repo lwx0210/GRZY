@@ -38,6 +38,31 @@
 
 %end
 
+//拍摄图标
+%hook AWENormalModeTabBarGeneralPlusButton
+- (void)setImage:(UIImage *)image forState:(UIControlState)state {
+
+    if ([self.accessibilityLabel isEqualToString:@"拍摄"]) {
+
+        NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+        NSString *dyyyFolderPath = [documentsPath stringByAppendingPathComponent:@"DYYY"];
+        
+        NSString *customImagePath = [dyyyFolderPath stringByAppendingPathComponent:@"photograph.png"];
+        
+        if ([[NSFileManager defaultManager] fileExistsAtPath:customImagePath]) {
+            UIImage *customImage = [UIImage imageWithContentsOfFile:customImagePath];
+            if (customImage) {
+              
+                %orig(customImage, state);
+                return;
+            }
+        }
+    }
+    
+    %orig;
+}
+%end
+
 //隐藏去商城看看
 %hook AWEFeedTabJumpGuideView
 
