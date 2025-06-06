@@ -1214,3 +1214,7 @@ static CGFloat gStartVal = 0.0;
 
 @interface AWENormalModeTabBarGeneralPlusButton : UIView
 @end
+
+
+@interface AWEStoryContainerCollectionView : UIView
+@end
