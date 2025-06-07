@@ -1042,22 +1042,15 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_user_outlined_20"},
 			    @{@"identifier" : @"DYYYDisguiseid",
-			      @"title" : @"ID账号伪造",
+			      @"title" : @"抖音号码伪造",
 			      @"detail" : @"请输入1-7位数字或字母",
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_user_outlined_20"},
 	                    @{@"identifier" : @"DYYYDisguisenc",
 			      @"title" : @"账号昵称伪造",
-			      @"detail" : @"",
-			      @"cellType" : @26,
-			      @"imageName" : @"ic_user_outlined_20"},
-			    @{@"identifier" : @"DYYYDisguisefk",
-			      @"title" : @"访客数量伪造",
-			      @"detail" : @"请输入1-99整数",
+			      @"detail" : @"不填默认",
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_user_outlined_20"}
-
-
 	  ];
 
 	  for (NSDictionary *dict in MasturbationSettings) {
