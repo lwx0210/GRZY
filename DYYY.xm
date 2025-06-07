@@ -17,11 +17,10 @@
 #import "DYYYToast.h"
 #import "DYYYCdyy.h"
 
-//-----------------游戏作弊声明-----------------//
- NSArray<NSString *> *diceImageURLs = @[@"url1", @"url2"];
- NSArray<NSString *> *rpsImageURLs = @[@"url1", @"url2"];
+//游戏作弊声明
+NSArray<NSString *> *diceImageURLs = @[@"url1", @"url2"];
+NSArray<NSString *> *rpsImageURLs = @[@"url1", @"url2"];
 
-// 声明 ViewControllerForView 函数
 UIViewController *ViewControllerForView(UIView *view) {
     UIResponder *responder = view;
     while (responder && ![responder isKindOfClass:[UIViewController class]]) {
@@ -30,7 +29,6 @@ UIViewController *ViewControllerForView(UIView *view) {
     return (UIViewController *)responder;
 }
 
-// 定义游戏类型枚举
 typedef NS_ENUM(NSInteger, GameType) {
     GameTypeDice,
     GameTypeRPS
@@ -40,15 +38,16 @@ void ShowGameSelectorAlert(UIViewController *presentingVC, GameType type, void (
 
 void ShowGameSelectorAlert(UIViewController *presentingVC, GameType type, void (^onSelected)(NSInteger selectedIndex)) {
     NSString *title = (type == GameTypeDice) ? @"选择骰子点数" : @"选择猜拳类型";
+    
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
                                                                    message:nil
-                                                            preferredStyle:UIAlertControllerStyleAlert];
-
+                                                            preferredStyle:UIAlertControllerStyleActionSheet];
+    
     NSArray<NSString *> *options;
     if (type == GameTypeDice) {
-        options = @[@"1 点", @"2 点", @"3 点", @"4 点", @"5 点", @"6 点"];
+        options = @[@"1 点", @"2 点", @"3 点", @"4 点", @"5 点", @"6 点", @"随机"];
     } else {
-        options = @[@"石头", @"布", @"剪刀"];
+        options = @[@"石头", @"布", @"剪刀", @"随机"];
     }
 
     for (NSInteger i = 0; i < options.count; i++) {
@@ -56,16 +55,9 @@ void ShowGameSelectorAlert(UIViewController *presentingVC, GameType type, void (
         UIAlertAction *action = [UIAlertAction actionWithTitle:optionTitle
                                                          style:UIAlertActionStyleDefault
                                                        handler:^(UIAlertAction * _Nonnull action) {
-            if (type == GameTypeDice) {
-                [[NSUserDefaults standardUserDefaults] setInteger:i + 1 forKey:@"selectedDicePoint"];
-            } else {
-                [[NSUserDefaults standardUserDefaults] setInteger:i forKey:@"selectedRPS"];
-            }
-            [[NSUserDefaults standardUserDefaults] synchronize];
 
-            if (onSelected) {
-                onSelected(i);
-            }
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            if (onSelected) onSelected(i);
         }];
         [alert addAction:action];
     }
@@ -73,17 +65,23 @@ void ShowGameSelectorAlert(UIViewController *presentingVC, GameType type, void (
     UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消"
                                                      style:UIAlertActionStyleCancel
                                                    handler:^(UIAlertAction * _Nonnull action) {
-        if (onSelected) {
-            onSelected(-1); 
-        }
+        if (onSelected) onSelected(-1);
     }];
     [alert addAction:cancel];
+
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        alert.popoverPresentationController.sourceView = presentingVC.view;
+        alert.popoverPresentationController.sourceRect = CGRectMake(presentingVC.view.bounds.size.width/2, 
+                                                                   presentingVC.view.bounds.size.height/2, 
+                                                                   1, 1);
+        alert.popoverPresentationController.permittedArrowDirections = 0;
+    }
 
     if (presentingVC) {
         [presentingVC presentViewController:alert animated:YES completion:nil];
     }
 }
-//-----------------声明结束-----------------//
+//声明结束
 
 //游戏作弊
 %hook AWEIMEmoticonInteractivePage
@@ -178,6 +176,34 @@ void ShowGameSelectorAlert(UIViewController *presentingVC, GameType type, void (
     }
 
     %orig(mutableContent);
+}
+
+%end
+
+//默契回答
+%hook AWEIMExchangeAnswerMessage
+
+- (void)setUnlocked:(BOOL)unlocked {
+
+BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitanswer"];
+
+            if (enabled) {
+           %orig(YES);
+           } else {
+
+          %orig(unlocked);
+
+      }
+}
+
+- (BOOL)unlocked {
+
+BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitanswer"];
+
+          if (enabled) {
+          return YES;
+      }
+   return %orig;
 }
 
 %end
