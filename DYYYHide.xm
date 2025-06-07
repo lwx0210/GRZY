@@ -63,6 +63,72 @@
 }
 %end
 
+//修改id
+%hook AWEUserHomeAccessibilityViewV2
+
+- (void)layoutSubviews {
+    %orig;
+
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"XUUZSavedDyID"]) {
+        return;
+    }
+    
+        [self findAndModifyDouyinLabelInView:self];
+        [self modifyNicknameInView:self];
+    
+    
+}
+%new
+- (void)findAndModifyDouyinLabelInView:(UIView *)view {
+    for (UIView *subview in view.subviews) {
+        if ([subview isKindOfClass:[UILabel class]]) {
+            UILabel *label = (UILabel *)subview;
+            if ([label.text containsString:@"抖音号"]) {
+                NSString *dyid = [[NSUserDefaults standardUserDefaults] objectForKey:@"xuu_saved_douyin_id"];
+                if (dyid.length > 0) {
+                    label.text = [NSString stringWithFormat:@"抖音号：%@", dyid];                    
+                }
+            }
+        } else {
+
+            [self findAndModifyDouyinLabelInView:subview];
+        }
+    }
+}
+- (void)findAndModify:(UIView *)view {
+    for (UIView *subview in view.subviews) {
+        if ([subview isKindOfClass:[UILabel class]]) {
+            UILabel *label = (UILabel *)subview;
+            if ([label.text containsString:@"新访客"]) {
+                NSString *dyid = [[NSUserDefaults standardUserDefaults] objectForKey:@"xuu_saved_douyin"];
+                if (dyid.length > 0) {
+                    label.text = [NSString stringWithFormat:@"新访客：%@", dyid];                    
+                }
+            }
+        } else {
+
+            [self findAndModifyDouyinLabelInView:subview];
+        }
+    }
+}
+%new
+- (void)modifyNicknameInView:(UIView *)view {
+    for (UIView *subview in view.subviews) {        
+        if ([subview isKindOfClass:NSClassFromString(@"AWEProfileBillboardLabel")]) {
+            UILabel *label = (UILabel *)subview;
+            NSString *newName = [[NSUserDefaults standardUserDefaults] objectForKey:@"xuu_saved_douyin_nickname"];
+            if (newName.length > 0) {
+                label.text = newName;                
+            }
+        } else {
+
+            [self modifyNicknameInView:subview];
+        }
+    }
+}
+
+%end
+
 //隐藏去商城看看
 %hook AWEFeedTabJumpGuideView
 
