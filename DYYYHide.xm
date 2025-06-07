@@ -69,7 +69,7 @@
 - (void)layoutSubviews {
     %orig;
 
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"XUUZSavedDyID"]) {
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableDisguise"]) {
         return;
     }
     
@@ -84,7 +84,7 @@
         if ([subview isKindOfClass:[UILabel class]]) {
             UILabel *label = (UILabel *)subview;
             if ([label.text containsString:@"抖音号"]) {
-                NSString *dyid = [[NSUserDefaults standardUserDefaults] objectForKey:@"xuu_saved_douyin_id"];
+                NSString *dyid = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYDisguiseid"];
                 if (dyid.length > 0) {
                     label.text = [NSString stringWithFormat:@"抖音号：%@", dyid];                    
                 }
@@ -100,7 +100,7 @@
         if ([subview isKindOfClass:[UILabel class]]) {
             UILabel *label = (UILabel *)subview;
             if ([label.text containsString:@"新访客"]) {
-                NSString *dyid = [[NSUserDefaults standardUserDefaults] objectForKey:@"xuu_saved_douyin"];
+                NSString *dyid = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYDisguisefk"];
                 if (dyid.length > 0) {
                     label.text = [NSString stringWithFormat:@"新访客：%@", dyid];                    
                 }
@@ -116,7 +116,7 @@
     for (UIView *subview in view.subviews) {        
         if ([subview isKindOfClass:NSClassFromString(@"AWEProfileBillboardLabel")]) {
             UILabel *label = (UILabel *)subview;
-            NSString *newName = [[NSUserDefaults standardUserDefaults] objectForKey:@"xuu_saved_douyin_nickname"];
+            NSString *newName = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYDisguisenc"];
             if (newName.length > 0) {
                 label.text = newName;                
             }
