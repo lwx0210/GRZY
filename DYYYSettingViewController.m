@@ -188,8 +188,7 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) {
             [DYYYSettingItem itemWithTitle:@"粉丝数量伪造" key:@"DYYYCustomFollowers" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
             [DYYYSettingItem itemWithTitle:@"启用账号伪造" key:@"DYYYEnableDisguise" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"抖音号码伪造" key:@"DYYYDisguiseid" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
-            [DYYYSettingItem itemWithTitle:@"账号昵称伪造" key:@"DYYYDisguisenc" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
-            [DYYYSettingItem itemWithTitle:@"访客数量伪造" key:@"DYYYDisguisefk" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"]
+            [DYYYSettingItem itemWithTitle:@"账号昵称伪造" key:@"DYYYDisguisenc" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"]
         ],
         @[
             [DYYYSettingItem itemWithTitle:@"隐藏全屏观看" key:@"DYYYisHiddenEntry" type:DYYYSettingItemTypeSwitch],
