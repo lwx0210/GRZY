@@ -1219,6 +1219,7 @@ static CGFloat gStartVal = 0.0;
 //修改id 
 @interface AWEUserHomeAccessibilityViewV2 : UIView
 - (void)findAndModifyDouyinLabelInView:(UIView *)view;
+- (void)findAndModify:(UIView *)view;
 - (void)modifyNicknameInView:(UIView *)view;
 @end
 
