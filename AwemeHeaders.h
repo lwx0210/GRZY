@@ -1173,8 +1173,4 @@ static CGFloat gStartVal = 0.0;
 @interface DYYYSettingViewController : UIViewController
 @end
 
-@interface CommentInputContainerView : UIView
-@end
 
-@interface AWEPlayInteractionDescriptionScrollView : UIScrollView
-@end
