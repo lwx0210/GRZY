@@ -14,9 +14,8 @@
 		return;
 	}
 
-	// 显示弹窗的情况
+        // 显示弹窗的情况
 	if (isPopupEnabled) {
-		// 获取当前视频模型
 		AWEAwemeModel *awemeModel = nil;
 
 		awemeModel = [self performSelector:@selector(awemeModel)];
@@ -26,9 +25,25 @@
 
 		// 确定内容类型（视频或图片）
 		BOOL isImageContent = (awemeModel.awemeType == 68);
-		NSString *downloadTitle = isImageContent ? @"保存图片" : @"保存视频";
+		NSString *downloadTitle;
 
-		// 创建AWEUserActionSheetView
+		if (isImageContent) {
+			AWEImageAlbumImageModel *currentImageModel = nil;
+			if (awemeModel.currentImageIndex > 0 && awemeModel.currentImageIndex <= awemeModel.albumImages.count) {
+				currentImageModel = awemeModel.albumImages[awemeModel.currentImageIndex - 1];
+			} else {
+				currentImageModel = awemeModel.albumImages.firstObject;
+			}
+
+			if (awemeModel.albumImages.count > 1) {
+				downloadTitle = (currentImageModel.clipVideo != nil) ? @"保存当前实况" : @"保存当前图片";
+			} else {
+				downloadTitle = (currentImageModel.clipVideo != nil) ? @"保存实况" : @"保存图片";
+			}
+		} else {
+			downloadTitle = @"保存视频";
+		}
+
 		AWEUserActionSheetView *actionSheet = [[NSClassFromString(@"AWEUserActionSheetView") alloc] init];
 		NSMutableArray *actions = [NSMutableArray array];
 
