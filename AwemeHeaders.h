@@ -1166,3 +1166,15 @@ static CGFloat gStartVal = 0.0;
 - (void)reloadSettings;
 @end
 
+//AI搜索
+@interface AWESearchKeyboardVoiceSearchEntranceView : UIView
+@end
+
+@interface DYYYSettingViewController : UIViewController
+@end
+
+@interface CommentInputContainerView : UIView
+@end
+
+@interface AWEPlayInteractionDescriptionScrollView : UIScrollView
+@end
