@@ -1085,6 +1085,7 @@ static CGFloat gStartVal = 0.0;
 - (void)setResolutionWithIndex:(NSInteger)index isManual:(BOOL)manual beginChange:(void (^)(void))beginChangeBlock completion:(void (^)(void))completionBlock;
 @end
 
+//全屏合集
 @interface AWEMixVideoPanelMoreView : UIView
 @end
 @interface DUXPopover : UIView
@@ -1226,6 +1227,4 @@ static CGFloat gStartVal = 0.0;
 @interface AWELiveAutoEnterStyleAView : UIView
 @end
 
-//全屏合集
-@interface AWEMixVideoPanelMoreView : UIView
-@end
+
