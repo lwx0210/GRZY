@@ -1166,6 +1166,3 @@ static CGFloat gStartVal = 0.0;
 - (void)reloadSettings;
 @end
 
-@interface AWEPlayInteractionUserAvatarView : UIView
-@end
-
