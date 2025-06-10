@@ -1223,3 +1223,5 @@ static CGFloat gStartVal = 0.0;
 - (void)modifyNicknameInView:(UIView *)view;
 @end
 
+@interface AWELiveAutoEnterStyleAView : UIView
+@end
