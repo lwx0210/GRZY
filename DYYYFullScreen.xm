@@ -632,18 +632,10 @@ static CGFloat currentScale = 1.0;
 
 - (void)setFrame:(CGRect)frame {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-		CGFloat targetY = frame.origin.y - tabHeight;
-		CGFloat screenHeightMinusGDiff = [UIScreen mainScreen].bounds.size.height - tabHeight;
-
-		CGFloat tolerance = 10.0;
-
-		if (fabs(targetY - screenHeightMinusGDiff) <= tolerance) {
-			frame.origin.y = targetY;
-		}
+		frame.origin.y -= 83;
 	}
 	%orig(frame);
 }
-
 - (void)layoutSubviews {
 	%orig;
 
