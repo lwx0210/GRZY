@@ -1227,5 +1227,4 @@ static CGFloat gStartVal = 0.0;
 @interface AWELiveAutoEnterStyleAView : UIView
 @end
 
-@interface DYYYManager : UIView
-@end
+
