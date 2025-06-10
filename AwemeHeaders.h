@@ -90,6 +90,8 @@ static CGFloat gStartVal = 0.0;
 @interface AWEUserModel : NSObject
 @property(copy, nonatomic) NSString *nickname;
 @property(copy, nonatomic) NSString *shortID;
+@property(copy, nonatomic) NSString *signature;
+@property(copy, nonatomic) AWEURLModel *avatarMedium;
 @end
 
 @interface AWEAwemeModel : NSObject
@@ -1174,4 +1176,8 @@ static CGFloat gStartVal = 0.0;
 @interface DYYYSettingViewController : UIViewController
 @end
 
+//二次关注头像签名
+@interface AWEPlayInteractionUserAvatarFollowController : UIViewController
+@property(retain, nonatomic) AWEAwemeModel *model;
+@end
 
