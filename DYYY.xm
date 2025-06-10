@@ -1102,7 +1102,7 @@ static CGFloat currentScale = 1.0;
 
 				CGRect frame = subview.frame;
 				if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-					
+					frame.size.height = subview.superview.frame.size.height - tabHeight;
 					subview.frame = frame;
 				}
 			}
@@ -1122,7 +1122,7 @@ static CGFloat currentScale = 1.0;
 				if (isWorkImage) {
 					// 修复作者主页作品图片上移问题
 					CGRect frame = subview.frame;
-					
+					frame.origin.y += tabHeight;
 					subview.frame = frame;
 				}
 			}
