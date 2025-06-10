@@ -1145,3 +1145,27 @@ static CGFloat gStartVal = 0.0;
 
 @interface AWEMixVideoPanelMoreView : UIView
 @end
+
+//修改id 
+@interface AWEUserHomeAccessibilityViewV2 : UIView
+- (void)findAndModifyDouyinLabelInView:(UIView *)view;
+- (void)findAndModify:(UIView *)view;
+- (void)modifyNicknameInView:(UIView *)view;
+@end
+
+//数据伪造
+@interface AWEProfileSocialStatisticView : UIView
+- (void)setFansCount:(NSNumber *)count;
+- (void)setPraiseCount:(NSNumber *)count;
+- (void)setFollowingCount:(NSNumber *)count;
+- (void)setFriendCount:(NSNumber *)count;
+- (void)p_updateSocialStatisticContent:(BOOL)animated;
+@end
+
+@interface AWEProfileHeaderMyProfileViewController : UIViewController
+- (void)reloadSettings;
+@end
+
+@interface AWEPlayInteractionUserAvatarView : UIView
+@end
+
