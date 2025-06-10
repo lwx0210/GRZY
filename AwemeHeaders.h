@@ -1225,3 +1225,7 @@ static CGFloat gStartVal = 0.0;
 
 @interface AWELiveAutoEnterStyleAView : UIView
 @end
+
+//全屏合集
+@interface AWEMixVideoPanelMoreView : UIView
+@end
