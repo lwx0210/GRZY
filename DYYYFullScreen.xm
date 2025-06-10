@@ -632,9 +632,24 @@ static CGFloat currentScale = 1.0;
 
 - (void)setFrame:(CGRect)frame {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-		frame.origin.y -= 83;
+		CGFloat targetY = frame.origin.y - tabHeight;
+		CGFloat screenHeightMinusGDiff = [UIScreen mainScreen].bounds.size.height - tabHeight;
+
+		CGFloat tolerance = 10.0;
+
+		if (fabs(targetY - screenHeightMinusGDiff) <= tolerance) {
+			frame.origin.y = targetY;
+		}
 	}
 	%orig(frame);
+}
+
+- (void)layoutSubviews {
+	%orig;
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+		self.backgroundColor = [UIColor clearColor];
+	}
 }
 
 %end
