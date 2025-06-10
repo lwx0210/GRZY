@@ -405,6 +405,34 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 
 %end
 
+%hook CommentInputContainerView
+
+- (void)layoutSubviews {
+	%orig;
+	UIViewController *parentVC = nil;
+	if ([self respondsToSelector:@selector(viewController)]) {
+		id viewController = [self performSelector:@selector(viewController)];
+		if ([viewController respondsToSelector:@selector(parentViewController)]) {
+			parentVC = [viewController parentViewController];
+		}
+	}
+
+	if (parentVC && ([parentVC isKindOfClass:%c(AWEAwemeDetailTableViewController)] || [parentVC isKindOfClass:%c(AWEAwemeDetailCellViewController)])) {
+		for (UIView *subview in [self subviews]) {
+			if ([subview class] == [UIView class]) {
+				if ([(UIView *)self frame].size.height == tabHeight) {
+					subview.hidden = YES;
+				} else {
+					subview.hidden = NO;
+				}
+				break;
+			}
+		}
+	}
+}
+
+%end
+
 //最高画质
 %hook AWEVideoModel
 
