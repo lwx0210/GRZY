@@ -723,6 +723,8 @@
 				// 如果是合集，只检查合集的开关
 				if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideTemplateVideo"]) {
 					[self removeFromSuperview];
+				} else if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+					self.backgroundColor = [UIColor clearColor];
 				}
 			} else {
 				// 如果不是合集（即作者声明），只检查声明的开关
@@ -733,6 +735,28 @@
 		}
 	}
 }
+- (void)setBackgroundColor:(UIColor *)backgroundColor {
+	// 禁用背景色设置
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideGradient"]) {
+		%orig(UIColor.clearColor);
+	} else {
+		%orig(backgroundColor);
+	}
+}
+%end
+
+//遮罩效果
+%hook AWELiveAutoEnterStyleAView
+
+- (void)layoutSubviews {
+	%orig;
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidenLiveView"]) {
+		[self removeFromSuperview];
+		return;
+	}
+}
+
 %end
 
 // 隐藏分享给朋友提示
