@@ -998,7 +998,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 	  [iconItems addObject:createIconCustomizationItem(@"DYYYIconUnfavorite", @"未收藏图标", @"ic_star_outlined_20", @"unfavorite.png")];
 	  [iconItems addObject:createIconCustomizationItem(@"DYYYIconFavorite", @"已收藏图标", @"ic_star_filled_20", @"favorite.png")];
 	  [iconItems addObject:createIconCustomizationItem(@"DYYYIconShare", @"分享的图标", @"ic_share_outlined", @"share.png")];
-          [iconItems addObject:createIconCustomizationItem(@"DYYYIcon photograph", @"拍摄的图标", @"ic_camera_outlined", @"photograph.png")];
+	  [iconItems addObject:createIconCustomizationItem(@"DYYYIconPlus", @"拍摄的图标", @"ic_camera_outlined", @"tab_plus.png")];
 
 	  // 将图标自定义section添加到sections数组
 	  NSMutableArray *sections = [NSMutableArray array];
@@ -2895,7 +2895,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 	  NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
 	  NSString *dyyyFolderPath = [documentsPath stringByAppendingPathComponent:@"DYYY"];
 
-	  NSArray *iconFileNames = @[ @"like_before.png", @"like_after.png", @"comment.png", @"unfavorite.png", @"favorite.png", @"share.png", @"qingping.gif" ];
+	  NSArray *iconFileNames = @[ @"like_before.png", @"like_after.png", @"comment.png", @"unfavorite.png", @"favorite.png", @"share.png", @"tab_plus.png", @"qingping.gif" ];
 
 	  NSMutableDictionary *iconBase64Dict = [NSMutableDictionary dictionary];
 
