@@ -17,6 +17,13 @@
 #import "DYYYSettingsHelper.h"
 #import "DYYYUtils.h"
 
+@class DYYYIconOptionsDialogView;
+static void showIconOptionsDialog(NSString *title, UIImage *previewImage, NSString *saveFilename, void (^onClear)(void), void (^onSelect)(void));
+
+@interface DYYYImagePickerDelegate : NSObject <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
+@property(nonatomic, copy) void (^completionBlock)(NSDictionary *info);
+@end
+
 @implementation DYYYImagePickerDelegate
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
 	if (self.completionBlock) {
@@ -102,7 +109,36 @@ static AWESettingItemModel *createIconCustomizationItem(NSString *identifier, NS
 			[[NSFileManager defaultManager] removeItemAtPath:imagePath error:&error];
 			if (!error) {
 				item.detail = @"默认";
-				[DYYYSettingsHelper refreshTableView];
+
+				UIViewController *topVC = topView();
+				AWESettingBaseViewController *settingsVC = nil;
+				UITableView *tableView = nil;
+
+				UIView *firstLevelView = [topVC.view.subviews firstObject];
+				UIView *secondLevelView = [firstLevelView.subviews firstObject];
+				UIView *thirdLevelView = [secondLevelView.subviews firstObject];
+
+				UIResponder *responder = thirdLevelView;
+				while (responder) {
+					if ([responder isKindOfClass:%c(AWESettingBaseViewController)]) {
+						settingsVC = (AWESettingBaseViewController *)responder;
+						break;
+					}
+					responder = [responder nextResponder];
+				}
+
+				if (settingsVC) {
+					for (UIView *subview in settingsVC.view.subviews) {
+						if ([subview isKindOfClass:[UITableView class]]) {
+							tableView = (UITableView *)subview;
+							break;
+						}
+					}
+
+					if (tableView) {
+						[tableView reloadData];
+					}
+				}
 			}
 		}
 	      },
@@ -116,22 +152,27 @@ static AWESettingItemModel *createIconCustomizationItem(NSString *identifier, NS
 		// 创建并设置代理
 		DYYYImagePickerDelegate *pickerDelegate = [[DYYYImagePickerDelegate alloc] init];
 		pickerDelegate.completionBlock = ^(NSDictionary *info) {
+		  // 1. 正确声明变量，作用域在块内
 		  NSURL *originalImageURL = info[UIImagePickerControllerImageURL];
 		  if (!originalImageURL) {
 			  originalImageURL = info[UIImagePickerControllerReferenceURL];
 		  }
 
+		  // 2. 确保变量在非nil时使用
 		  if (originalImageURL) {
+			  // 路径构建
 			  NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
 			  NSString *dyyyFolderPath = [documentsPath stringByAppendingPathComponent:@"DYYY"];
 			  NSString *imagePath = [dyyyFolderPath stringByAppendingPathComponent:saveFilename];
 
+			  // 获取原始数据
 			  NSData *imageData = [NSData dataWithContentsOfURL:originalImageURL];
 
-			  // GIF检测
+			  // GIF检测（带类型转换）
 			  const char *bytes = (const char *)imageData.bytes;
 			  BOOL isGIF = (imageData.length >= 6 && (memcmp(bytes, "GIF87a", 6) == 0 || memcmp(bytes, "GIF89a", 6) == 0));
 
+			  // 保存逻辑
 			  if (isGIF) {
 				  [imageData writeToFile:imagePath atomically:YES];
 			  } else {
@@ -140,11 +181,41 @@ static AWESettingItemModel *createIconCustomizationItem(NSString *identifier, NS
 				  [imageData writeToFile:imagePath atomically:YES];
 			  }
 
-			  // 延迟执行UI更新，确保图片选择器已完全消失且视图已恢复
-			  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-			    item.detail = @"已设置";
-			    [DYYYSettingsHelper refreshTableView];
-			  });
+			  // 文件存在时更新UI（在同一个块内）
+			  if ([[NSFileManager defaultManager] fileExistsAtPath:imagePath]) {
+				  item.detail = @"已设置";
+				  dispatch_async(dispatch_get_main_queue(), ^{
+				    UIViewController *topVC = topView();
+				    AWESettingBaseViewController *settingsVC = nil;
+				    UITableView *tableView = nil;
+
+				    UIView *firstLevelView = [topVC.view.subviews firstObject];
+				    UIView *secondLevelView = [firstLevelView.subviews firstObject];
+				    UIView *thirdLevelView = [secondLevelView.subviews firstObject];
+
+				    UIResponder *responder = thirdLevelView;
+				    while (responder) {
+					    if ([responder isKindOfClass:%c(AWESettingBaseViewController)]) {
+						    settingsVC = (AWESettingBaseViewController *)responder;
+						    break;
+					    }
+					    responder = [responder nextResponder];
+				    }
+
+				    if (settingsVC) {
+					    for (UIView *subview in settingsVC.view.subviews) {
+						    if ([subview isKindOfClass:[UITableView class]]) {
+							    tableView = (UITableView *)subview;
+							    break;
+						    }
+					    }
+
+					    if (tableView) {
+						    [tableView reloadData];
+					    }
+				    }
+				  });
+			  }
 		  }
 		};
 
@@ -546,38 +617,42 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		  AWESettingItemModel *item = [DYYYSettingsHelper createSettingItem:dict cellTapHandlers:cellTapHandlers];
 
 		  if ([item.identifier isEqualToString:@"DYYYDefaultSpeed"]) {
+			  // 获取已保存的默认倍速值
 			  NSString *savedSpeed = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYDefaultSpeed"];
 			  item.detail = savedSpeed ?: @"1.0x";
 
 			  item.cellTappedBlock = ^{
-			    NSArray *speedOptions = @[ @"0.75x", @"1.0x", @"1.25x", @"1.5x", @"2.0x", @"2.5x", @"3.0x" ];
+			    NSArray *speedOptions = @[ @"0.5x", @"0.75x", @"1.0x", @"1.25x", @"1.5x", @"2.0x", @"2.5x", @"3.0x" ];
 
-			    [DYYYOptionsSelectionView showWithPreferenceKey:@"DYYYDefaultSpeed"
-							       optionsArray:speedOptions
-								 headerText:@"选择默认倍速"
-							     onPresentingVC:topView()
-							   selectionChanged:^(NSString *selectedValue) {
-							     item.detail = selectedValue;
-							     [DYYYSettingsHelper refreshTableView];
-							   }];
+			    // 显示选项选择视图并直接获取返回值
+			    NSString *selectedValue = [DYYYOptionsSelectionView showWithPreferenceKey:@"DYYYDefaultSpeed"
+											 optionsArray:speedOptions
+											   headerText:@"选择默认倍速"
+										       onPresentingVC:topView()];
+
+			    // 设置详情文本为选中的值
+			    item.detail = selectedValue;
+			    [DYYYSettingsHelper refreshTableView];
 			  };
 		  }
 
-		  else if ([item.identifier isEqualToString:@"DYYYLongPressSpeed"]) {
+                        else if ([item.identifier isEqualToString:@"DYYYLongPressSpeed"]) {
+			  // 获取已保存的默认倍速值
 			  NSString *savedSpeed = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYLongPressSpeed"];
 			  item.detail = savedSpeed ?: @"2.0x";
 
 			  item.cellTappedBlock = ^{
-			    NSArray *speedOptions = @[ @"0.75x", @"1.0x", @"1.25x", @"1.5x", @"2.0x", @"2.5x", @"3.0x" ];
+			    NSArray *speedOptions = @[ @"0.5x", @"0.75x", @"1.0x", @"1.25x", @"1.5x", @"2.0x", @"2.5x", @"3.0x" ];
 
-			    [DYYYOptionsSelectionView showWithPreferenceKey:@"DYYYLongPressSpeed"
-							       optionsArray:speedOptions
-								 headerText:@"选择右侧长按倍速"
-							     onPresentingVC:topView()
-							   selectionChanged:^(NSString *selectedValue) {
-							     item.detail = selectedValue;
-							     [DYYYSettingsHelper refreshTableView];
-							   }];
+			    // 显示选项选择视图并直接获取返回值
+			    NSString *selectedValue = [DYYYOptionsSelectionView showWithPreferenceKey:@"DYYYLongPressSpeed"
+											 optionsArray:speedOptions
+											   headerText:@"选择右侧长按倍速"
+										       onPresentingVC:topView()];
+
+			    // 设置详情文本为选中的值
+			    item.detail = selectedValue;
+			    [DYYYSettingsHelper refreshTableView];
 			  };
 		  }
 
@@ -587,14 +662,16 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			  item.cellTappedBlock = ^{
 			    NSArray *styleOptions = @[ @"进度条两侧上下", @"进度条两侧左右", @"进度条左侧剩余", @"进度条左侧完整", @"进度条右侧剩余", @"进度条右侧完整" ];
 
-			    [DYYYOptionsSelectionView showWithPreferenceKey:@"DYYYScheduleStyle"
-							       optionsArray:styleOptions
-								 headerText:@"选择进度时长样式"
-							     onPresentingVC:topView()
-							   selectionChanged:^(NSString *selectedValue) {
-							     item.detail = selectedValue;
-							     [DYYYSettingsHelper refreshTableView];
-							   }];
+			    // 显示选项选择视图并直接获取返回值
+			    NSString *selectedValue = [DYYYOptionsSelectionView showWithPreferenceKey:@"DYYYScheduleStyle"
+											 optionsArray:styleOptions
+											   headerText:@"选择进度时长样式"
+										       onPresentingVC:topView()];
+
+			    // 设置详情文本为选中的值
+
+			    item.detail = selectedValue;
+			    [DYYYSettingsHelper refreshTableView];
 			  };
 		  }
 
@@ -2080,7 +2157,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		    @"imageName" : @"ic_trash_outlined_20"}
 	  ];
 
-	  // --- 声明一个__block变量来持有SaveABTestConfigFileitem ---
+	   // --- 声明一个__block变量来持有SaveABTestConfigFileitem ---
 	  __block AWESettingItemModel *saveABTestConfigFileItemRef = nil;
 	  // --- 定义一个用于刷新SaveABTestConfigFileitem的局部block ---
 	  void (^refreshSaveABTestConfigFileItem)(void) = ^{
@@ -2118,7 +2195,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			    saveABTestConfigFileItemRef.isEnable = NO;
 		    }
 	    }
-	    [DYYYSettingsHelper refreshTableView];
+	    [DYYYSettingsHelper refreshTableView]; // 刷新表格视图以更新显示
 	  };
 
 	  for (NSDictionary *dict in hotUpdateSettings) {
@@ -2141,6 +2218,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 					  item.isSwitchOn = newValue;
 					  [DYYYSettingsHelper setUserDefaults:@(newValue) forKey:@"DYYYABTestBlockEnabled"];
 
+					  // 重置全局变量
 					  abTestBlockEnabled = newValue;
 					}];
 			    } else {
@@ -2159,24 +2237,27 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 
 			    NSArray *modeOptions = @[ @"覆写模式：保留原设置，覆盖同名项", @"替换模式：清除原配置，写入新数据" ];
 
-			    [DYYYOptionsSelectionView showWithPreferenceKey:@"DYYYABTestModeString"
-							       optionsArray:modeOptions
-								 headerText:@"选择本地配置的应用方式"
-							     onPresentingVC:topView()
-							   selectionChanged:^(NSString *selectedValue) {
-							     BOOL isPatchMode = [selectedValue isEqualToString:@"覆写模式：保留原设置，覆盖同名项"];
-							     item.detail = isPatchMode ? @"覆写模式" : @"替换模式";
+			    NSString *newValue = [DYYYOptionsSelectionView showWithPreferenceKey:@"DYYYABTestModeString"
+										    optionsArray:modeOptions
+										      headerText:@"选择本地配置的应用方式"
+										  onPresentingVC:topView()];
 
-							     if (![selectedValue isEqualToString:currentMode]) {
-								     gFixedABTestData = nil;
-								     onceToken = 0;
-								     ensureABTestDataLoaded();
-							     }
-							     [DYYYSettingsHelper refreshTableView];
-							   }];
+			    if (newValue) {
+				    BOOL isPatchMode = [newValue isEqualToString:@"覆写模式：保留原设置，覆盖同名项"];
+				    item.detail = isPatchMode ? @"覆写模式" : @"替换模式";
+
+				    // 检查是否真的改变了模式
+				    if (![newValue isEqualToString:currentMode]) {
+					    // 重置全局变量
+					    gFixedABTestData = nil;
+					    onceToken = 0;
+					    ensureABTestDataLoaded();
+				    }
+				    [DYYYSettingsHelper refreshTableView];
+			    }
 			  };
 		  } else if ([item.identifier isEqualToString:@"SaveCurrentABTestData"]) {
-			  item.detail = @"(获取中...)";
+			  item.detail = @"(获取中...)"; // 默认显示获取中
 
 			  NSDictionary *currentData = getCurrentABTestData();
 
@@ -2249,10 +2330,10 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			    [topVC presentViewController:documentPicker animated:YES completion:nil];
 			  };
 		  } else if ([item.identifier isEqualToString:@"SaveABTestConfigFile"]) {
-			  item.detail = @"(获取中...)";
+			  item.detail = @"(获取中...)"; // 默认显示获取中
 
-			  saveABTestConfigFileItemRef = item;
-			  refreshSaveABTestConfigFileItem();
+			  saveABTestConfigFileItemRef = item; // 捕获对该特定item的引用
+			  refreshSaveABTestConfigFileItem();  // 确保初始显示正确状态
 
 			  item.cellTappedBlock = ^{
 			    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -2315,11 +2396,11 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 
 			    NSString *confirmTitle, *confirmMessage;
 			    if (isPatchMode) {
-				    confirmTitle = @"覆写模式";
-				    confirmMessage = @"覆写模式将保留原设置并覆盖同名项\n确定要继续吗？\n";
+				    confirmTitle = @"当前覆写模式,请确保配置有效";
+				    confirmMessage = @"覆写模式将保留并覆盖原设置。确定要继续吗？";
 			    } else {
-				    confirmTitle = @"替换模式";
-				    confirmMessage = @"替换模式将丢弃原设置并替换为新数据\n确定要继续吗？\n";
+				    confirmTitle = @"当前替换模式，请确保配置完整";
+				    confirmMessage = @"替换模式将丢弃并替换原设置。确定要继续吗？";
 			    }
 			    DYYYAboutDialogView *confirmDialog = [[DYYYAboutDialogView alloc] initWithTitle:confirmTitle message:confirmMessage];
 			    confirmDialog.onConfirm = ^{
