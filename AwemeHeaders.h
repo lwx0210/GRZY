@@ -1182,3 +1182,7 @@ static CGFloat gStartVal = 0.0;
 @property(retain, nonatomic) AWEAwemeModel *model;
 @end
 
+@interface AWEPlayInteractionUserAvatarElement : NSObject
+@property(retain, nonatomic) AWEAwemeModel *model;
+@end
+
