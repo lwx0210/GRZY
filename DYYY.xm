@@ -546,7 +546,7 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 %end
 
 //二次关注
-%hook AWEPlayInteractionUserAvatarFollowController
+%hook AWEPlayInteractionUserAvatarElement
 - (void)onFollowViewClicked:(UITapGestureRecognizer *)gesture {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYfollowTips"]) {
 		// 获取用户信息
