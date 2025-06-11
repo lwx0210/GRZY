@@ -2130,7 +2130,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		    @"detail" : @"",
 		    @"cellType" : @6,
 		    @"imageName" : @"ic_fire_outlined_20"},
-		  @{@"identifier" : @"DYYYABTestPatchEnabled",
+		  @{@"identifier" : @"DYYYABTestModeString",
 		    @"title" : @"配置应用方式",
 		    @"detail" : @"",
 		    @"cellType" : @26,
