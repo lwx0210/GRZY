@@ -1951,14 +1951,6 @@
 %end
 
 // 屏蔽青少年模式弹窗
-%hook AWEUIAlertView
-- (void)show {
-	if (![[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYHideteenmode"])
-		%orig;
-}
-%end
-
-// 屏蔽青少年模式弹窗
 %hook AWETeenModeAlertView
 - (BOOL)show {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideteenmode"]) {
