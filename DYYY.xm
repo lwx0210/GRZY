@@ -1176,6 +1176,15 @@ static CGFloat currentScale = 1.0;
 - (void)layoutSubviews {
 	%orig;
 	UIViewController *vc = [self firstAvailableUIViewController];
+	if ([vc isKindOfClass:%c(AWECommentInputViewController)]) {
+		NSString *transparentValue = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYGlobalTransparency"];
+		if (transparentValue.length > 0) {
+			CGFloat alphaValue = transparentValue.floatValue;
+			if (alphaValue >= 0.0 && alphaValue <= 1.0) {
+				self.alpha = alphaValue;
+			}
+		}
+	}
 	if ([vc isKindOfClass:%c(AWELiveNewPreStreamViewController)]) {
 		NSString *transparentValue = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYGlobalTransparency"];
 		if (transparentValue.length > 0) {
@@ -1219,6 +1228,7 @@ static CGFloat currentScale = 1.0;
 			UIViewController *viewController = [parentView firstAvailableUIViewController];
 			if ([viewController isKindOfClass:%c(AWELiveNewPreStreamViewController)]) {
 				CGRect frame = self.frame;
+				frame.origin.y -= tabHeight;
 				stream_frame_y = frame.origin.y;
 				self.frame = frame;
 			}
@@ -1230,7 +1240,7 @@ static CGFloat currentScale = 1.0;
 		// 先判断是否有accessibilityLabel
 		BOOL isRightElement = NO;
 		BOOL isLeftElement = NO;
-		
+
 		if (self.accessibilityLabel) {
 			if ([self.accessibilityLabel isEqualToString:@"right"]) {
 				isRightElement = YES;
@@ -1251,7 +1261,7 @@ static CGFloat currentScale = 1.0;
 				}
 			}
 		}
-		
+
 		// 右侧元素的处理逻辑
 		if (isRightElement) {
 			NSString *scaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYElementScale"];
@@ -1306,7 +1316,7 @@ static CGFloat currentScale = 1.0;
 	if ([viewController isKindOfClass:%c(AWEPlayInteractionViewController)]) {
 		// 先判断是否有accessibilityLabel
 		BOOL isLeftElement = NO;
-		
+
 		if (self.accessibilityLabel) {
 			if ([self.accessibilityLabel isEqualToString:@"left"]) {
 				isLeftElement = YES;
@@ -1320,7 +1330,7 @@ static CGFloat currentScale = 1.0;
 				}
 			}
 		}
-		
+
 		if (isLeftElement) {
 			NSString *scaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
 			if (scaleValue.length > 0) {
@@ -1343,7 +1353,7 @@ static CGFloat currentScale = 1.0;
 			}
 		}
 	}
-	
+
 	NSArray *originalSubviews = %orig;
 	return originalSubviews;
 }
@@ -1360,19 +1370,17 @@ static CGFloat currentScale = 1.0;
 }
 %new
 - (BOOL)view:(UIView *)view containsSubviewOfClass:(Class)viewClass {
-    if ([view isKindOfClass:viewClass]) {
-        return YES;
-    }
-    
-    for (UIView *subview in view.subviews) {
-        if ([self view:subview containsSubviewOfClass:viewClass]) {
-            return YES;
-        }
-    }
-    
-    return NO;
-}
-%end
+	if ([view isKindOfClass:viewClass]) {
+		return YES;
+	}
+
+	for (UIView *subview in view.subviews) {
+		if ([self view:subview containsSubviewOfClass:viewClass]) {
+			return YES;
+		}
+	}
+
+	
 
 %hook AWEStoryContainerCollectionView
 - (void)layoutSubviews {
