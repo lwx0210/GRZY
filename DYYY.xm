@@ -573,12 +573,12 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 		[DYYYBottomAlertView showAlertWithTitle:title
 						message:messageContent
 					      avatarURL:avatarURL
-				   cancelButtonText:@"取消"
-				  confirmButtonText:@"关注"
-				      cancelAction:nil
-				     confirmAction:^{
-				       %orig(gesture);
-				     }];
+				       cancelButtonText:@"取消"
+				      confirmButtonText:@"关注"
+					   cancelAction:nil
+					  confirmAction:^{
+					    %orig(gesture);
+					  }];
 	} else {
 		%orig;
 	}
@@ -632,12 +632,12 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 		[DYYYBottomAlertView showAlertWithTitle:title
 						message:messageContent
 					      avatarURL:avatarURL
-				   cancelButtonText:@"取消"
-				  confirmButtonText:@"关注"
-				      cancelAction:nil
-				     confirmAction:^{
-				       %orig(gesture);
-				     }];
+				       cancelButtonText:@"取消"
+				      confirmButtonText:@"关注"
+					   cancelAction:nil
+					  confirmAction:^{
+					    %orig(gesture);
+					  }];
 	} else {
 		%orig;
 	}
