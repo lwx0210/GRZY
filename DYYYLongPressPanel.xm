@@ -147,7 +147,7 @@
 	if (enableSaveVideo && self.awemeModel.awemeType != 68 && !isNewLivePhoto) {
 		AWELongPressPanelBaseViewModel *downloadViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		downloadViewModel.awemeModel = self.awemeModel;
-		downloadViewModel.actionType = 666;
+		downloadViewModel.actionType = 664;
 		downloadViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
 		downloadViewModel.describeString = @"保存视频";
 		downloadViewModel.action = ^{
@@ -192,7 +192,7 @@
 	if (enableSaveVideo && self.awemeModel.awemeType != 68 && isNewLivePhoto) {
 		AWELongPressPanelBaseViewModel *livePhotoViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		livePhotoViewModel.awemeModel = self.awemeModel;
-		livePhotoViewModel.actionType = 679;
+		livePhotoViewModel.actionType = 665;
 		livePhotoViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
 		livePhotoViewModel.describeString = @"保存实况";
 		livePhotoViewModel.action = ^{
@@ -231,7 +231,7 @@
     if (enableSaveCover && self.awemeModel.awemeType != 68) {
         AWELongPressPanelBaseViewModel *coverViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
         coverViewModel.awemeModel = self.awemeModel;
-        coverViewModel.actionType = 667;
+        coverViewModel.actionType = 666;
         coverViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
         coverViewModel.describeString = @"保存封面";
         coverViewModel.action = ^{
@@ -258,7 +258,7 @@
 	if (enableSaveAudio) {
 		AWELongPressPanelBaseViewModel *audioViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		audioViewModel.awemeModel = self.awemeModel;
-		audioViewModel.actionType = 668;
+		audioViewModel.actionType = 667;
 		audioViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
 		audioViewModel.describeString = @"保存音频";
 
@@ -282,7 +282,7 @@
 	if (enableSaveCurrentImage && self.awemeModel.awemeType == 68 && self.awemeModel.albumImages.count > 0) {
 		AWELongPressPanelBaseViewModel *imageViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		imageViewModel.awemeModel = self.awemeModel;
-		imageViewModel.actionType = 669;
+		imageViewModel.actionType = 668;
 		imageViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
 
 		if (self.awemeModel.albumImages.count == 1) {
@@ -299,7 +299,6 @@
 				imageViewModel.describeString = @"保存当前实况";
 			}
 		}
-
 		imageViewModel.action = ^{
 		  AWEAwemeModel *awemeModel = self.awemeModel;
 		  AWEImageAlbumImageModel *currentImageModel = nil;
@@ -346,12 +345,11 @@
 		[viewModels addObject:imageViewModel];
 	}
 
-    
 	// 保存所有图片/实况功能
 	if (enableSaveAllImages && self.awemeModel.awemeType == 68 && self.awemeModel.albumImages.count > 1) {
 		AWELongPressPanelBaseViewModel *allImagesViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		allImagesViewModel.awemeModel = self.awemeModel;
-		allImagesViewModel.actionType = 670;
+		allImagesViewModel.actionType = 669;
 		allImagesViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
 		allImagesViewModel.describeString = @"保存所有图片";
 		// 检查是否有实况照片并更改按钮文字
@@ -420,7 +418,7 @@
     	if (enableCreateVideo && self.awemeModel.awemeType == 68) {
         AWELongPressPanelBaseViewModel *createVideoViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
         createVideoViewModel.awemeModel = self.awemeModel;
-        createVideoViewModel.actionType = 671;
+        createVideoViewModel.actionType = 670;
         createVideoViewModel.duxIconName = @"ic_videosearch_outlined_20";
         createVideoViewModel.describeString = @"合成视频";
         createVideoViewModel.action = ^{
@@ -494,7 +492,7 @@
 	if (enableCopyText) {
 		AWELongPressPanelBaseViewModel *copyText = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		copyText.awemeModel = self.awemeModel;
-		copyText.actionType = 672;
+		copyText.actionType = 671;
 		copyText.duxIconName = @"ic_xiaoxihuazhonghua_outlined";
 		copyText.describeString = @"复制文案";
 
@@ -515,7 +513,7 @@
 	if (enableApiDownload && apiKey.length > 0) {
 		AWELongPressPanelBaseViewModel *apiDownload = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		apiDownload.awemeModel = self.awemeModel;
-		apiDownload.actionType = 673;
+		apiDownload.actionType = 672;
 		apiDownload.duxIconName = @"ic_cloudarrowdown_outlined_20";
 		apiDownload.describeString = @"接口解析";
 
@@ -540,7 +538,7 @@
     if (enableCopyLink) {
         AWELongPressPanelBaseViewModel *copyShareLink = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
         copyShareLink.awemeModel = self.awemeModel;
-        copyShareLink.actionType = 674;
+        copyShareLink.actionType = 673;
         copyShareLink.duxIconName = @"ic_share_outlined";
         copyShareLink.describeString = @"复制链接";
         copyShareLink.action = ^{
@@ -558,7 +556,7 @@
 	if (enableFilterUser) {
 		AWELongPressPanelBaseViewModel *filterKeywords = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		filterKeywords.awemeModel = self.awemeModel;
-		filterKeywords.actionType = 675;
+		filterKeywords.actionType = 674;
 		filterKeywords.duxIconName = @"ic_userban_outlined_20";
 		filterKeywords.describeString = @"过滤作者";
 
@@ -641,7 +639,7 @@
 	if (enableFilterKeyword) {
 		AWELongPressPanelBaseViewModel *filterKeywords = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		filterKeywords.awemeModel = self.awemeModel;
-		filterKeywords.actionType = 676;
+		filterKeywords.actionType = 675;
 		filterKeywords.duxIconName = @"ic_funnel_outlined_20";
 		filterKeywords.describeString = @"过滤文案";
 
@@ -982,7 +980,7 @@
 	if (enableSaveVideo && self.awemeModel.awemeType != 68 && !isNewLivePhoto) {
 		AWELongPressPanelBaseViewModel *downloadViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		downloadViewModel.awemeModel = self.awemeModel;
-		downloadViewModel.actionType = 666;
+		downloadViewModel.actionType = 665;
 		downloadViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
 		downloadViewModel.describeString = @"保存视频";
 		downloadViewModel.action = ^{
@@ -1027,7 +1025,7 @@
 	if (enableSaveVideo && self.awemeModel.awemeType != 68 && isNewLivePhoto) {
 		AWELongPressPanelBaseViewModel *livePhotoViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		livePhotoViewModel.awemeModel = self.awemeModel;
-		livePhotoViewModel.actionType = 679;
+		livePhotoViewModel.actionType = 666;
 		livePhotoViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
 		livePhotoViewModel.describeString = @"保存实况";
 		livePhotoViewModel.action = ^{
@@ -1134,7 +1132,6 @@
 				imageViewModel.describeString = @"保存当前实况";
 			}
 		}
-
 		imageViewModel.action = ^{
 		  AWEAwemeModel *awemeModel = self.awemeModel;
 		  AWEImageAlbumImageModel *currentImageModel = nil;
@@ -1180,7 +1177,6 @@
 		};
 		[viewModels addObject:imageViewModel];
 	}
-
     
 	// 保存所有图片/实况功能
 	if (enableSaveAllImages && self.awemeModel.awemeType == 68 && self.awemeModel.albumImages.count > 1) {
