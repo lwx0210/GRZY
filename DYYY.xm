@@ -2958,9 +2958,7 @@ static AWEIMReusableCommonCell *currentCell;
 				    }];
 			[actions addObject:downloadAction];
 		}
-           }
-    }
-
+           
                 // 显示操作表
 		[actionSheet setActions:actions];
 		[actionSheet show];
