@@ -1380,6 +1380,9 @@ static CGFloat currentScale = 1.0;
 		}
 	}
 
+	return NO;
+}
+%end
 	
 
 %hook AWEStoryContainerCollectionView
