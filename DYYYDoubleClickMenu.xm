@@ -4,9 +4,7 @@
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
 #import "DYYYBottomAlertView.h"
-#import "DYYYManager.h"
 #import "DYYYConstants.h"
-#import "DYYYToast.h"
 #import "DYYYCdyy.h"
 
 
