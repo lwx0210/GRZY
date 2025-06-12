@@ -377,6 +377,7 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) {
             [DYYYSettingItem itemWithTitle:@"启用横屏交互增强" key:@"DYYYVideoGesture" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"启用骰子猜拳作弊" key:@"DYYYGameCheat" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"启用突破默契回答" key:@"DYYYtacitanswer" type:DYYYSettingItemTypeSwitch],    
+            [DYYYSettingItem itemWithTitle:@"启用评论底栏透明" key:@"DYYYisEnableCommentBarTransparent" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"接口解析保存媒体" key:@"DYYYInterfaceDownload" type:DYYYSettingItemTypeTextField placeholder:@"不填关闭"],
             [DYYYSettingItem itemWithTitle:@"接口显示清晰选项" key:@"DYYYShowAllVideoQuality" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"移除评论实况水印" key:@"DYYYCommentLivePhotoNotWaterMark" type:DYYYSettingItemTypeSwitch],
@@ -418,7 +419,7 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) {
 
 - (void)setupFooterLabel {
     self.footerLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 50)];
-    self.footerLabel.text = [NSString stringWithFormat:@"Lee Moon hee\nVersion: %@ (%@)", @"2.3.0", @"20250611"];
+    self.footerLabel.text = [NSString stringWithFormat:@"DYYY 个人自用版\nVersion: %@ (%@)", @"2.3.0", @"20250611"];
     self.footerLabel.textAlignment = NSTextAlignmentCenter;
     self.footerLabel.font = [UIFont systemFontOfSize:14 weight:UIFontWeightRegular];
     self.footerLabel.textColor = [UIColor colorWithRed:173/255.0 green:216/255.0 blue:230/255.0 alpha:1.0];
