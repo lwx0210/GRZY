@@ -6,3 +6,8 @@
 ---
 请勿用于商业用途
 否则后果自负！
+---
+此项目由huami开源
+仓库地址：https://github.com/huami1314/DYYY
+Wtrwx二次改版
+仓库地址：https://github.com/Wtrwx/DYYY/tree/main
