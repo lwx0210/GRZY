@@ -344,10 +344,6 @@ static CGFloat gStartVal = 0.0;
 - (UILabel *)findCommentLabel:(UIView *)view;
 @end
 
-// 隐藏视频定位
-@interface AWEFeedTemplateAnchorView : UIView
-@end
-
 // 隐藏同城定位
 @interface AWEMarkView : UIView
 @property(nonatomic, readonly) UILabel *markLabel;
@@ -1238,3 +1234,11 @@ static CGFloat gStartVal = 0.0;
 @property(retain, nonatomic) AWEAwemeModel *model;
 @end
 
+//昵称上方
+@interface AWECodeGenCommonAnchorBasicInfoModel : UIViewController
+@property(copy, nonatomic) NSString *name;
+@end
+
+@interface AWEFeedTemplateAnchorView : UIView
+@property(retain, nonatomic) AWECodeGenCommonAnchorBasicInfoModel *templateAnchorInfo;
+@end
