@@ -994,7 +994,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 	                    @{@"identifier" : @"DYYYCustomWalletBalance",
 			      @"title" : @"钱包余额伪造",
 			      @"detail" : @"不填默认",
-			      @"cellType" : @6,
+			      @"cellType" : @26,
 			      @"imageName" : @"ic_tag_outlined_20"},
 			    @{@"identifier" : @"DYYYCustomWalletCoin",
 			      @"title" : @"抖币余额伪造",
