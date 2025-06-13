@@ -587,7 +587,8 @@
 
 		  [DYYYBottomAlertView showAlertWithTitle:@"过滤视频作者"
 		      message:[NSString stringWithFormat:@"作者: %@ (ID: %@)", nickname, shortId]
-		      cancelButtonText:@"管理过滤列表"
+		      avatarURL:nil
+                      cancelButtonText:@"管理过滤列表"
 		      confirmButtonText:actionButtonText
 		      cancelAction:^{
 			DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的视频作者" keywords:userArray];
@@ -601,6 +602,7 @@
 
 			[keywordListView show];
 		      }
+                      closeAction:nil
 		      confirmAction:^{
 			// 添加或移除用户过滤
 			NSMutableArray *updatedUsers = [NSMutableArray arrayWithArray:userArray];
@@ -1421,7 +1423,8 @@
 
 		  [DYYYBottomAlertView showAlertWithTitle:@"过滤视频作者"
 		      message:[NSString stringWithFormat:@"作者: %@ (ID: %@)", nickname, shortId]
-		      cancelButtonText:@"管理过滤列表"
+		      avatarURL:nil
+                      cancelButtonText:@"管理过滤列表"
 		      confirmButtonText:actionButtonText
 		      cancelAction:^{
 			DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的视频作者" keywords:userArray];
@@ -1435,6 +1438,7 @@
 
 			[keywordListView show];
 		      }
+                      closeAction:nil
 		      confirmAction:^{
 			// 添加或移除用户过滤
 			NSMutableArray *updatedUsers = [NSMutableArray arrayWithArray:userArray];
