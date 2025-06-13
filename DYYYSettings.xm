@@ -985,27 +985,8 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			      @"title" : @"账号昵称伪造",
 			      @"detail" : @"不填默认",
 			      @"cellType" : @26,
-			      @"imageName" : @"ic_user_outlined_20"},
-			    @{@"identifier" : @"DYYYEnableWalletCustom",
-			      @"title" : @"启用资产伪造",
-			      @"detail" : @"",
-			      @"cellType" : @6,
-			      @"imageName" : @"ic_tag_outlined_20"},
-	                    @{@"identifier" : @"DYYYCustomWalletBalance",
-			      @"title" : @"钱包余额伪造",
-			      @"detail" : @"不填默认",
-			      @"cellType" : @26,
-			      @"imageName" : @"ic_tag_outlined_20"},
-			    @{@"identifier" : @"DYYYCustomWalletCoin",
-			      @"title" : @"抖币余额伪造",
-			      @"detail" : @"不填默认",
-			      @"cellType" : @26,
-			      @"imageName" : @"ic_tag_outlined_20"},
-	                    @{@"identifier" : @"DYYYCustomDouyinCash",
-			      @"title" : @"现金余额伪造",
-			      @"detail" : @"不填默认",
-			      @"cellType" : @26,
-			      @"imageName" : @"ic_tag_outlined_20"}
+			      @"imageName" : @"ic_user_outlined_20"}
+
 	  ];
 
 	  for (NSDictionary *dict in MasturbationSettings) {
