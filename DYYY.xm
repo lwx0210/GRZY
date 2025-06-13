@@ -14,6 +14,7 @@
 #import "DYYYManager.h"
 
 #import "DYYYConstants.h"
+#import "DYYYSettingViewController.h"
 #import "DYYYToast.h"
 #import "DYYYCdyy.h"
 
