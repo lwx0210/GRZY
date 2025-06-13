@@ -1222,9 +1222,6 @@ static CGFloat gStartVal = 0.0;
 @interface AWESearchKeyboardVoiceSearchEntranceView : UIView
 @end
 
-@interface DYYYSettingViewController : UIViewController
-@end
-
 //二次关注头像签名
 @interface AWEPlayInteractionUserAvatarFollowController : UIViewController
 @property(retain, nonatomic) AWEAwemeModel *model;
