@@ -479,6 +479,23 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 }
 %end
 
+//全屏修复
+%hook AWECommentInputViewController
+
+- (UIView *)view {
+	UIView *originalView = %orig;
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {	
+		for (UIView *subview in originalView.subviews) {
+			[subview setBackgroundColor:[UIColor clearColor]];
+		}	
+	}
+
+	return originalView;
+}
+
+%end
+
 //最高画质
 %hook AWEVideoModel
 
