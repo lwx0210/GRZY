@@ -57,6 +57,15 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 - (void)layoutSubviews {
 	%orig;
 
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+		if (self.frame.size.height == tabHeight && tabHeight > 0) {
+			UIViewController *vc = [self firstAvailableUIViewController];
+			if ([vc isKindOfClass:NSClassFromString(@"AWEMixVideoPanelDetailTableViewController")] || [vc isKindOfClass:NSClassFromString(@"AWECommentInputViewController")]) {
+				self.backgroundColor = [UIColor clearColor];
+			}
+		}
+	}
+
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"]) {
 		for (UIView *subview in self.subviews) {
 			if ([subview isKindOfClass:NSClassFromString(@"AWECommentInputViewSwiftImpl.CommentInputViewMiddleContainer")]) {
@@ -85,11 +94,38 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 				} else {
 					for (UIView *innerSubview in subview.subviews) {
 						if ([innerSubview isKindOfClass:[UIView class]]) {
-							float userTransparency = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYCommentBlurTransparent"] floatValue];
-							if (userTransparency <= 0 || userTransparency > 1) {
-								userTransparency = 0.95;
+							if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBarTransparent"]) {
+								// 检查背景颜色
+								UIColor *bgColor = innerSubview.backgroundColor;
+								if (bgColor) {
+									CGFloat red = 0, green = 0, blue = 0, alpha = 0;
+									BOOL isWhite = NO;
+
+									if ([bgColor getRed:&red green:&green blue:&blue alpha:&alpha]) {
+										isWhite = (red > 0.95 && green > 0.95 && blue > 0.95);
+										// 如果背景是透明的，则不处理
+										if (alpha < 0.1) {
+											break;
+										}
+									}
+
+									// 只有当背景是白色时才应用毛玻璃效果
+									if (isWhite) {
+										float userTransparency = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYCommentBlurTransparent"]
+										    floatValue];
+										if (userTransparency <= 0 || userTransparency > 1) {
+											userTransparency = 0.95;
+										}
+										DYYYAddCustomViewToParent(innerSubview, userTransparency);
+									}
+								}
+							} else {
+								float userTransparency = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYCommentBlurTransparent"] floatValue];
+								if (userTransparency <= 0 || userTransparency > 1) {
+									userTransparency = 0.95;
+								}
+								DYYYAddCustomViewToParent(innerSubview, userTransparency);
 							}
-							DYYYAddCustomViewToParent(innerSubview, userTransparency);
 							break;
 						}
 					}
@@ -133,6 +169,59 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 		}
 	}
 }
+
+- (void)setFrame:(CGRect)frame {
+	if (![NSThread isMainThread]) {
+		dispatch_async(dispatch_get_main_queue(), ^{
+		  [self setFrame:frame];
+		});
+		return;
+	}
+
+	BOOL enableBlur = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"];
+	BOOL enableFS = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"];
+	BOOL hideAvatar = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHiddenAvatarList"];
+
+	Class SkylightListViewClass = NSClassFromString(@"AWEIMSkylightListView");
+	if (hideAvatar && SkylightListViewClass && [self isKindOfClass:SkylightListViewClass]) {
+		frame = CGRectZero;
+		%orig(frame);
+		return;
+	}
+
+	UIViewController *vc = [self firstAvailableUIViewController];
+	Class DetailVCClass = NSClassFromString(@"AWEMixVideoPanelDetailTableViewController");
+	Class PlayVCClass1 = NSClassFromString(@"AWEAwemePlayVideoViewController");
+	Class PlayVCClass2 = NSClassFromString(@"AWEDPlayerFeedPlayerViewController");
+
+	BOOL isDetailVC = (DetailVCClass && [vc isKindOfClass:DetailVCClass]);
+	BOOL isPlayVC = ((PlayVCClass1 && [vc isKindOfClass:PlayVCClass1]) || (PlayVCClass2 && [vc isKindOfClass:PlayVCClass2]));
+
+	if (isPlayVC && enableBlur) {
+		if (frame.origin.x != 0) {
+			return;
+		}
+	}
+
+	if (isPlayVC && enableFS) {
+		if (frame.origin.x != 0 && frame.origin.y != 0) {
+			%orig(frame);
+			return;
+		}
+		CGRect superF = self.superview.frame;
+		if (CGRectGetHeight(superF) > 0 && CGRectGetHeight(frame) > 0 && CGRectGetHeight(frame) < CGRectGetHeight(superF)) {
+			CGFloat diff = CGRectGetHeight(superF) - CGRectGetHeight(frame);
+			if (fabs(diff - tabHeight) < 1.0) {
+				frame.size.height = CGRectGetHeight(superF);
+			}
+		}
+		%orig(frame);
+		return;
+	}
+
+	%orig(frame);
+}
+
 %end
 
 %hook AFDFastSpeedView
