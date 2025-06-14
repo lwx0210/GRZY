@@ -461,6 +461,24 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 
 %end
 
+//HDR
+%hook AWEVideoPlayerScreenBrightnessManager
+- (void)setIsHDRVideo:(BOOL)isHDR {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableFeedHDR"]) {
+        %orig(NO);
+    } else {
+        %orig(isHDR);
+    }
+}
+
+- (BOOL)isHDRVideo {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableFeedHDR"]) {
+        return NO;
+    }
+    return %orig;
+}
+%end
+
 //最高画质
 %hook AWEVideoModel
 
