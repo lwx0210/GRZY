@@ -1293,7 +1293,7 @@
 }
 %end
 
-// 隐藏视频上方搜索长框
+// 隐藏视频上方搜索长框、隐藏搜索指示条、应用全局透明
 %hook AWESearchEntranceView
 
 - (void)layoutSubviews {
@@ -1303,20 +1303,65 @@
 		return;
 	}
 
-    NSString *transparentValue = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYGlobalTransparency"];
-    if (transparentValue.length > 0) {
-        CGFloat alphaValue = transparentValue.floatValue;
-        if (alphaValue >= 0.0 && alphaValue <= 1.0) {
-            for (UIView *subview in self.subviews) {
-                if (subview.tag != DYYY_IGNORE_GLOBAL_ALPHA_TAG) {
-                    if (subview.alpha > 0) {
-                        subview.alpha = alphaValue;
-                    }
-                }
-            }
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideSearchEntranceIndicator"]) {
+		for (UIView *subview in self.subviews) {
+			if ([subview isKindOfClass:[UIImageView class]] && [NSStringFromClass([((UIImageView *)subview).image class]) isEqualToString:@"_UIResizableImage"]) {
+				((UIImageView *)subview).hidden = YES;
+			}
+		}
+	}
+
+	// NSString *transparentValue = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYGlobalTransparency"];
+	// if (transparentValue.length > 0) {
+	//     CGFloat alphaValue = transparentValue.floatValue;
+	//     if (alphaValue >= 0.0 && alphaValue <= 1.0) {
+	//         self.alpha = alphaValue;
+	//     }
+	// }
+
+	%orig;
+}
+
+%end
+
+//暂停关键词
+%hook AWEFeedPauseRelatedWordComponent
+
+- (id)updateViewWithModel:(id)arg0 {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePauseVideoRelatedWord"]) {
+        return nil;
+    }
+    return %orig;
+}
+
+- (id)pauseContentWithModel:(id)arg0 {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePauseVideoRelatedWord"]) {
+        return nil;
+    }
+    return %orig;
+}
+
+- (id)recommendsWords {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePauseVideoRelatedWord"]) {
+        return nil;
+    }
+    return %orig;
+}
+
+- (void)showRelatedRecommendPanelControllerWithSelectedText:(id)arg0 {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePauseVideoRelatedWord"]) {
+        return;
+    }
+    %orig;
+}
+
+- (void)setupUI {
+    %orig;
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePauseVideoRelatedWord"]) {
+        if (self.relatedView) {
+            self.relatedView.hidden = YES;
         }
     }
-	%orig;
 }
 
 %end
