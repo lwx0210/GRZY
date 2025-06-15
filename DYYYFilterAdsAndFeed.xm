@@ -10,11 +10,12 @@
 	BOOL noAds = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYNoAds"];
 	BOOL skipLive = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisSkipLive"];
 	BOOL skipHotSpot = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisSkipHotSpot"];
+	BOOL filterHDR = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYfilterFeedHDR"];
 
 	BOOL shouldFilterAds = noAds && (self.hotSpotLynxCardModel || self.isAds);
 	BOOL shouldFilterRec = skipLive && (self.liveReason != nil);
 	BOOL shouldFilterHotSpot = skipHotSpot && self.hotSpotLynxCardModel;
-
+	BOOL shouldFilterHDR = NO;
 	BOOL shouldFilterLowLikes = NO;
 	BOOL shouldFilterKeywords = NO;
 	BOOL shouldFilterTime = NO;
@@ -96,7 +97,24 @@
 			}
 		}
 	}
-	return (shouldFilterAds || shouldFilterRec || shouldFilterHotSpot || shouldFilterLowLikes || shouldFilterKeywords || shouldFilterTime || shouldFilterUser) ? nil : orig;
+	// 检查是否为HDR视频
+	if (filterHDR && self.video && self.video.bitrateModels) {
+		for (id bitrateModel in self.video.bitrateModels) {
+			NSNumber *hdrType = [bitrateModel valueForKey:@"hdrType"];
+			NSNumber *hdrBit = [bitrateModel valueForKey:@"hdrBit"];
+
+			// 如果hdrType=1且hdrBit=10，则视为HDR视频
+			if (hdrType && [hdrType integerValue] == 1 && hdrBit && [hdrBit integerValue] == 10) {
+				shouldFilterHDR = YES;
+				break;
+			}
+		}
+	}
+	if (shouldFilterAds || shouldFilterRec || shouldFilterHotSpot || shouldFilterHDR || shouldFilterLowLikes || shouldFilterKeywords || shouldFilterTime || shouldFilterUser) {
+		return nil;
+	}
+
+	return orig;
 }
 
 - (id)init {
@@ -105,11 +123,12 @@
 	BOOL noAds = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYNoAds"];
 	BOOL skipLive = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisSkipLive"];
 	BOOL skipHotSpot = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisSkipHotSpot"];
+	BOOL filterHDR = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYfilterFeedHDR"];
 
 	BOOL shouldFilterAds = noAds && (self.hotSpotLynxCardModel || self.isAds);
 	BOOL shouldFilterRec = skipLive && (self.liveReason != nil);
 	BOOL shouldFilterHotSpot = skipHotSpot && self.hotSpotLynxCardModel;
-
+	BOOL shouldFilterHDR = NO;
 	BOOL shouldFilterLowLikes = NO;
 	BOOL shouldFilterKeywords = NO;
 
@@ -184,7 +203,25 @@
 		}
 	}
 
-	return (shouldFilterAds || shouldFilterRec || shouldFilterHotSpot || shouldFilterLowLikes || shouldFilterKeywords || shouldFilterTime) ? nil : orig;
+	// 检查是否为HDR视频
+	if (filterHDR && self.video && self.video.bitrateModels) {
+		for (id bitrateModel in self.video.bitrateModels) {
+			NSNumber *hdrType = [bitrateModel valueForKey:@"hdrType"];
+			NSNumber *hdrBit = [bitrateModel valueForKey:@"hdrBit"];
+
+			// 如果hdrType=1且hdrBit=10，则视为HDR视频
+			if (hdrType && [hdrType integerValue] == 1 && hdrBit && [hdrBit integerValue] == 10) {
+				shouldFilterHDR = YES;
+				break;
+			}
+		}
+	}
+
+	if (shouldFilterAds || shouldFilterRec || shouldFilterHotSpot || shouldFilterHDR || shouldFilterLowLikes || shouldFilterKeywords || shouldFilterTime) {
+		return nil;
+	}
+
+	return orig;
 }
 
 - (bool)preventDownload {
