@@ -1224,6 +1224,10 @@ static CGFloat gStartVal = 0.0;
 @property (nonatomic, assign) long long pauseContentNum;
 @end
 
+//评论区保存表情
+@interface YYAnimatedImageView : UIImageView
+@end
+
 //修改id附加起始位 
 @interface AWEUserHomeAccessibilityViewV2 : UIView
 - (void)findAndModifyDouyinLabelInView:(UIView *)view;
