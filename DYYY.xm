@@ -464,18 +464,18 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 //HDR
 %hook AWEVideoPlayerScreenBrightnessManager
 - (void)setIsHDRVideo:(BOOL)isHDR {
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableFeedHDR"]) {
-        %orig(NO);
-    } else {
-        %orig(isHDR);
-    }
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableFeedHDR"]) {
+		%orig(NO);
+		return;
+	}
+	%orig;
 }
 
 - (BOOL)isHDRVideo {
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableFeedHDR"]) {
-        return NO;
-    }
-    return %orig;
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableFeedHDR"]) {
+		return NO;
+	}
+	return %orig;
 }
 %end
 
