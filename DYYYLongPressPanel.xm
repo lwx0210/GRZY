@@ -1631,6 +1631,19 @@
 
 %end
 
+%hook AWELongPressPanelTableViewController
+- (void)layoutSubviews {
+	%orig;
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideCommentShareToFriends"]) {
+		self.hidden = YES;
+	} else {
+		self.hidden = NO;
+	}
+}
+
+%end
+
 %ctor {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYUserAgreementAccepted"]) {
 		%init;
