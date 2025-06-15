@@ -1239,3 +1239,12 @@ static CGFloat gStartVal = 0.0;
 @interface AWEFeedTemplateAnchorView : UIView
 @property(retain, nonatomic) AWECodeGenCommonAnchorBasicInfoModel *templateAnchorInfo;
 @end
+
+@interface AWEFeedPauseVideoRelatedWordView : UIView
+@end
+
+@interface AWEFeedPauseRelatedWordComponent : NSObject
+@property (nonatomic, strong) AWEFeedPauseVideoRelatedWordView *relatedView;
+@property (nonatomic, strong) AWEAwemeModel *currentAweme;
+@property (nonatomic, assign) long long pauseContentNum;
+@end
