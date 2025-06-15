@@ -1,5 +1,5 @@
 #import "AwemeHeaders.h"
-
+#import "DYYYUtils.h"
 
 %hook AWEFeedLiveMarkView
 - (void)setHidden:(BOOL)hidden {
@@ -119,6 +119,74 @@
     }
 }
 
+%end
+
+//评论区表情
+%group EnableStickerSaveMenu
+static __weak YYAnimatedImageView *targetStickerView = nil;
+
+%hook _TtCV28AWECommentPanelListSwiftImpl6NEWAPI27CommentCellStickerComponent
+
+- (void)handleLongPressWithGes:(UILongPressGestureRecognizer *)gesture {
+	if (gesture.state == UIGestureRecognizerStateBegan) {
+		if ([gesture.view isKindOfClass:%c(YYAnimatedImageView)]) {
+			targetStickerView = (YYAnimatedImageView *)gesture.view;
+			NSLog(@"DYYY 长按表情：%@", targetStickerView);
+		} else {
+			targetStickerView = nil;
+		}
+	}
+
+	%orig;
+}
+
+%end
+
+%hook UIMenu
+
++ (instancetype)menuWithTitle:(NSString *)title image:(UIImage *)image identifier:(UIMenuIdentifier)identifier options:(UIMenuOptions)options children:(NSArray<UIMenuElement *> *)children {
+	BOOL hasAddStickerOption = NO;
+	BOOL hasSaveLocalOption = NO;
+
+	for (UIMenuElement *element in children) {
+		NSString *elementTitle = nil;
+
+		if ([element isKindOfClass:%c(UIAction)]) {
+			elementTitle = [(UIAction *)element title];
+		} else if ([element isKindOfClass:%c(UICommand)]) {
+			elementTitle = [(UICommand *)element title];
+		}
+
+		if ([elementTitle isEqualToString:@"添加到表情"]) {
+			hasAddStickerOption = YES;
+		} else if ([elementTitle isEqualToString:@"保存到相册"]) {
+			hasSaveLocalOption = YES;
+		}
+	}
+
+	if (hasAddStickerOption && !hasSaveLocalOption) {
+		NSMutableArray *newChildren = [children mutableCopy];
+
+		UIAction *saveAction = [%c(UIAction) actionWithTitle:@"保存到相册"
+									 image:nil
+								    identifier:nil
+								       handler:^(__kindof UIAction *_Nonnull action) {
+									 // 使用全局变量 targetStickerView 保存当前长按的表情
+									 if (targetStickerView) {
+										 [DYYYUtils saveAnimatedSticker:targetStickerView];
+									 } else {
+										 [DYYYManager showToast:@"无法获取表情视图"];
+									 }
+								       }];
+
+		[newChildren addObject:saveAction];
+		return %orig(title, image, identifier, options, newChildren);
+	}
+
+	return %orig;
+}
+
+%end
 %end
 
 //隐藏去商城看看
@@ -2474,6 +2542,9 @@ static NSString *const kStreamlineSidebarKey = @"DYYYStreamlinethesidebar";
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYUserAgreementAccepted"]) {
 		%init;
 	}
+        if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYForceDownloadEmotion"]) {
+			%init(EnableStickerSaveMenu);
+		}
 }
 
 // 隐藏键盘ai
