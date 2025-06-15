@@ -1,5 +1,6 @@
 #import "AwemeHeaders.h"
-
+#import <UIKit/UIKit.h>
+#import <objc/runtime.h>
 
 %hook AWEFeedLiveMarkView
 - (void)setHidden:(BOOL)hidden {
