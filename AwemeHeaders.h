@@ -1248,3 +1248,29 @@ static CGFloat gStartVal = 0.0;
 @property (nonatomic, strong) AWEAwemeModel *currentAweme;
 @property (nonatomic, assign) long long pauseContentNum;
 @end
+
+//测试
+@interface AWEPlayInteractionUserAvatarElement : NSObject
+@property(retain, nonatomic) AWEAwemeModel *model;
+@end
+
+@interface AWEPlayInteractionUserAvatarFollowController : UIViewController
+@property(retain, nonatomic) AWEAwemeModel *model;
+@end
+
+@interface AWECodeGenCommonAnchorBasicInfoModel : UIViewController
+@property(copy, nonatomic) NSString *name;
+@end
+
+@interface AWEFeedTemplateAnchorView : UIView
+@property(retain, nonatomic) AWECodeGenCommonAnchorBasicInfoModel *templateAnchorInfo;
+@end
+
+@interface AWEVideoPlayerConfiguration : NSObject
++ (void)setHDRBrightnessStrategy:(id)strategy;
++ (double)getHDRBrightnessOffset:(double)offset brightness:(double)brightness;
+@end
+
+@interface IESFiltersManager : NSObject
+- (void)setHDRIndensity:(double)intensity;
+@end
