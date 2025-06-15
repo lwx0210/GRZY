@@ -939,14 +939,6 @@ static CGFloat gStartVal = 0.0;
              singleTapBlock:(void (^)(void))singleTapBlock;
 - (void)configWithImageView:(UIImageView *)imageView
                   lockImage:(UIImage *)lockImage
-             titleLabelText:(NSString *)titleText
-           contentLabelText:(NSString *)contentText
-            knownButtonText:(NSString *)knownButtonText
-            toggleTitleText:(NSString *)toggleTitleText
-               defaultState:(BOOL)defaultState
-           defaultLockState:(BOOL)defaultLockState;
-- (void)configWithImageView:(UIImageView *)imageView
-                  lockImage:(UIImage *)lockImage
              lockImageInset:(UIEdgeInsets)lockImageInset
              titleLabelText:(NSString *)titleLabelText
            contentLabelText:(NSString *)contentLabelText
@@ -1198,58 +1190,6 @@ static CGFloat gStartVal = 0.0;
 @interface AWEMixVideoPanelMoreView : UIView
 @end
 
-//修改id 
-@interface AWEUserHomeAccessibilityViewV2 : UIView
-- (void)findAndModifyDouyinLabelInView:(UIView *)view;
-- (void)findAndModify:(UIView *)view;
-- (void)modifyNicknameInView:(UIView *)view;
-@end
-
-//数据伪造
-@interface AWEProfileSocialStatisticView : UIView
-- (void)setFansCount:(NSNumber *)count;
-- (void)setPraiseCount:(NSNumber *)count;
-- (void)setFollowingCount:(NSNumber *)count;
-- (void)setFriendCount:(NSNumber *)count;
-- (void)p_updateSocialStatisticContent:(BOOL)animated;
-@end
-
-@interface AWEProfileHeaderMyProfileViewController : UIViewController
-- (void)reloadSettings;
-@end
-
-//AI搜索
-@interface AWESearchKeyboardVoiceSearchEntranceView : UIView
-@end
-
-//二次关注头像签名
-@interface AWEPlayInteractionUserAvatarFollowController : UIViewController
-@property(retain, nonatomic) AWEAwemeModel *model;
-@end
-
-@interface AWEPlayInteractionUserAvatarElement : NSObject
-@property(retain, nonatomic) AWEAwemeModel *model;
-@end
-
-//昵称上方
-@interface AWECodeGenCommonAnchorBasicInfoModel : UIViewController
-@property(copy, nonatomic) NSString *name;
-@end
-
-@interface AWEFeedTemplateAnchorView : UIView
-@property(retain, nonatomic) AWECodeGenCommonAnchorBasicInfoModel *templateAnchorInfo;
-@end
-
-@interface AWEFeedPauseVideoRelatedWordView : UIView
-@end
-
-@interface AWEFeedPauseRelatedWordComponent : NSObject
-@property (nonatomic, strong) AWEFeedPauseVideoRelatedWordView *relatedView;
-@property (nonatomic, strong) AWEAwemeModel *currentAweme;
-@property (nonatomic, assign) long long pauseContentNum;
-@end
-
-//测试
 @interface AWEPlayInteractionUserAvatarElement : NSObject
 @property(retain, nonatomic) AWEAwemeModel *model;
 @end
@@ -1273,4 +1213,14 @@ static CGFloat gStartVal = 0.0;
 
 @interface IESFiltersManager : NSObject
 - (void)setHDRIndensity:(double)intensity;
+@end
+
+@interface AWEFeedPauseVideoRelatedWordView : UIView
+@end
+
+@interface AWEFeedPauseRelatedWordComponent : NSObject
+@property (nonatomic, strong) AWEFeedPauseVideoRelatedWordView *relatedView;
+@property (nonatomic, strong) AWEAwemeModel *currentAweme;
+@property (nonatomic, assign) long long pauseContentNum;
+
 @end
