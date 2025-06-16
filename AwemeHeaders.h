@@ -122,6 +122,7 @@ static CGFloat gStartVal = 0.0;
 @property(nonatomic, strong) AWEUserModel *author;
 @property(nonatomic, strong) AWEAnimatedImageVideoInfo *animatedImageVideoInfo;
 @property(nonatomic, strong) AWEAwemeStatisticsModel *statistics;
+@property(nonatomic, strong) AWEPropGuideV2Model *propGuideV2;
 - (BOOL)isLive;
 - (AWESearchAwemeExtraModel *)searchExtraModel;
 @end
@@ -1226,6 +1227,10 @@ static CGFloat gStartVal = 0.0;
 
 //评论区保存表情
 @interface YYAnimatedImageView : UIImageView
+@end
+
+@interface AWEPropGuideV2Model : NSObject
+@property (nonatomic, copy) NSString *propName;
 @end
 
 //修改id附加起始位 
