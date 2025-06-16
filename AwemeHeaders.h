@@ -1228,8 +1228,32 @@ static CGFloat gStartVal = 0.0;
 @property (nonatomic, strong) AWEFeedPauseVideoRelatedWordView *relatedView;
 @property (nonatomic, strong) AWEAwemeModel *currentAweme;
 @property (nonatomic, assign) long long pauseContentNum;
-
 @end
 
+//评论区表情
 @interface YYAnimatedImageView : UIImageView
+@end
+
+//修改id附加起始位 
+@interface AWEUserHomeAccessibilityViewV2 : UIView
+- (void)findAndModifyDouyinLabelInView:(UIView *)view;
+- (void)findAndModify:(UIView *)view;
+- (void)modifyNicknameInView:(UIView *)view;
+@end
+
+//数据伪造
+@interface AWEProfileSocialStatisticView : UIView
+- (void)setFansCount:(NSNumber *)count;
+- (void)setPraiseCount:(NSNumber *)count;
+- (void)setFollowingCount:(NSNumber *)count;
+- (void)setFriendCount:(NSNumber *)count;
+- (void)p_updateSocialStatisticContent:(BOOL)animated;
+@end
+
+@interface AWEProfileHeaderMyProfileViewController : UIViewController
+- (void)reloadSettings;
+@end
+
+//AI搜索
+@interface AWESearchKeyboardVoiceSearchEntranceView : UIView
 @end
