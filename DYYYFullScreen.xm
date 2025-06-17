@@ -2,6 +2,7 @@
 #import "DYYYManager.h"
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
+#import "DYYYUtils.h"
 
 static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 	if (!parentView)
