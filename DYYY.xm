@@ -227,7 +227,7 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 		}
 	}
 
-	BOOL isDarkMode = [DYYYManager isDarkMode];
+	BOOL isDarkMode = [DYYYUtils isDarkMode];
 	UIBlurEffectStyle blurStyle = isDarkMode ? UIBlurEffectStyleDark : UIBlurEffectStyleLight;
 
 	if (transparency <= 0 || transparency > 1) {
