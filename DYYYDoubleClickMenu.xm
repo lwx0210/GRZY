@@ -170,7 +170,7 @@
 								      completion:^(BOOL success) {
 									if (success) {
 									} else {
-										[DYYYManager showToast:@"封面保存已取消"];
+										[DYYYUtils showToast:@"封面保存已取消"];
 									}
 								      }];
 					      }
