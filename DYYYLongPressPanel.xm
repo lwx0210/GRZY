@@ -662,7 +662,7 @@
 
 			    [[NSUserDefaults standardUserDefaults] setObject:newKeywords forKey:@"DYYYfilterKeywords"];
 			    [[NSUserDefaults standardUserDefaults] synchronize];
-			    [DYYYManager showToast:[NSString stringWithFormat:@"已添加到过滤文案: %@", selectedText]];
+			    [DYYYUtils showToast:[NSString stringWithFormat:@"已添加到过滤文案: %@", selectedText]];
 		    }
 		  };
 
