@@ -1,6 +1,7 @@
 #import <UIKit/UIKit.h>
 #import "DYYYManager.h"
 #import "AwemeHeaders.h"
+#import "DYYYUtils.h"
 
 %hook AFDPrivacyHalfScreenViewController
 
