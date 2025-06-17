@@ -715,7 +715,7 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 			timer = nil;
 		}
 		void (^tryFindAndSetPureMode)(void) = ^{
-		  UIWindow *keyWindow = [DYYYManager getActiveWindow];
+		  UIWindow *keyWindow = [DYYYUtils  getActiveWindow];
 		  if (keyWindow && keyWindow.rootViewController) {
 			  UIViewController *feedVC = [self findViewController:keyWindow.rootViewController ofClass:NSClassFromString(@"AWEFeedTableViewController")];
 			  if (feedVC) {
@@ -1068,7 +1068,7 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 			}
 		}
 
-		BOOL isDarkMode = [DYYYManager isDarkMode];
+		BOOL isDarkMode = [DYYYUtils isDarkMode];
 
 		UIBlurEffectStyle blurStyle = isDarkMode ? UIBlurEffectStyleDark : UIBlurEffectStyleLight;
 
@@ -2075,7 +2075,7 @@ static CGFloat rightLabelRightMargin = -1;
 	} else {
 		NSString *labelColor = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYLabelColor"];
 		if (labelColor.length > 0) {
-			label.textColor = [DYYYManager colorWithHexString:labelColor];
+			label.textColor = [DYYYUtils colorWithHexString:labelColor];
 		}
 	}
 	return label;
@@ -2375,7 +2375,7 @@ static CGFloat rightLabelRightMargin = -1;
 		}
 	}
 
-	BOOL isDarkMode = [DYYYManager isDarkMode];
+	BOOL isDarkMode = [DYYYUtils isDarkMode];
 	UIBlurEffectStyle blurStyle = isDarkMode ? UIBlurEffectStyleDark : UIBlurEffectStyleLight;
 	UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:blurStyle];
 	UIVisualEffectView *blurView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
@@ -2583,7 +2583,7 @@ static CGFloat rightLabelRightMargin = -1;
 %hook AWELongPressPanelABSettings
 + (NSUInteger)modernLongPressPanelStyleMode {
 	if (DYYYGetBool(@"DYYYModernPanelFollowSystem")) {
-		BOOL isDarkMode = [DYYYManager isDarkMode];
+		BOOL isDarkMode = [DYYYUtils isDarkMode];
 		return isDarkMode ? 1 : 2;
 	} else if (DYYYGetBool(@"DYYYisEnableModernLight")) {
 		return 2;
@@ -2597,7 +2597,7 @@ static CGFloat rightLabelRightMargin = -1;
 %hook AWEModernLongPressPanelUIConfig
 + (NSUInteger)modernLongPressPanelStyleMode {
 	if (DYYYGetBool(@"DYYYModernPanelFollowSystem")) {
-		BOOL isDarkMode = [DYYYManager isDarkMode];
+		BOOL isDarkMode = [DYYYUtils isDarkMode];
 		return isDarkMode ? 1 : 2;
 	} else if (DYYYGetBool(@"DYYYisEnableModernLight")) {
 		return 2;
@@ -2927,10 +2927,10 @@ static __weak YYAnimatedImageView *targetStickerView = nil;
 								    identifier:nil
 								       handler:^(__kindof UIAction *_Nonnull action) {
 									 // 使用全局变量 targetStickerView 保存当前长按的表情
-									 if (targetStickerView) {
-										 [DYYYUtils saveAnimatedSticker:targetStickerView];
+										if (targetStickerView) {
+										 [DYYYManager saveAnimatedSticker:targetStickerView];
 									 } else {
-										 [DYYYManager showToast:@"无法获取表情视图"];
+										 [DYYYUtils  showToast:@"无法获取表情视图"];
 									 }
 								       }];
 
