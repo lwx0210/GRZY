@@ -264,7 +264,7 @@ static BOOL isDownloadFlied = NO;
 	// 获取表情包URL
 	AWEIMEmoticonModel *emoticonModel = self.model;
 	if (!emoticonModel) {
-		[DYYYManager showToast:@"无法获取表情包信息"];
+		[DYYYUtils showToast:@"无法获取表情包信息"];
 		return;
 	}
 
@@ -288,7 +288,7 @@ static BOOL isDownloadFlied = NO;
 	}
 
 	if (!urlString) {
-		[DYYYManager showToast:@"无法获取表情包链接"];
+		[DYYYUtils showToast:@"无法获取表情包链接"];
 		return;
 	}
 
