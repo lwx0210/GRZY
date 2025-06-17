@@ -6,7 +6,7 @@
 
 %new
 - (void)updateDarkModeAppearance {
-    BOOL isDarkMode = [DYYYManager isDarkMode];
+    BOOL isDarkMode = [DYYYUtils isDarkMode];
     
     UIView *contentView = self.view.subviews.count > 1 ? self.view.subviews[1] : nil;
     if (contentView) {
@@ -79,13 +79,13 @@
     %orig;
     
     if (newWindow) {
-        BOOL isDarkMode = [DYYYManager isDarkMode];
+        BOOL isDarkMode = [DYYYUtils isDarkMode];
         self.keyboardAppearance = isDarkMode ? UIKeyboardAppearanceDark : UIKeyboardAppearanceLight;
     }
 }
 
 - (BOOL)becomeFirstResponder {
-    BOOL isDarkMode = [DYYYManager isDarkMode];
+    BOOL isDarkMode = [DYYYUtils isDarkMode];
     self.keyboardAppearance = isDarkMode ? UIKeyboardAppearanceDark : UIKeyboardAppearanceLight;
     return %orig;
 }
@@ -98,13 +98,13 @@
     %orig;
     
     if (newWindow) {
-        BOOL isDarkMode = [DYYYManager isDarkMode];
+        BOOL isDarkMode = [DYYYUtils isDarkMode];
         self.keyboardAppearance = isDarkMode ? UIKeyboardAppearanceDark : UIKeyboardAppearanceLight;
     }
 }
 
 - (BOOL)becomeFirstResponder {
-    BOOL isDarkMode = [DYYYManager isDarkMode];
+    BOOL isDarkMode = [DYYYUtils isDarkMode];
     self.keyboardAppearance = isDarkMode ? UIKeyboardAppearanceDark : UIKeyboardAppearanceLight;
     return %orig;
 }
