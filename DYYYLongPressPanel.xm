@@ -244,7 +244,7 @@
                                 completion:^(BOOL success){
                                     if (success) {
                                     } else {
-                                        [DYYYManager showToast:@"封面保存已取消"];
+                                        [DYYYUtils showToast:@"封面保存已取消"];
                                     }
                                 }];
             }
@@ -332,11 +332,11 @@
 						  completion:^(BOOL success) {
 						    if (success) {
 						    } else {
-							    [DYYYManager showToast:@"图片保存已取消"];
+							     [DYYYUtils showToast:@"图片保存已取消"];
 						    }
 						  }];
 			  } else {
-				  [DYYYManager showToast:@"没有找到合适格式的图片"];
+				 [DYYYUtils showToast:@"没有找到合适格式的图片"];
 			  }
 		  }
 		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
@@ -405,7 +405,7 @@
 		  }
 
 		  if (livePhotos.count == 0 && imageURLs.count == 0) {
-			  [DYYYManager showToast:@"没有找到合适格式的图片"];
+			 [DYYYUtils showToast:@"没有找到合适格式的图片"];
 		  }
 
 		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
@@ -478,7 +478,7 @@
                                    completion:^(BOOL success, NSString *message) {
                                          if (success) {
                                          } else {
-                                             [DYYYManager showToast:[NSString stringWithFormat:@"视频制作失败: %@", message]];
+                                           	[DYYYUtils showToast:[NSString stringWithFormat:@"视频制作失败: %@", message]];
                                          }
                                      }];
             
@@ -520,7 +520,7 @@
 		apiDownload.action = ^{
 		  NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
 		  if (shareLink.length == 0) {
-			  [DYYYManager showToast:@"无法获取分享链接"];
+			[DYYYUtils showToast:@"无法获取分享链接"];
 			  return;
 		  }
 
@@ -597,7 +597,7 @@
 			  [[NSUserDefaults standardUserDefaults] setObject:userString forKey:@"DYYYfilterUsers"];
 			  [[NSUserDefaults standardUserDefaults] synchronize];
 
-			  [DYYYManager showToast:@"过滤作者列表已更新"];
+			[DYYYUtils showToast:@"过滤作者列表已更新"];
 			};
 
 			[keywordListView show];
@@ -620,11 +620,11 @@
 					}
 				}
 				[updatedUsers removeObjectsInArray:toRemove];
-				[DYYYManager showToast:@"已从过滤列表中移除此作者"];
+				[DYYYUtils showToast:@"已从过滤列表中移除此作者"];
 			} else {
 				// 添加用户
 				[updatedUsers addObject:currentUserFilter];
-				[DYYYManager showToast:@"已添加此作者到过滤列表"];
+				[DYYYUtils showToast:@"已添加此作者到过滤列表"];
 			}
 
 			// 保存更新后的列表
@@ -675,7 +675,7 @@
 		      NSString *keywordString = [keywords componentsJoinedByString:@","];
 		      [[NSUserDefaults standardUserDefaults] setObject:keywordString forKey:@"DYYYfilterKeywords"];
 		      [[NSUserDefaults standardUserDefaults] synchronize];
-		      [DYYYManager showToast:@"过滤文案已更新"];
+		      [DYYYUtils showToast:@"过滤文案已更新"];
 		    };
 		    [keywordListView show];
 		  };
@@ -706,7 +706,7 @@
 		  if (hasActiveTimer) {
 			  [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"DYYYTimerShutdownTime"];
 			  [[NSUserDefaults standardUserDefaults] synchronize];
-			  [DYYYManager showToast:@"已取消定时关闭任务"];
+			  [DYYYUtils showToast:@"已取消定时关闭任务"];
 			  return;
 		  }
 		  // 读取上次设置的时间
@@ -728,7 +728,7 @@
 		    NSTimeInterval shutdownTimeValue = [[NSDate date] timeIntervalSince1970] + seconds;
 		    [[NSUserDefaults standardUserDefaults] setObject:@(shutdownTimeValue) forKey:@"DYYYTimerShutdownTime"];
 		    [[NSUserDefaults standardUserDefaults] synchronize];
-		    [DYYYManager showToast:[NSString stringWithFormat:@"抖音将在%ld分钟后关闭...", (long)minutes]];
+		    [DYYYUtils showToast:[NSString stringWithFormat:@"抖音将在%ld分钟后关闭...", (long)minutes]];
 		    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(seconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		      NSNumber *currentShutdownTime = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYTimerShutdownTime"];
 		      if (currentShutdownTime != nil && [currentShutdownTime doubleValue] <= [[NSDate date] timeIntervalSince1970]) {
@@ -1079,7 +1079,7 @@
                                 completion:^(BOOL success){
                                     if (success) {
                                     } else {
-                                        [DYYYManager showToast:@"封面保存已取消"];
+                                       [DYYYUtils showToast:@"封面保存已取消"];
                                     }
                                 }];
             }
@@ -1167,11 +1167,11 @@
 						  completion:^(BOOL success) {
 						    if (success) {
 						    } else {
-							    [DYYYManager showToast:@"图片保存已取消"];
+							   [DYYYUtils showToast:@"图片保存已取消"];
 						    }
 						  }];
 			  } else {
-				  [DYYYManager showToast:@"没有找到合适格式的图片"];
+				[DYYYUtils showToast:@"没有找到合适格式的图片"];
 			  }
 		  }
 		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
@@ -1240,7 +1240,7 @@
 		  }
 
 		  if (livePhotos.count == 0 && imageURLs.count == 0) {
-			  [DYYYManager showToast:@"没有找到合适格式的图片"];
+			[DYYYUtils showToast:@"没有找到合适格式的图片"];
 		  }
 
 		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
@@ -1314,7 +1314,7 @@
                                    completion:^(BOOL success, NSString *message) {
                                          if (success) {
                                          } else {
-                                             [DYYYManager showToast:[NSString stringWithFormat:@"视频制作失败: %@", message]];
+                                            [DYYYUtils showToast:[NSString stringWithFormat:@"视频制作失败: %@", message]];
                                          }
                                      }];
             
@@ -1356,7 +1356,7 @@
 		apiDownload.action = ^{
 		  NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
 		  if (shareLink.length == 0) {
-			  [DYYYManager showToast:@"无法获取分享链接"];
+			 [DYYYUtils showToast:@"无法获取分享链接"];
 			  return;
 		  }
 
@@ -1433,7 +1433,7 @@
 			  [[NSUserDefaults standardUserDefaults] setObject:userString forKey:@"DYYYfilterUsers"];
 			  [[NSUserDefaults standardUserDefaults] synchronize];
 
-			  [DYYYManager showToast:@"过滤作者列表已更新"];
+			  [DYYYUtils showToast:@"过滤作者列表已更新"];
 			};
 
 			[keywordListView show];
@@ -1456,11 +1456,11 @@
 					}
 				}
 				[updatedUsers removeObjectsInArray:toRemove];
-				[DYYYManager showToast:@"已从过滤列表中移除此作者"];
+				[DYYYUtils showToast:@"已从过滤列表中移除此作者"];
 			} else {
 				// 添加用户
 				[updatedUsers addObject:currentUserFilter];
-				[DYYYManager showToast:@"已添加此作者到过滤列表"];
+				[DYYYUtils showToast:@"已添加此作者到过滤列表"];
 			}
 
 			// 保存更新后的列表
@@ -1498,7 +1498,7 @@
 
 			    [[NSUserDefaults standardUserDefaults] setObject:newKeywords forKey:@"DYYYfilterKeywords"];
 			    [[NSUserDefaults standardUserDefaults] synchronize];
-			    [DYYYManager showToast:[NSString stringWithFormat:@"已添加到过滤文案: %@", selectedText]];
+			    [DYYYUtils showToast:[NSString stringWithFormat:@"已添加到过滤文案: %@", selectedText]];
 		    }
 		  };
 
@@ -1511,7 +1511,7 @@
 		      NSString *keywordString = [keywords componentsJoinedByString:@","];
 		      [[NSUserDefaults standardUserDefaults] setObject:keywordString forKey:@"DYYYfilterKeywords"];
 		      [[NSUserDefaults standardUserDefaults] synchronize];
-		      [DYYYManager showToast:@"过滤文案已更新"];
+		      [DYYYUtils showToast:@"过滤文案已更新"];
 		    };
 		    [keywordListView show];
 		  };
@@ -1543,7 +1543,7 @@
 		  if (hasActiveTimer) {
 			  [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"DYYYTimerShutdownTime"];
 			  [[NSUserDefaults standardUserDefaults] synchronize];
-			  [DYYYManager showToast:@"已取消定时关闭任务"];
+			  [DYYYUtils showToast:@"已取消定时关闭任务"];
 			  return;
 		  }
 		  // 读取上次设置的时间，如果没有则使用默认值5分钟
@@ -1565,7 +1565,7 @@
 		    NSTimeInterval shutdownTimeValue = [[NSDate date] timeIntervalSince1970] + seconds;
 		    [[NSUserDefaults standardUserDefaults] setObject:@(shutdownTimeValue) forKey:@"DYYYTimerShutdownTime"];
 		    [[NSUserDefaults standardUserDefaults] synchronize];
-		    [DYYYManager showToast:[NSString stringWithFormat:@"抖音将在%ld分钟后关闭...", (long)minutes]];
+		    [DYYYUtils showToast:[NSString stringWithFormat:@"抖音将在%ld分钟后关闭...", (long)minutes]];
 		    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(seconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		      NSNumber *currentShutdownTime = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYTimerShutdownTime"];
 		      if (currentShutdownTime != nil && [currentShutdownTime doubleValue] <= [[NSDate date] timeIntervalSince1970]) {
