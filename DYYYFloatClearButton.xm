@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <signal.h>
 #import "DYYYFloatSpeedButton.h"
+#import "DYYYUtils.h"
 
 void updateClearButtonVisibility(void);
 void showClearButton(void);
@@ -169,7 +170,7 @@ static void initTargetClassNames(void) {
         
         // 设置默认状态为半透明
         self.originalAlpha = 1.0;  // 交互时为完全不透明
-        self.alpha = 0.7;  // 初始为半透明
+        self.alpha = 0.5;  // 初始为半透明
 		// 加载保存的锁定状态
 		[self loadLockState];
 		[self loadIcons];
@@ -207,7 +208,7 @@ static void initTargetClassNames(void) {
 							   block:^(NSTimer *timer) {
 							     [UIView animateWithDuration:0.3
 									      animations:^{
-										self.alpha = 0.7;  // 变为半透明
+										self.alpha = 0.5;  // 变为半透明
 									      }];
 							   }];
 	// 交互时变为完全不透明
@@ -383,7 +384,7 @@ static void initTargetClassNames(void) {
 		// 保存锁定状态
 		[self saveLockState];
 		NSString *toastMessage = self.isLocked ? @"按钮已锁定" : @"按钮已解锁";
-		[DYYYManager showToast:toastMessage];
+		[DYYYUtils showToast:toastMessage];
 		if (@available(iOS 10.0, *)) {
 			UIImpactFeedbackGenerator *generator = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight];
 			[generator prepare];
