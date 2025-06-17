@@ -90,11 +90,11 @@
 									      completion:^(BOOL success) {
 										if (success) {
 										} else {
-											[DYYYManager showToast:@"图片保存已取消"];
+											[DYYYUtils showToast:@"图片保存已取消"];
 										}
 									      }];
 						      } else {
-							      [DYYYManager showToast:@"没有找到合适格式的图片"];
+					                       [DYYYUtils showToast:@"没有找到合适格式的图片"];
 						      }
 					      }
 				      } else if (isNewLivePhoto) {
@@ -235,7 +235,7 @@
 					      }
 
 					      if (livePhotos.count == 0 && imageURLs.count == 0) {
-						      [DYYYManager showToast:@"没有找到合适格式的图片"];
+						         [DYYYUtils showToast:@"没有找到合适格式的图片"];
 					      }
 					    }];
 				[actions addObject:downloadAllAction];
@@ -314,7 +314,7 @@
 						  completion:^(BOOL success, NSString *message) {
 						    if (success) {
 						    } else {
-							    [DYYYManager showToast:[NSString stringWithFormat:@"视频制作失败: %@", message]];
+							    [DYYYUtils showToast:[NSString stringWithFormat:@"视频制作失败: %@", message]];
 						    }
 						  }];
 					    }];
@@ -332,7 +332,7 @@
 															  handler:^{
 															    NSString *shareLink = [awemeModel valueForKey:@"shareURL"];
 															    if (shareLink.length == 0) {
-																    [DYYYManager showToast:@"无法获取分享链接"];
+																    [DYYYUtils showToast:@"无法获取分享链接"];
 																    return;
 															    }
 
