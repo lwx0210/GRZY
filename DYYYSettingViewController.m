@@ -391,6 +391,7 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) {
             [DYYYSettingItem itemWithTitle:@"保存聊天页表情包" key:@"DYYYForceDownloadIMEmotion" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"保存媒体触觉反馈" key:@"DYYYHapticFeedbackEnabled" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"长按评论复制文案" key:@"DYYYCommentCopyText" type:DYYYSettingItemTypeSwitch],
+            [DYYYSettingItem itemWithTitle:@"长按简介复制文案" key:@"DYYYBioCopyText" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"评论音乐点击复制" key:@"DYYYMusicCopyText" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"禁用主页左滑入口" key:@"DYYYDisableSidebarGesture" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"禁用点击首页刷新" key:@"DYYYDisableHomeRefresh" type:DYYYSettingItemTypeSwitch],
