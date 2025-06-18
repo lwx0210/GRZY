@@ -1225,9 +1225,9 @@ static CGFloat gStartVal = 0.0;
 @end
 
 @interface AWEFeedPauseRelatedWordComponent : NSObject
-@property (nonatomic, strong) AWEFeedPauseVideoRelatedWordView *relatedView;
-@property (nonatomic, strong) AWEAwemeModel *currentAweme;
-@property (nonatomic, assign) long long pauseContentNum;
+@property(nonatomic, strong) AWEFeedPauseVideoRelatedWordView *relatedView;
+@property(nonatomic, strong) AWEAwemeModel *currentAweme;
+@property(nonatomic, assign) long long pauseContentNum;
 @end
 
 //评论区表情
