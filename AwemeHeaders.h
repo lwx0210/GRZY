@@ -1234,6 +1234,11 @@ static CGFloat gStartVal = 0.0;
 @interface YYAnimatedImageView : UIImageView
 @end
 
+//长按复制简介
+@interface AWEProfileMentionLabel : UILabel
+@property(copy, nonatomic) NSString *text;
+@end
+
 //修改id附加起始位 
 @interface AWEUserHomeAccessibilityViewV2 : UIView
 - (void)findAndModifyDouyinLabelInView:(UIView *)view;
