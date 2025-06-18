@@ -367,6 +367,9 @@ static CGFloat gStartVal = 0.0;
 @interface AWETemplatePlayletView : UIView
 @end
 
+@interface AFDRecommendToFriendTagView : UIView
+@end
+
 @interface AFDRecommendToFriendEntranceLabel : UILabel
 @end
 
@@ -761,9 +764,6 @@ static CGFloat gStartVal = 0.0;
 @end
 
 @interface AWESearchFeedTagView : UIView
-@end
-
-@interface AFDRecommendToFriendTagView : UIView
 @end
 
 @interface AFDAIbumFolioView : UIView
