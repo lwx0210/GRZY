@@ -10,45 +10,6 @@
 }
 %end
 
-// 长按复制个人简介
-%hook AWEProfileMentionLabel
-
-- (void)layoutSubviews {
-    %orig;
-    
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYBioCopyText"]) {
-        return;
-    }
-    
-    BOOL hasLongPressGesture = NO;
-    for (UIGestureRecognizer *gesture in self.gestureRecognizers) {
-        if ([gesture isKindOfClass:[UILongPressGestureRecognizer class]]) {
-            hasLongPressGesture = YES;
-            break;
-        }
-    }
-    
-    if (!hasLongPressGesture) {
-        UILongPressGestureRecognizer *longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
-        longPressGesture.minimumPressDuration = 0.5;
-        [self addGestureRecognizer:longPressGesture];
-        self.userInteractionEnabled = YES;
-    }
-}
-
-%new
-- (void)handleLongPress:(UILongPressGestureRecognizer *)gesture {
-    if (gesture.state == UIGestureRecognizerStateBegan) {
-        NSString *bioText = self.text;
-        if (bioText && bioText.length > 0) {
-            [[UIPasteboard generalPasteboard] setString:bioText];
-            [DYYYToast showSuccessToastWithMessage:@"个人简介已复制"];
-        }
-    }
-}
-
-%end
-
 // 禁用自动进入直播间
 %hook AWELiveGuideElement
 
