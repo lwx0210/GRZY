@@ -1874,176 +1874,176 @@ static CGFloat rightLabelRightMargin = -1;
 
 //iP属地区域
 %hook AWEPlayInteractionTimestampElement
+
 - (id)timestampLabel {
-	UILabel *label = %orig;
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"]) {
-		NSString *text = label.text;
-		NSString *cityCode = self.model.cityCode;
+    UILabel *label = %orig;
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"]) {
+        NSString *originalText = label.text ?: @"";
+        NSString *cityCode = self.model.cityCode;
 
-		if (cityCode.length > 0) {
-			NSString *cityName = [CityManager.sharedInstance getCityNameWithCode:cityCode];
-			NSString *provinceName = [CityManager.sharedInstance getProvinceNameWithCode:cityCode];
-			// 使用 GeoNames API
-			if (!cityName || cityName.length == 0) {
-				NSString *cacheKey = cityCode;
+        if (cityCode.length > 0) {
+            NSString *cityName = [CityManager.sharedInstance getCityNameWithCode:cityCode];
+            NSString *provinceName = [CityManager.sharedInstance getProvinceNameWithCode:cityCode];
+            // 使用 GeoNames API
+            if (!cityName || cityName.length == 0) {
+                NSString *cacheKey = cityCode;
 
-				static NSCache *geoNamesCache = nil;
-				static dispatch_once_t onceToken;
-				dispatch_once(&onceToken, ^{
-				  geoNamesCache = [[NSCache alloc] init];
-				  geoNamesCache.name = @"com.dyyy.geonames.cache";
-				  geoNamesCache.countLimit = 1000;
-				});
+                static NSCache *geoNamesCache = nil;
+                static dispatch_once_t onceToken;
+                dispatch_once(&onceToken, ^{
+                  geoNamesCache = [[NSCache alloc] init];
+                  geoNamesCache.name = @"com.dyyy.geonames.cache";
+                  geoNamesCache.countLimit = 1000;
+                });
 
-				NSDictionary *cachedData = [geoNamesCache objectForKey:cacheKey];
+                NSDictionary *cachedData = [geoNamesCache objectForKey:cacheKey];
 
-				if (!cachedData) {
-					NSString *cachesDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
-					NSString *geoNamesCacheDir = [cachesDir stringByAppendingPathComponent:@"DYYYGeoNamesCache"];
+                if (!cachedData) {
+                    NSString *cachesDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
+                    NSString *geoNamesCacheDir = [cachesDir stringByAppendingPathComponent:@"DYYYGeoNamesCache"];
 
-					NSFileManager *fileManager = [NSFileManager defaultManager];
-					if (![fileManager fileExistsAtPath:geoNamesCacheDir]) {
-						[fileManager createDirectoryAtPath:geoNamesCacheDir withIntermediateDirectories:YES attributes:nil error:nil];
-					}
+                    NSFileManager *fileManager = [NSFileManager defaultManager];
+                    if (![fileManager fileExistsAtPath:geoNamesCacheDir]) {
+                        [fileManager createDirectoryAtPath:geoNamesCacheDir withIntermediateDirectories:YES attributes:nil error:nil];
+                    }
 
-					NSString *cacheFilePath = [geoNamesCacheDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.plist", cacheKey]];
+                    NSString *cacheFilePath = [geoNamesCacheDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.plist", cacheKey]];
 
-					if ([fileManager fileExistsAtPath:cacheFilePath]) {
-						cachedData = [NSDictionary dictionaryWithContentsOfFile:cacheFilePath];
-						if (cachedData) {
-							[geoNamesCache setObject:cachedData forKey:cacheKey];
-						}
-					}
-				}
+                    if ([fileManager fileExistsAtPath:cacheFilePath]) {
+                        cachedData = [NSDictionary dictionaryWithContentsOfFile:cacheFilePath];
+                        if (cachedData) {
+                            [geoNamesCache setObject:cachedData forKey:cacheKey];
+                        }
+                    }
+                }
 
-				if (cachedData) {
-					NSString *countryName = cachedData[@"countryName"];
-					NSString *adminName1 = cachedData[@"adminName1"];
-					NSString *localName = cachedData[@"name"];
-					NSString *displayLocation = @"未知";
+                if (cachedData) {
+                    NSString *countryName = cachedData[@"countryName"];
+                    NSString *adminName1 = cachedData[@"adminName1"];
+                    NSString *localName = cachedData[@"name"];
+                    NSString *displayLocation = @"未知";
 
-					if (countryName.length > 0) {
-						if (adminName1.length > 0 && localName.length > 0 && ![countryName isEqualToString:@"中国"] && ![countryName isEqualToString:localName]) {
-							// 国外位置：国家 + 州/省 + 地点
-							displayLocation = [NSString stringWithFormat:@"%@ %@ %@", countryName, adminName1, localName];
-						} else if (localName.length > 0 && ![countryName isEqualToString:localName]) {
-							// 只有国家和地点名
-							displayLocation = [NSString stringWithFormat:@"%@ %@", countryName, localName];
-						} else {
-							// 只有国家名
-							displayLocation = countryName;
-						}
-					} else if (localName.length > 0) {
-						displayLocation = localName;
-					}
+                    if (countryName.length > 0) {
+                        if (adminName1.length > 0 && localName.length > 0 && ![countryName isEqualToString:@"中国"] && ![countryName isEqualToString:localName]) {
+                            // 国外位置：国家 + 州/省 + 地点
+                            displayLocation = [NSString stringWithFormat:@"%@ %@ %@", countryName, adminName1, localName];
+                        } else if (localName.length > 0 && ![countryName isEqualToString:localName]) {
+                            // 只有国家和地点名
+                            displayLocation = [NSString stringWithFormat:@"%@ %@", countryName, localName];
+                        } else {
+                            // 只有国家名
+                            displayLocation = countryName;
+                        }
+                    } else if (localName.length > 0) {
+                        displayLocation = localName;
+                    }
 
-					dispatch_async(dispatch_get_main_queue(), ^{
-					  NSString *currentText = label.text ?: @"";
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                      NSString *currentLabelText = label.text ?: @"";
+                      if ([currentLabelText containsString:@"IP属地："]) {
+                          NSRange range = [currentLabelText rangeOfString:@"IP属地："];
+                          if (range.location != NSNotFound) {
+                              NSString *baseText = [currentLabelText substringToIndex:range.location];
+                              if (![currentLabelText containsString:displayLocation]) {
+                                  label.text = [NSString stringWithFormat:@"%@IP属地：%@", baseText, displayLocation];
+                              }
+                          }
+                      } else {
+                          if (currentLabelText.length > 0 && ![displayLocation isEqualToString:@"未知"]) {
+                              label.text = [NSString stringWithFormat:@"%@  IP属地：%@", currentLabelText, displayLocation];
+                          } else if (![displayLocation isEqualToString:@"未知"]) {
+                              label.text = [NSString stringWithFormat:@"IP属地：%@", displayLocation];
+                          }
+                      }
+                      
+                      [DYYYUtils applyColorSettingsToLabel:label];
+                    });
+                } else {
+                    [CityManager
+                        fetchLocationWithGeonameId:cityCode
+                             completionHandler:^(NSDictionary *locationInfo, NSError *error) {
+                               if (locationInfo) {
+                                   NSString *countryName = locationInfo[@"countryName"];
+                                   NSString *adminName1 = locationInfo[@"adminName1"]; // 州/省级名称
+                                   NSString *localName = locationInfo[@"name"];	   // 当前地点名称
+                                   NSString *displayLocation = @"未知";
 
-					  if ([currentText containsString:@"IP属地："]) {
-						  NSRange range = [currentText rangeOfString:@"IP属地："];
-						  if (range.location != NSNotFound) {
-							  NSString *baseText = [currentText substringToIndex:range.location];
-							  if (![currentText containsString:displayLocation]) {
-								  label.text = [NSString stringWithFormat:@"%@IP属地：%@", baseText, displayLocation];
-							  }
-						  }
-					  } else {
-						  NSString *baseText = label.text ?: @"";
-						  if (baseText.length > 0) {
-							  label.text = [NSString stringWithFormat:@"%@  IP属地：%@", baseText, displayLocation];
-						  }
-					  }
-					});
-				} else {
-					[CityManager
-					    fetchLocationWithGeonameId:cityCode
-						     completionHandler:^(NSDictionary *locationInfo, NSError *error) {
-						       if (locationInfo) {
-							       NSString *countryName = locationInfo[@"countryName"];
-							       NSString *adminName1 = locationInfo[@"adminName1"]; // 州/省级名称
-							       NSString *localName = locationInfo[@"name"];	   // 当前地点名称
-							       NSString *displayLocation = @"未知";
+                                   // 根据返回数据构建位置显示文本
+                                   if (countryName.length > 0) {
+                                       if (adminName1.length > 0 && localName.length > 0 && ![countryName isEqualToString:@"中国"] &&
+                                       ![countryName isEqualToString:localName]) {
+                                           // 国外位置：国家 + 州/省 + 地点
+                                           displayLocation = [NSString stringWithFormat:@"%@ %@ %@", countryName, adminName1, localName];
+                                       } else if (localName.length > 0 && ![countryName isEqualToString:localName]) {
+                                           // 只有国家和地点名
+                                           displayLocation = [NSString stringWithFormat:@"%@ %@", countryName, localName];
+                                       } else {
+                                           // 只有国家名
+                                           displayLocation = countryName;
+                                       }
+                                   } else if (localName.length > 0) {
+                                       displayLocation = localName;
+                                   }
 
-							       // 根据返回数据构建位置显示文本
-							       if (countryName.length > 0) {
-								       if (adminName1.length > 0 && localName.length > 0 && ![countryName isEqualToString:@"中国"] &&
-									   ![countryName isEqualToString:localName]) {
-									       // 国外位置：国家 + 州/省 + 地点
-									       displayLocation = [NSString stringWithFormat:@"%@ %@ %@", countryName, adminName1, localName];
-								       } else if (localName.length > 0 && ![countryName isEqualToString:localName]) {
-									       // 只有国家和地点名
-									       displayLocation = [NSString stringWithFormat:@"%@ %@", countryName, localName];
-								       } else {
-									       // 只有国家名
-									       displayLocation = countryName;
-								       }
-							       } else if (localName.length > 0) {
-								       displayLocation = localName;
-							       }
+                                   // 修改：仅当位置不为"未知"时才缓存
+                                   if (![displayLocation isEqualToString:@"未知"]) {
+                                       [geoNamesCache setObject:locationInfo forKey:cacheKey];
 
-							       // 修改：仅当位置不为"未知"时才缓存
-							       if (![displayLocation isEqualToString:@"未知"]) {
-								       [geoNamesCache setObject:locationInfo forKey:cacheKey];
+                                       NSString *cachesDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
+                                       NSString *geoNamesCacheDir = [cachesDir stringByAppendingPathComponent:@"DYYYGeoNamesCache"];
+                                       NSString *cacheFilePath = [geoNamesCacheDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.plist", cacheKey]];
 
-								       NSString *cachesDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
-								       NSString *geoNamesCacheDir = [cachesDir stringByAppendingPathComponent:@"DYYYGeoNamesCache"];
-								       NSString *cacheFilePath = [geoNamesCacheDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.plist", cacheKey]];
+                                       [locationInfo writeToFile:cacheFilePath atomically:YES];
+                                   }
 
-								       [locationInfo writeToFile:cacheFilePath atomically:YES];
-							       }
+                                   dispatch_async(dispatch_get_main_queue(), ^{
+                                     NSString *currentLabelText = label.text ?: @"";
 
-							       dispatch_async(dispatch_get_main_queue(), ^{
-								 NSString *currentText = label.text ?: @"";
+                                     if ([currentLabelText containsString:@"IP属地："]) {
+                                         NSRange range = [currentLabelText rangeOfString:@"IP属地："];
+                                         if (range.location != NSNotFound) {
+                                             NSString *baseText = [currentLabelText substringToIndex:range.location];
+                                             if (![currentLabelText containsString:displayLocation]) {
+                                                 label.text = [NSString stringWithFormat:@"%@IP属地：%@", baseText, displayLocation];
+                                             }
+                                         }
+                                     } else {
+                                         if (currentLabelText.length > 0 && ![displayLocation isEqualToString:@"未知"]) {
+                                             label.text = [NSString stringWithFormat:@"%@  IP属地：%@", currentLabelText, displayLocation];
+                                         } else if (![displayLocation isEqualToString:@"未知"]) {
+                                             label.text = [NSString stringWithFormat:@"IP属地：%@", displayLocation];
+                                         }
+                                     }
+                                     
+                                     [DYYYUtils applyColorSettingsToLabel:label];
+                                   });
+                               }
+                             }];
+                }
+            } else if (![originalText containsString:cityName]) {
+                BOOL isDirectCity = [provinceName isEqualToString:cityName] ||
+                                    ([cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"]);
+                if (!self.model.ipAttribution) {
+                    if (isDirectCity) {
+                        label.text = [NSString stringWithFormat:@"%@  IP属地：%@", originalText, cityName];
+                    } else {
+                        label.text = [NSString stringWithFormat:@"%@  IP属地：%@ %@", originalText, provinceName, cityName];
+                    }
+                } else {
+                    BOOL containsProvince = [originalText containsString:provinceName];
+                    BOOL containsCity = [originalText containsString:cityName];
+                    if (containsProvince && !isDirectCity && !containsCity) {
+                        label.text = [NSString stringWithFormat:@"%@ %@", originalText, cityName];
+                    }
+                    else if (isDirectCity && !containsCity) {
+                        label.text = [NSString stringWithFormat:@"%@  IP属地：%@", originalText, cityName];
+                    }
+                }
 
-								 if ([currentText containsString:@"IP属地："]) {
-									 NSRange range = [currentText rangeOfString:@"IP属地："];
-									 if (range.location != NSNotFound) {
-										 NSString *baseText = [currentText substringToIndex:range.location];
-										 if (![currentText containsString:displayLocation]) {
-											 label.text = [NSString stringWithFormat:@"%@IP属地：%@", baseText, displayLocation];
-										 }
-									 }
-								 } else {
-									 NSString *baseText = label.text ?: @"";
-									 if (baseText.length > 0) {
-										 label.text = [NSString stringWithFormat:@"%@  IP属地：%@", baseText, displayLocation];
-									 }
-								 }
-							       });
-						       }
-						     }];
-				}
-			} else if (![text containsString:cityName]) {
-				if (!self.model.ipAttribution) {
-					BOOL isDirectCity = [provinceName isEqualToString:cityName] ||
-							    ([cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"]);
-
-					if (isDirectCity) {
-						label.text = [NSString stringWithFormat:@"%@  IP属地：%@", text, cityName];
-					} else {
-						label.text = [NSString stringWithFormat:@"%@  IP属地：%@ %@", text, provinceName, cityName];
-					}
-				} else {
-					BOOL isDirectCity = [provinceName isEqualToString:cityName] ||
-							    ([cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"]);
-
-					BOOL containsProvince = [text containsString:provinceName];
-					if (containsProvince && !isDirectCity) {
-						label.text = [NSString stringWithFormat:@"%@ %@", text, cityName];
-					} else if (containsProvince && isDirectCity) {
-						label.text = [NSString stringWithFormat:@"%@  IP属地：%@", text, cityName];
-					} else if (isDirectCity && containsProvince) {
-						label.text = text;
-					} else if (containsProvince) {
-						label.text = [NSString stringWithFormat:@"%@ %@", text, cityName];
-					} else {
-						label.text = text;
-					}
-				}
-			}
-		}
-	}
+                [DYYYUtils applyColorSettingsToLabel:label];
+            }
+        }
+    }
 	// 应用IP属地标签上移
 	NSString *ipScaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
 	if (ipScaleValue.length > 0) {
@@ -2154,28 +2154,100 @@ static CGFloat rightLabelRightMargin = -1;
 // 对新版文案的偏移（33.0以上）
 %hook AWEPlayInteractionDescriptionLabel
 
+static char kLongPressGestureKey;
+static NSString *const kDYYYLongPressCopyEnabledKey = @"DYYYLongPressCopyTextEnabled";
+
+- (void)didMoveToWindow {
+    %orig;
+    
+    BOOL longPressCopyEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:kDYYYLongPressCopyEnabledKey];
+	
+    if (![[NSUserDefaults standardUserDefaults] objectForKey:kDYYYLongPressCopyEnabledKey]) {
+        longPressCopyEnabled = NO;
+        [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kDYYYLongPressCopyEnabledKey];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
+    
+    UIGestureRecognizer *existingGesture = objc_getAssociatedObject(self, &kLongPressGestureKey);
+    if (existingGesture && !longPressCopyEnabled) {
+        [self removeGestureRecognizer:existingGesture];
+        objc_setAssociatedObject(self, &kLongPressGestureKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        return;
+    }
+    
+    if (longPressCopyEnabled && !objc_getAssociatedObject(self, &kLongPressGestureKey)) {
+        UILongPressGestureRecognizer *highPriorityLongPress = [[UILongPressGestureRecognizer alloc] 
+            initWithTarget:self action:@selector(handleHighPriorityLongPress:)];
+        highPriorityLongPress.minimumPressDuration = 0.3;
+        
+        [self addGestureRecognizer:highPriorityLongPress];
+        
+        UIView *currentView = self;
+        while (currentView.superview) {
+            currentView = currentView.superview;
+            
+            for (UIGestureRecognizer *recognizer in currentView.gestureRecognizers) {
+                if ([recognizer isKindOfClass:[UILongPressGestureRecognizer class]] ||
+                    [recognizer isKindOfClass:[UIPinchGestureRecognizer class]]) {
+                    [recognizer requireGestureRecognizerToFail:highPriorityLongPress];
+                }
+            }
+        }
+        
+        objc_setAssociatedObject(self, &kLongPressGestureKey, highPriorityLongPress, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+}
+
+%new
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    if ([gestureRecognizer.view isEqual:self] && [gestureRecognizer isKindOfClass:[UILongPressGestureRecognizer class]]) {
+        return NO;
+    }
+    return YES;
+}
+
+%new
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldBeRequiredToFailByGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    if ([gestureRecognizer.view isEqual:self] && [gestureRecognizer isKindOfClass:[UILongPressGestureRecognizer class]]) {
+        return YES;
+    }
+    return NO;
+}
+
+%new
+- (void)handleHighPriorityLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
+    if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        
+        NSString *description = self.text;
+        
+        if (description.length > 0) {
+            [[UIPasteboard generalPasteboard] setString:description];
+            [DYYYToast showSuccessToastWithMessage:@"视频文案已复制"];
+        }
+    }
+}
+
 - (void)layoutSubviews {
-	%orig;
+    %orig;
+    self.transform = CGAffineTransformIdentity;
 
-	self.transform = CGAffineTransformIdentity;
+    NSString *descriptionOffsetValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYDescriptionVerticalOffset"];
+    CGFloat verticalOffset = 0;
+    if (descriptionOffsetValue.length > 0) {
+        verticalOffset = [descriptionOffsetValue floatValue];
+    }
 
-	NSString *descriptionOffsetValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYDescriptionVerticalOffset"];
-	CGFloat verticalOffset = 0;
-	if (descriptionOffsetValue.length > 0) {
-		verticalOffset = [descriptionOffsetValue floatValue];
-	}
+    UIView *parentView = self.superview;
+    UIView *grandParentView = nil;
 
-	UIView *parentView = self.superview;
-	UIView *grandParentView = nil;
+    if (parentView) {
+        grandParentView = parentView.superview;
+    }
 
-	if (parentView) {
-		grandParentView = parentView.superview;
-	}
-
-	if (grandParentView && verticalOffset != 0) {
-		CGAffineTransform translationTransform = CGAffineTransformMakeTranslation(0, verticalOffset);
-		grandParentView.transform = translationTransform;
-	}
+    if (grandParentView && verticalOffset != 0) {
+        CGAffineTransform translationTransform = CGAffineTransformMakeTranslation(0, verticalOffset);
+        grandParentView.transform = translationTransform;
+    }
 }
 
 %end
