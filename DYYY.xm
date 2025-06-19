@@ -214,37 +214,37 @@ BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitansw
 %hook AWEProfileMentionLabel
 
 - (void)layoutSubviews {
-    %orig;
-    
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYBioCopyText"]) {
-        return;
-    }
-    
-    BOOL hasLongPressGesture = NO;
-    for (UIGestureRecognizer *gesture in self.gestureRecognizers) {
-        if ([gesture isKindOfClass:[UILongPressGestureRecognizer class]]) {
-            hasLongPressGesture = YES;
-            break;
-        }
-    }
-    
-    if (!hasLongPressGesture) {
-        UILongPressGestureRecognizer *longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
-        longPressGesture.minimumPressDuration = 0.5;
-        [self addGestureRecognizer:longPressGesture];
-        self.userInteractionEnabled = YES;
-    }
+	%orig;
+
+	if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYBioCopyText"]) {
+		return;
+	}
+
+	BOOL hasLongPressGesture = NO;
+	for (UIGestureRecognizer *gesture in self.gestureRecognizers) {
+		if ([gesture isKindOfClass:[UILongPressGestureRecognizer class]]) {
+			hasLongPressGesture = YES;
+			break;
+		}
+	}
+
+	if (!hasLongPressGesture) {
+		UILongPressGestureRecognizer *longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
+		longPressGesture.minimumPressDuration = 0.5;
+		[self addGestureRecognizer:longPressGesture];
+		self.userInteractionEnabled = YES;
+	}
 }
 
 %new
 - (void)handleLongPress:(UILongPressGestureRecognizer *)gesture {
-    if (gesture.state == UIGestureRecognizerStateBegan) {
-        NSString *bioText = self.text;
-        if (bioText && bioText.length > 0) {
-            [[UIPasteboard generalPasteboard] setString:bioText];
-            [DYYYToast showSuccessToastWithMessage:@"个人简介已复制"];
-        }
-    }
+	if (gesture.state == UIGestureRecognizerStateBegan) {
+		NSString *bioText = self.text;
+		if (bioText && bioText.length > 0) {
+			[[UIPasteboard generalPasteboard] setString:bioText];
+			[DYYYToast showSuccessToastWithMessage:@"个人简介已复制"];
+		}
+	}
 }
 
 %end
@@ -1738,10 +1738,9 @@ static CGFloat rightLabelRightMargin = -1;
 		NSString *labelColorHex = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYProgressLabelColor"];
 		UIColor *labelColor = [UIColor whiteColor];
 		if (labelColorHex && labelColorHex.length > 0) {
-			SEL colorSelector = NSSelectorFromString(@"colorWithHexString:");
-			Class dyyyManagerClass = NSClassFromString(@"DYYYManager");
-			if (dyyyManagerClass && [dyyyManagerClass respondsToSelector:colorSelector]) {
-				labelColor = [dyyyManagerClass performSelector:colorSelector withObject:labelColorHex];
+			UIColor *customColor = [DYYYUtils colorWithHexString:labelColorHex];
+			if (customColor) {
+				labelColor = customColor;
 			}
 		}
 		NSString *scheduleStyle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYScheduleStyle"];
@@ -2063,59 +2062,55 @@ static CGFloat rightLabelRightMargin = -1;
 
 		label.font = originalFont;
 	}
+	// ------------- 颜色应用逻辑 (完全ARC管理，调用Utils) -------------
+	NSString *labelColorConfig = nil;
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnabsuijiyanse"]) {
-		UIColor *color1 = [UIColor colorWithRed:(CGFloat)arc4random_uniform(256) / 255.0
-						  green:(CGFloat)arc4random_uniform(256) / 255.0
-						   blue:(CGFloat)arc4random_uniform(256) / 255.0
-						  alpha:1.0];
-		UIColor *color2 = [UIColor colorWithRed:(CGFloat)arc4random_uniform(256) / 255.0
-						  green:(CGFloat)arc4random_uniform(256) / 255.0
-						   blue:(CGFloat)arc4random_uniform(256) / 255.0
-						  alpha:1.0];
-		UIColor *color3 = [UIColor colorWithRed:(CGFloat)arc4random_uniform(256) / 255.0
-						  green:(CGFloat)arc4random_uniform(256) / 255.0
-						   blue:(CGFloat)arc4random_uniform(256) / 255.0
-						  alpha:1.0];
+		labelColorConfig = @"random_rainbow";
+	} else {
+		labelColorConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYLabelColor"];
+	}
+
+	if (labelColorConfig.length > 0 && label.text.length > 0) {
+		UIColor * (^colorScheme)(CGFloat) = [DYYYUtils colorSchemeBlockWithHexString:labelColorConfig];
 
 		NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:label.text];
+
 		CFIndex length = [attributedText length];
-		for (CFIndex i = 0; i < length; i++) {
-			CGFloat progress = (CGFloat)i / (length == 0 ? 1 : length - 1);
+		if (length > 0) {
+			for (CFIndex i = 0; i < length; i++) {
+				CGFloat progress = (length > 1) ? (CGFloat)i / (length - 1) : 0.0;
 
-			UIColor *startColor;
-			UIColor *endColor;
-			CGFloat subProgress;
+				UIColor *currentColor = colorScheme(progress);
 
-			if (progress < 0.5) {
-				startColor = color1;
-				endColor = color2;
-				subProgress = progress * 2;
-			} else {
-				startColor = color2;
-				endColor = color3;
-				subProgress = (progress - 0.5) * 2;
+				NSMutableDictionary *attributes = [NSMutableDictionary dictionary];
+				if (currentColor) {
+					attributes[NSForegroundColorAttributeName] = currentColor;
+				} else {
+					attributes[NSForegroundColorAttributeName] = [UIColor blackColor];
+				}
+
+				attributes[NSStrokeColorAttributeName] = [UIColor blackColor]; // 描边颜色
+				attributes[NSStrokeWidthAttributeName] = @(-2.0);	       // 描边宽度（负值表示同时填充和描边）
+
+				[attributedText addAttributes:attributes range:NSMakeRange(i, 1)];
 			}
-
-			CGFloat startRed, startGreen, startBlue, startAlpha;
-			CGFloat endRed, endGreen, endBlue, endAlpha;
-			[startColor getRed:&startRed green:&startGreen blue:&startBlue alpha:&startAlpha];
-			[endColor getRed:&endRed green:&endGreen blue:&endBlue alpha:&endAlpha];
-
-			CGFloat red = startRed + (endRed - startRed) * subProgress;
-			CGFloat green = startGreen + (endGreen - startGreen) * subProgress;
-			CGFloat blue = startBlue + (endBlue - startBlue) * subProgress;
-			CGFloat alpha = startAlpha + (endAlpha - startAlpha) * subProgress;
-
-			UIColor *currentColor = [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
-			[attributedText addAttribute:NSForegroundColorAttributeName value:currentColor range:NSMakeRange(i, 1)];
+			label.attributedText = attributedText;
+		} else {
+			label.attributedText = nil;
 		}
-
-		label.attributedText = attributedText;
 	} else {
-		NSString *labelColor = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYLabelColor"];
-		if (labelColor.length > 0) {
-			label.textColor = [DYYYUtils colorWithHexString:labelColor];
+		NSMutableAttributedString *attributedText;
+		if ([label.attributedText isKindOfClass:[NSAttributedString class]]) {
+			attributedText = [[NSMutableAttributedString alloc] initWithAttributedString:label.attributedText];
+			[attributedText removeAttribute:NSForegroundColorAttributeName range:NSMakeRange(0, attributedText.length)];
+		} else {
+			attributedText = [[NSMutableAttributedString alloc] initWithString:label.text ?: @""];
 		}
+
+		if (attributedText.length > 0) {
+			[attributedText addAttributes:@{NSStrokeColorAttributeName : [UIColor blackColor], NSStrokeWidthAttributeName : @(-2.0)} range:NSMakeRange(0, attributedText.length)];
+		}
+		label.attributedText = attributedText;
 	}
 	return label;
 }
@@ -2969,7 +2964,7 @@ static __weak YYAnimatedImageView *targetStickerView = nil;
 										if (targetStickerView) {
 										 [DYYYManager saveAnimatedSticker:targetStickerView];
 									 } else {
-										 [DYYYUtils  showToast:@"无法获取表情视图"];
+										 [DYYYUtils showToast:@"无法获取表情视图"];
 									 }
 								       }];
 
