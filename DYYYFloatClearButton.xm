@@ -170,7 +170,7 @@ static void initTargetClassNames(void) {
         
         // 设置默认状态为半透明
         self.originalAlpha = 1.0;  // 交互时为完全不透明
-        self.alpha = 0.7;  // 初始为半透明
+        self.alpha = 0.5;  // 初始为半透明
 		// 加载保存的锁定状态
 		[self loadLockState];
 		[self loadIcons];
@@ -208,7 +208,7 @@ static void initTargetClassNames(void) {
 							   block:^(NSTimer *timer) {
 							     [UIView animateWithDuration:0.3
 									      animations:^{
-										self.alpha = 0.7;  // 变为半透明
+										self.alpha = 0.5;  // 变为半透明
 									      }];
 							   }];
 	// 交互时变为完全不透明
@@ -589,18 +589,34 @@ static void initTargetClassNames(void) {
 }
 %end
 
-%hook AWEPlayInteractionViewController
+%hook AWECommentContainerViewController
 
-- (void)performCommentAction {
+- (void)viewWillAppear:(BOOL)animated {
     %orig;
     isCommentViewVisible = YES;
+    updateClearButtonVisibility();
 }
 
-- (void)commentVCDidDismiss {
+- (void)viewDidAppear:(BOOL)animated {
+    %orig;
+    isCommentViewVisible = YES;
+    updateClearButtonVisibility();
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    %orig;
+    updateClearButtonVisibility();
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
     %orig;
     isCommentViewVisible = NO;
+    updateClearButtonVisibility();
 }
 
+%end
+
+%hook AWEPlayInteractionViewController
 - (void)loadView {
     %orig;
     if (hideButton) {
