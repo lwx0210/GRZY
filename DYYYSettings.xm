@@ -3169,6 +3169,9 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 	      }];
 	};
 
+        [cleanupItems addObject:cleanSettingsItem];
+
+        //清理缓存
 	AWESettingItemModel *cleanCacheItem = [[%c(AWESettingItemModel) alloc] init];
 	cleanCacheItem.identifier = @"DYYYCleanCache";
 	cleanCacheItem.title = @"清理缓存";
