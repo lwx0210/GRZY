@@ -3172,45 +3172,13 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
         [cleanupItems addObject:cleanSettingsItem];
 
         //清理缓存
-	AWESettingItemModel *cleanCacheItem = [[%c(AWESettingItemModel) alloc] init];
-	cleanCacheItem.identifier = @"DYYYCleanCache";
-	cleanCacheItem.title = @"清理缓存";
-	cleanCacheItem.detail = @"计算中...";
-	cleanCacheItem.type = 0;
-	cleanCacheItem.svgIconImageName = @"ic_broom_outlined";
-	cleanCacheItem.cellType = 26;
-	cleanCacheItem.colorStyle = 0;
-	cleanCacheItem.isEnable = YES;
+	__block AWESettingItemModel *cleanCacheItemRef = nil;
 
-	[cleanupItems addObject:cleanCacheItem];
+	void (^refreshCleanCacheItem)(void) = ^{
+	  if (!cleanCacheItemRef)
+		  return;
 
-	// 然后异步计算缓存大小
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-	  NSString *tempDir = NSTemporaryDirectory();
-	  NSArray<NSString *> *customDirs = @[ @"Caches", @"BDByteCast", @"kitelog" ];
-	  NSString *libraryDir = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES).firstObject;
-	  NSMutableArray<NSString *> *allPaths = [NSMutableArray arrayWithObject:tempDir];
-	  for (NSString *sub in customDirs) {
-		  NSString *fullPath = [libraryDir stringByAppendingPathComponent:sub];
-		  if ([[NSFileManager defaultManager] fileExistsAtPath:fullPath]) {
-			  [allPaths addObject:fullPath];
-		  }
-	  }
-	  unsigned long long cacheSize = 0;
-	  for (NSString *basePath in allPaths) {
-		  cacheSize += [DYYYUtils directorySizeAtPath:basePath];
-	  }
-	  float cacheMB = cacheSize / 1024.0 / 1024.0;
-
-	  dispatch_async(dispatch_get_main_queue(), ^{
-	    cleanCacheItem.detail = [NSString stringWithFormat:@"%.2f MB", cacheMB];
-	    [DYYYSettingsHelper refreshTableView];
-	  });
-	});
-
-	cleanCacheItem.cellTappedBlock = ^{
-	  cleanCacheItem.isEnable = NO;
-	  cleanCacheItem.detail = @"清理中...";
+	  cleanCacheItemRef.detail = @"计算中...";
 	  [DYYYSettingsHelper refreshTableView];
 
 	  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -3218,6 +3186,52 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 	    NSArray<NSString *> *customDirs = @[ @"Caches", @"BDByteCast", @"kitelog" ];
 	    NSString *libraryDir = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES).firstObject;
 	    NSMutableArray<NSString *> *allPaths = [NSMutableArray arrayWithObject:tempDir];
+
+	    for (NSString *sub in customDirs) {
+		    NSString *fullPath = [libraryDir stringByAppendingPathComponent:sub];
+		    if ([[NSFileManager defaultManager] fileExistsAtPath:fullPath]) {
+			    [allPaths addObject:fullPath];
+		    }
+	    }
+
+	    unsigned long long cacheSize = 0;
+	    for (NSString *basePath in allPaths) {
+		    cacheSize += [DYYYUtils directorySizeAtPath:basePath];
+	    }
+
+	    float cacheMB = cacheSize / 1024.0 / 1024.0;
+
+	    dispatch_async(dispatch_get_main_queue(), ^{
+	      cleanCacheItemRef.detail = [NSString stringWithFormat:@"%.2f MB", cacheMB];
+	      [DYYYSettingsHelper refreshTableView];
+	    });
+	  });
+	};
+
+	AWESettingItemModel *cleanCacheItem = [[%c(AWESettingItemModel) alloc] init];
+	cleanCacheItem.identifier = @"DYYYCleanCache";
+	cleanCacheItem.title = @"清理缓存";
+	cleanCacheItem.type = 0;
+	cleanCacheItem.svgIconImageName = @"ic_broom_outlined";
+	cleanCacheItem.cellType = 26;
+	cleanCacheItem.colorStyle = 0;
+	cleanCacheItem.isEnable = YES;
+	cleanCacheItem.detail = @"计算中...";
+
+	// 设置引用并立即刷新
+	cleanCacheItemRef = cleanCacheItem;
+	refreshCleanCacheItem();
+
+	cleanCacheItem.cellTappedBlock = ^{
+	  cleanCacheItemRef.detail = @"清理中...";
+	  [DYYYSettingsHelper refreshTableView];
+
+	  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+	    NSString *tempDir = NSTemporaryDirectory();
+	    NSArray<NSString *> *customDirs = @[ @"Caches", @"BDByteCast", @"kitelog" ];
+	    NSString *libraryDir = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES).firstObject;
+	    NSMutableArray<NSString *> *allPaths = [NSMutableArray arrayWithObject:tempDir];
+
 	    for (NSString *sub in customDirs) {
 		    NSString *fullPath = [libraryDir stringByAppendingPathComponent:sub];
 		    if ([[NSFileManager defaultManager] fileExistsAtPath:fullPath]) {
@@ -3229,17 +3243,17 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 	    for (NSString *basePath in allPaths) {
 		    beforeSize += [DYYYUtils directorySizeAtPath:basePath];
 	    }
-	    float beforeMB = beforeSize / 1024.0 / 1024.0;
 
 	    for (NSString *basePath in allPaths) {
 		    [DYYYUtils removeAllContentsAtPath:basePath];
 	    }
 
-	    // 统计清理后大小
 	    unsigned long long afterSize = 0;
 	    for (NSString *basePath in allPaths) {
 		    afterSize += [DYYYUtils directorySizeAtPath:basePath];
 	    }
+
+	    float beforeMB = beforeSize / 1024.0 / 1024.0;
 	    float afterMB = afterSize / 1024.0 / 1024.0;
 	    float clearedMB = beforeMB - afterMB;
 	    if (clearedMB < 0)
@@ -3247,12 +3261,14 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 
 	    dispatch_async(dispatch_get_main_queue(), ^{
 	      [DYYYUtils showToast:[NSString stringWithFormat:@"已清理 %.2f MB 缓存", clearedMB]];
-	      cleanCacheItem.detail = [NSString stringWithFormat:@"%.2f MB", afterMB];
-	      cleanCacheItem.isEnable = YES;
+	      cleanCacheItemRef.detail = [NSString stringWithFormat:@"%.2f MB", afterMB];
 	      [DYYYSettingsHelper refreshTableView];
 	    });
 	  });
 	};
+
+	[cleanupItems addObject:cleanCacheItem];
+
 	cleanupSection.itemArray = cleanupItems;
 
 	// 创建关于分类
