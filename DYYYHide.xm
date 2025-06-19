@@ -1509,7 +1509,7 @@
 - (void)layoutSubviews {
 	%orig;
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideRecommendTips"]) {
-		if(self.accessibilityLabel) {
+		if (self.accessibilityLabel) {
 			[self removeFromSuperview];
 		}
 	}
