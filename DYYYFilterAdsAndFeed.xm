@@ -1,5 +1,7 @@
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
+#import "DYYYToast.h"
+#import "DYYYUtils.h"
 #import "AwemeHeaders.h"
 
 %hook AWEAwemeModel
