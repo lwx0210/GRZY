@@ -98,9 +98,8 @@ static CGFloat gStartVal = 0.0;
 @end
 
 @interface AWEPropGuideV2Model : NSObject
-@property (nonatomic, copy) NSString *propName;
+@property(nonatomic, copy) NSString *propName;
 @end
-
 
 @interface AWEAwemeModel : NSObject
 @property(nonatomic, strong, readwrite) NSNumber *createTime;
@@ -209,8 +208,8 @@ static CGFloat gStartVal = 0.0;
 @end
 
 @interface AWEPlayInteractionViewController : UIViewController
-@property (nonatomic, strong) AWEAwemeModel *model;
 @property(nonatomic, strong) UIView *view;
+@property (nonatomic, strong) AWEAwemeModel *model;
 @property(nonatomic, strong) NSString *referString;
 @property(nonatomic, assign) BOOL isCommentVCShowing;
 - (void)performCommentAction;
@@ -931,7 +930,7 @@ static CGFloat gStartVal = 0.0;
 @property(assign, nonatomic) UIEdgeInsets lockImageInset;
 @property(retain, nonatomic) UIImage *lockImage;
 @property(retain, nonatomic) UIImage *closeImage;
-@property(retain, nonatomic) AFDButton *cancelButton; 
+@property(retain, nonatomic) AFDButton *cancelButton;
 @property(retain, nonatomic) AWEButton *knownButton;
 @property(retain, nonatomic) AWEButton *leftCancelButton;
 @property(retain, nonatomic) AWEButton *rightConfirmButton;
@@ -1229,37 +1228,12 @@ static CGFloat gStartVal = 0.0;
 @property(nonatomic, strong) AWEFeedPauseVideoRelatedWordView *relatedView;
 @property(nonatomic, strong) AWEAwemeModel *currentAweme;
 @property(nonatomic, assign) long long pauseContentNum;
+
 @end
 
-//评论区表情
 @interface YYAnimatedImageView : UIImageView
 @end
 
-//长按复制简介
 @interface AWEProfileMentionLabel : UILabel
 @property(copy, nonatomic) NSString *text;
-@end
-
-//修改id附加起始位 
-@interface AWEUserHomeAccessibilityViewV2 : UIView
-- (void)findAndModifyDouyinLabelInView:(UIView *)view;
-- (void)findAndModify:(UIView *)view;
-- (void)modifyNicknameInView:(UIView *)view;
-@end
-
-//数据伪造
-@interface AWEProfileSocialStatisticView : UIView
-- (void)setFansCount:(NSNumber *)count;
-- (void)setPraiseCount:(NSNumber *)count;
-- (void)setFollowingCount:(NSNumber *)count;
-- (void)setFriendCount:(NSNumber *)count;
-- (void)p_updateSocialStatisticContent:(BOOL)animated;
-@end
-
-@interface AWEProfileHeaderMyProfileViewController : UIViewController
-- (void)reloadSettings;
-@end
-
-//AI搜索
-@interface AWESearchKeyboardVoiceSearchEntranceView : UIView
 @end
