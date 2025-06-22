@@ -809,7 +809,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 	  ];
 
 	  for (NSDictionary *dict in securitySettings) {
-		  AWESettingItemModel *item = [DYYYSettingsHelper createSettingItem:dict cellTapHandlers:cellTapHandlers];
+		  AWESettingItemModel *item = [DYYYSettingsHelper createSettingItem:dict];
 		  [securityItems addObject:item];
 	  }
 
@@ -2157,15 +2157,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		    NSDictionary *attributes = [fileManager attributesOfItemAtPath:jsonFilePath error:&attributesError];
 		    if (!attributesError && attributes) {
 			    jsonFileSize = [attributes fileSize];
-			    NSString *dataSizeString;
-			    if (jsonFileSize < 1024) {
-				    dataSizeString = [NSString stringWithFormat:@"%llu B", jsonFileSize];
-			    } else if (jsonFileSize < 1024 * 1024) {
-				    dataSizeString = [NSString stringWithFormat:@"%.2f KB", (double)jsonFileSize / 1024.0];
-			    } else {
-				    dataSizeString = [NSString stringWithFormat:@"%.2f MB", (double)jsonFileSize / (1024.0 * 1024.0)];
-			    }
-			    saveABTestConfigFileItemRef.detail = [NSString stringWithFormat:@"%@ %@", loadingStatus, dataSizeString];
+			    saveABTestConfigFileItemRef.detail = [NSString stringWithFormat:@"%@ %@", loadingStatus, [DYYYUtils formattedSize:jsonFileSize]];
 			    saveABTestConfigFileItemRef.isEnable = YES;
 		    } else {
 			    saveABTestConfigFileItemRef.detail = [NSString stringWithFormat:@"%@ (读取失败: %@)", loadingStatus, attributesError.localizedDescription ?: @"未知错误"];
@@ -2185,7 +2177,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			    if (newValue) {
 				    [DYYYBottomAlertView showAlertWithTitle:@"禁止热更新下发配置"
 					message:@"这将暂停接收测试新功能的推送。确定要继续吗？"
-					       avatarURL:nil
+					avatarURL:nil
 					cancelButtonText:@"取消"
 					confirmButtonText:@"确定"
 					cancelAction:^{
@@ -2207,13 +2199,13 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		  } else if ([item.identifier isEqualToString:@"DYYYABTestModeString"]) {
 			  // 获取当前的模式
 			  NSString *savedMode = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYABTestModeString"];
-			  BOOL isPatchMode = [savedMode isEqualToString:@"覆写模式：保留原设置，覆盖同名项"];
+			  BOOL isPatchMode = ![savedMode isEqualToString:@"替换模式：忽略原配置，写入新数据"];
 			  item.detail = isPatchMode ? @"覆写模式" : @"替换模式";
 
 			  item.cellTappedBlock = ^{
-			    NSString *currentMode = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYABTestModeString"] ?: @"替换模式：清除原配置，写入新数据";
+			    NSString *currentMode = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYABTestModeString"] ?: @"替换模式：忽略原配置，写入新数据";
 
-			    NSArray *modeOptions = @[ @"覆写模式：保留原设置，覆盖同名项", @"替换模式：清除原配置，写入新数据" ];
+			    NSArray *modeOptions = @[ @"覆写模式：保留原设置，覆盖同名项", @"替换模式：忽略原配置，写入新数据" ];
 
 			    [DYYYOptionsSelectionView showWithPreferenceKey:@"DYYYABTestModeString"
 							       optionsArray:modeOptions
@@ -2243,16 +2235,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 				  NSError *serializationError = nil;
 				  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:currentData options:NSJSONWritingPrettyPrinted error:&serializationError];
 				  if (!serializationError && jsonData) {
-					  unsigned long long dataSize = jsonData.length;
-					  NSString *dataSizeString;
-					  if (dataSize < 1024) {
-						  dataSizeString = [NSString stringWithFormat:@"%llu B", dataSize];
-					  } else if (dataSize < 1024 * 1024) {
-						  dataSizeString = [NSString stringWithFormat:@"%.2f KB", (double)dataSize / 1024.0];
-					  } else {
-						  dataSizeString = [NSString stringWithFormat:@"%.2f MB", (double)dataSize / (1024.0 * 1024.0)];
-					  }
-					  item.detail = dataSizeString;
+					  item.detail = [DYYYUtils formattedSize:jsonData.length];
 				  } else {
 					  item.detail = [NSString stringWithFormat:@"(序列化失败: %@)", serializationError.localizedDescription ?: @"未知错误"];
 					  item.isEnable = NO;
@@ -2263,7 +2246,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			    NSDictionary *currentData = getCurrentABTestData();
 
 			    if (!currentData) {
-				   [DYYYUtils showToast:@"ABTest配置获取失败"];
+				    [DYYYUtils showToast:@"ABTest配置获取失败"];
 				    return;
 			    }
 
@@ -2271,7 +2254,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			    NSData *sortedJsonData = [NSJSONSerialization dataWithJSONObject:currentData options:NSJSONWritingPrettyPrinted | NSJSONWritingSortedKeys error:&error];
 
 			    if (error) {
-				   [DYYYUtils showToast:@"ABTest配置序列化失败"];
+				    [DYYYUtils showToast:@"ABTest配置序列化失败"];
 				    return;
 			    }
 
@@ -2344,7 +2327,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			    NSString *tempFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:tempFile];
 
 			    if (![sortedJsonData writeToFile:tempFilePath atomically:YES]) {
-				   [DYYYUtils showToast:@"临时文件创建失败"];
+				    [DYYYUtils showToast:@"临时文件创建失败"];
 				    return;
 			    }
 
@@ -2354,7 +2337,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 			    DYYYBackupPickerDelegate *pickerDelegate = [[DYYYBackupPickerDelegate alloc] init];
 			    pickerDelegate.tempFilePath = tempFilePath;
 			    pickerDelegate.completionBlock = ^(NSURL *url) {
-			     [DYYYUtils showToast:@"本地配置已保存"];
+			      [DYYYUtils showToast:@"本地配置已保存"];
 			    };
 
 			    static char kABTestConfigPickerDelegateKey;
@@ -2367,15 +2350,15 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		  } else if ([item.identifier isEqualToString:@"LoadABTestConfigFile"]) {
 			  item.cellTappedBlock = ^{
 			    NSString *savedMode = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYABTestModeString"];
-			    BOOL isPatchMode = [savedMode isEqualToString:@"覆写模式：保留原设置，覆盖同名项"];
+			    BOOL isPatchMode = ![savedMode isEqualToString:@"替换模式：忽略原配置，写入新数据"];
 
 			    NSString *confirmTitle, *confirmMessage;
 			    if (isPatchMode) {
 				    confirmTitle = @"覆写模式";
-				    confirmMessage = @"覆写模式将保留原设置并覆盖同名项\n确定要继续吗？\n";
+				    confirmMessage = @"\n导入后将保留原设置并覆盖同名项，\n\n点击确定后继续操作。\n";
 			    } else {
 				    confirmTitle = @"替换模式";
-				    confirmMessage = @"替换模式将丢弃原设置并替换为新数据\n确定要继续吗？\n";
+				    confirmMessage = @"\n导入后将忽略原设置并写入新数据，\n\n点击确定后继续操作。\n";
 			    }
 			    DYYYAboutDialogView *confirmDialog = [[DYYYAboutDialogView alloc] initWithTitle:confirmTitle message:confirmMessage];
 			    confirmDialog.onConfirm = ^{
@@ -3178,11 +3161,24 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 					  }];
 	      }];
 	};
+	[cleanupItems addObject:cleanSettingsItem];
 
-        [cleanupItems addObject:cleanSettingsItem];
+	NSArray<NSString *> *customDirs = @[ @"Application Support/gurd_cache", @"Caches", @"BDByteCast", @"kitelog" ];
+	NSString *libraryDir = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES).firstObject;
+	NSMutableArray<NSString *> *allPaths = [NSMutableArray arrayWithObject:NSTemporaryDirectory()];
+	for (NSString *sub in customDirs) {
+	  NSString *fullPath = [libraryDir stringByAppendingPathComponent:sub];
+	  if ([[NSFileManager defaultManager] fileExistsAtPath:fullPath]) {
+		  [allPaths addObject:fullPath];
+	  }
+	}
+	unsigned long long initialSize = 0;
+	for (NSString *basePath in allPaths) {
+	  initialSize += [DYYYUtils directorySizeAtPath:basePath];
+	}
 
-        //清理缓存
 	AWESettingItemModel *cleanCacheItem = [[%c(AWESettingItemModel) alloc] init];
+	__weak AWESettingItemModel *weakCleanCacheItem = cleanCacheItem;
 	cleanCacheItem.identifier = @"DYYYCleanCache";
 	cleanCacheItem.title = @"清理缓存";
 	cleanCacheItem.type = 0;
@@ -3190,39 +3186,37 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 	cleanCacheItem.cellType = 26;
 	cleanCacheItem.colorStyle = 0;
 	cleanCacheItem.isEnable = YES;
+	cleanCacheItem.detail = [DYYYUtils formattedSize:initialSize];
 	cleanCacheItem.cellTappedBlock = ^{
-	  NSString *tempDir = NSTemporaryDirectory();
-	  NSArray<NSString *> *customDirs = @[ @"Caches", @"BDByteCast", @"kitelog" ];
-	  NSString *libraryDir = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES).firstObject;
-	  NSMutableArray<NSString *> *allPaths = [NSMutableArray arrayWithObject:tempDir];
-	  for (NSString *sub in customDirs) {
-		  NSString *fullPath = [libraryDir stringByAppendingPathComponent:sub];
-		  if ([[NSFileManager defaultManager] fileExistsAtPath:fullPath]) {
-			  [allPaths addObject:fullPath];
-		  }
+	  __strong AWESettingItemModel *strongCleanCacheItem = weakCleanCacheItem;
+	  if (!strongCleanCacheItem || !strongCleanCacheItem.isEnable) {
+		  return;
 	  }
-
-	  unsigned long long beforeSize = 0;
-	  for (NSString *basePath in allPaths) {
-		  beforeSize += [DYYYUtils directorySizeAtPath:basePath];
-	  }
-	  float beforeMB = beforeSize / 1024.0 / 1024.0;
-	  cleanCacheItem.detail = [NSString stringWithFormat:@"%.2f MB", beforeMB];
+	  // Disable the button to prevent multiple triggers
+	  strongCleanCacheItem.isEnable = NO;
 	  [DYYYSettingsHelper refreshTableView];
 
-	  for (NSString *basePath in allPaths) {
-		  [DYYYUtils removeAllContentsAtPath:basePath];
-	  }
+	  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		  for (NSString *basePath in allPaths) {
+			  [DYYYUtils removeAllContentsAtPath:basePath];
+		  }
 
-	  unsigned long long afterSize = 0;
-	  for (NSString *basePath in allPaths) {
-		  afterSize += [DYYYUtils directorySizeAtPath:basePath];
-	  }
-	  float afterMB = afterSize / 1024.0 / 1024.0;
-	  float clearedMB = beforeMB - afterMB;
-	  if (clearedMB < 0)
-		  clearedMB = 0;
-	  [DYYYUtils showToast:[NSString stringWithFormat:@"已清理 %.2f MB 缓存", clearedMB]];
+		  unsigned long long afterSize = 0;
+		  for (NSString *basePath in allPaths) {
+			  afterSize += [DYYYUtils directorySizeAtPath:basePath];
+		  }
+
+		  unsigned long long clearedSize = (initialSize > afterSize) ? (initialSize - afterSize) : 0;
+
+		  dispatch_async(dispatch_get_main_queue(), ^{
+			  [DYYYUtils showToast:[NSString stringWithFormat:@"已清理 %@ 缓存", [DYYYUtils formattedSize:clearedSize]]];
+
+			  strongCleanCacheItem.detail = [DYYYUtils formattedSize:afterSize];
+			  // Re-enable the button after cleaning is done
+			  strongCleanCacheItem.isEnable = YES;
+			  [DYYYSettingsHelper refreshTableView];
+		  });
+	  });
 	};
 	[cleanupItems addObject:cleanCacheItem];
 
