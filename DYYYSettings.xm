@@ -489,7 +489,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 	  NSArray *videoSettings = @[
 		            @{@"identifier" : @"DYYYVideoBGColor",
 		              @"title" : @"视频背景颜色",
-		              @"detail" : @"",
+		              @"detail" : @"十六进制",
 		              @"cellType" : @26,
 		              @"imageName" : @"ic_tv_outlined_20"},
 			    @{@"identifier" : @"DYYYisShowScheduleDisplay",
