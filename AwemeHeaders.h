@@ -787,7 +787,6 @@ static CGFloat gStartVal = 0.0;
 - (void)applyCustomProgressStyle;
 @end
 
-// 添加 DUXContentSheet 相关声明
 @protocol IESIMContentSheetVCProtocol
 , AWEMRGlobalAlertTrackProtocol;
 @interface DUXBasicSheet : UIViewController
@@ -799,6 +798,7 @@ static CGFloat gStartVal = 0.0;
 @interface AWESettingItemModel : NSObject
 @property(nonatomic, copy) NSString *identifier;
 @property(nonatomic, copy) NSString *title;
+@property(nonatomic, copy) NSString *subTitle;
 @property(nonatomic, copy) NSString *detail;
 @property(nonatomic, assign) NSInteger type;
 @property(nonatomic, copy) NSString *iconImageName;
@@ -809,6 +809,7 @@ static CGFloat gStartVal = 0.0;
 @property(nonatomic, assign) BOOL isSwitchOn;
 @property(nonatomic, copy) void (^cellTappedBlock)(void);
 @property(nonatomic, copy) void (^switchChangedBlock)(void);
+- (void)refreshCell;
 @end
 
 @interface AWESettingBaseViewModel : NSObject
@@ -1238,26 +1239,5 @@ static CGFloat gStartVal = 0.0;
 @property(copy, nonatomic) NSString *text;
 @end
 
-//修改id附加起始位 
-@interface AWEUserHomeAccessibilityViewV2 : UIView
-- (void)findAndModifyDouyinLabelInView:(UIView *)view;
-- (void)findAndModify:(UIView *)view;
-- (void)modifyNicknameInView:(UIView *)view;
-@end
-
-//数据伪造
-@interface AWEProfileSocialStatisticView : UIView
-- (void)setFansCount:(NSNumber *)count;
-- (void)setPraiseCount:(NSNumber *)count;
-- (void)setFollowingCount:(NSNumber *)count;
-- (void)setFriendCount:(NSNumber *)count;
-- (void)p_updateSocialStatisticContent:(BOOL)animated;
-@end
-
-@interface AWEProfileHeaderMyProfileViewController : UIViewController
-- (void)reloadSettings;
-@end
-
-//AI搜索
-@interface AWESearchKeyboardVoiceSearchEntranceView : UIView
+@interface MTKView : UIView
 @end
