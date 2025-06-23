@@ -434,7 +434,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
 		            @{@"identifier" : @"DYYYVideoBGColor",
 		              @"title" : @"视频背景颜色",
 			      @"subTitle" : @"可以自定义部分横屏视频的背景颜色",
-		              @"detail" : @"十六进制,只填后六位即可,不填默认",
+		              @"detail" : @"16进制,只填后6位,不填默认",
 		              @"cellType" : @18,
 		              @"imageName" : @"ic_tv_outlined_20"},
 			    @{@"identifier" : @"DYYYisShowScheduleDisplay",
