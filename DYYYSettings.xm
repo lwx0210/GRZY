@@ -1432,8 +1432,9 @@ extern "C"
 		              @"imageName" : @"ic_eyeslash_outlined_16"},
 			    @{@"identifier" : @"DYYYHidePanelBiserial",
 			      @"title" : @"隐藏双列快捷入口",
+                              @"subTitle" : @"推荐页双指缩放不会展示双列视图",
 			      @"detail" : @"",
-			      @"cellType" : @6,
+			      @"cellType" : @37,
 			      @"imageName" : @"ic_eyeslash_outlined_16"}
 	  ];
 
@@ -2160,8 +2161,9 @@ extern "C"
 	  NSArray *interactionSettings = @[
 		           @{@"identifier" : @"DYYYentrance",
 		             @"title" : @"左侧边栏快捷入口",
+                             @"subTitle" : @"点击推荐页右上角快速进入DYYY",
 		             @"detail" : @"",
-		             @"cellType" : @6,
+		             @"cellType" : @37,
 		             @"imageName" : @"ic_gearsimplify_outlined_20"},
 		            @{@"identifier" : @"DYYYMusicCopyText",
 		              @"title" : @"评论音乐点击复制",
@@ -2220,7 +2222,7 @@ extern "C"
 		              @"imageName" : @"ic_eye_outlined_20"},
 		            @{@"identifier" : @"DYYYVideoGesture",
 		              @"title" : @"启用横屏交互增强",
-                              @"subTitle" : @"横屏播放时，左右边缘上下滑动可调节音量和亮度",
+                              @"subTitle" : @"横屏播放时，左右边缘上下滑动调节音量和亮度",
 		              @"detail" : @"",
 		              @"cellType" : @37,
 		              @"imageName" : @"ic_phonearrowdown_outlined_20"},
@@ -2246,7 +2248,7 @@ extern "C"
 			      @"imageName" : @"ic_video_outlined_20"},
                             @{@"identifier" : @"DYYYHapticFeedbackEnabled",
 			      @"title" : @"启用保存媒体反馈",
-                              @"subTitle" : @"需要先在系统设置中开启触感反馈",
+                              @"subTitle" : @"先在手机设置中开启系统触感反馈",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_gearsimplify_outlined_20"},
@@ -2570,7 +2572,7 @@ extern "C"
 	      createSettingItem:
 	            @{@"identifier" : @"DYYYEnabshijianjindu",
 		      @"title" : @"清屏移除时间进度",
-                      @"subTitle" : @"彻底删除进度条，不可滑动！",
+                      @"subTitle" : @"删除进度条，不可滑动！",
 		      @"detail" : @"",
 		      @"cellType" : @37,
 	              @"imageName" : @"ic_eyeslash_outlined_16"}];
