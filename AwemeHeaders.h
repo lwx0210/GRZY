@@ -829,15 +829,6 @@ static CGFloat gStartVal = 0.0;
 
 - (AWESettingItemModel *)createSettingItem:(NSDictionary *)dict;
 - (AWESettingItemModel *)createSettingItem:(NSDictionary *)dict cellTapHandlers:(NSMutableDictionary *)cellTapHandlers;
-
-- (void)refreshTableView;
-- (void)updateSectionDataArray;
-- (void)handleConflictsAndDependenciesForSetting:(NSString *)identifier isEnabled:(BOOL)isEnabled;
-- (void)updateDependentItemsForSetting:(NSString *)identifier value:(id)value;
-- (void)handleConflictsAndDependenciesForSetting:(NSString *)identifier isEnabled:(BOOL)isEnabled;
-- (void)applyDependencyRulesForItem:(AWESettingItemModel *)item;
-- (void)updateConflictingItemUIState:(NSString *)identifier withValue:(BOOL)value;
-- (NSDictionary *)settingsDependencyConfig;
 @end
 
 @interface AWENavigationBar : UIView
@@ -848,18 +839,14 @@ static CGFloat gStartVal = 0.0;
 @property(nonatomic, assign) NSInteger type;
 @property(nonatomic, assign) CGFloat sectionHeaderHeight;
 @property(nonatomic, copy) NSString *sectionHeaderTitle;
+@property(nonatomic, copy) NSString *sectionFooterTitle;
+@property (nonatomic, assign) BOOL useNewFooterLayout;
 @property(nonatomic, strong) NSArray *itemArray;
 @property(retain, nonatomic) NSString *identifier;
 @property(copy, nonatomic) NSString *title;
 - (id)initWithIdentifier:(id)arg1;
 - (void)setIsSelect:(BOOL)arg1;
 - (BOOL)isSelect;
-- (void)setCellTappedBlock:(id)arg1;
-- (AWESettingItemModel *)createSettingItem:(NSDictionary *)dict;
-- (AWESettingItemModel *)createSettingItem:(NSDictionary *)dict cellTapHandlers:(NSMutableDictionary *)cellTapHandlers;
-- (void)applyDependencyRulesForItem:(AWESettingItemModel *)item;
-- (void)handleConflictsAndDependenciesForSetting:(NSString *)identifier isEnabled:(BOOL)isEnabled;
-- (void)updateDependentItemsForSetting:(NSString *)identifier value:(id)value;
 @end
 
 @interface AWEPrivacySettingActionSheetConfig : NSObject
@@ -1240,28 +1227,4 @@ static CGFloat gStartVal = 0.0;
 @end
 
 @interface MTKView : UIView
-@end
-
-//修改id附加起始位 
-@interface AWEUserHomeAccessibilityViewV2 : UIView
-- (void)findAndModifyDouyinLabelInView:(UIView *)view;
-- (void)findAndModify:(UIView *)view;
-- (void)modifyNicknameInView:(UIView *)view;
-@end
-
-//数据伪造
-@interface AWEProfileSocialStatisticView : UIView
-- (void)setFansCount:(NSNumber *)count;
-- (void)setPraiseCount:(NSNumber *)count;
-- (void)setFollowingCount:(NSNumber *)count;
-- (void)setFriendCount:(NSNumber *)count;
-- (void)p_updateSocialStatisticContent:(BOOL)animated;
-@end
-
-@interface AWEProfileHeaderMyProfileViewController : UIViewController
-- (void)reloadSettings;
-@end
-
-//AI搜索
-@interface AWESearchKeyboardVoiceSearchEntranceView : UIView
 @end
