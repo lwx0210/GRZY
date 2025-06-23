@@ -191,7 +191,8 @@ extern "C"
 		    @"imageName" : @"ic_dansquare_outlined_20"},
 		  @{@"identifier" : @"DYYYdanmuColor",
 		    @"title" : @"自定弹幕颜色",
-		    @"detail" : @"16进制·随机颜色输入 random",
+		    @"subTitle" : @"填入 random 使用随机颜色弹幕",
+		    @"detail" : @"16进制,只填后6位即可,不填默认",
 		    @"cellType" : @18,
 		    @"imageName" : @"ic_dansquarenut_outlined_20"},
 	  ];
@@ -262,10 +263,11 @@ extern "C"
 		              @"cellType" : @18,
 		              @"imageName" : @"ic_location_outlined_20"},
 		            @{@"identifier" : @"DYYYLabelColor",
-			      @"title" : @"属地时间颜色",
-			      @"detail" : @"16进制·随机渐变输入 rainbow",
-			      @"cellType" : @26,
-			      @"imageName" : @"ic_location_outlined_20"},
+		              @"title" : @"属地时间颜色",
+		              @"subTitle" : @"填入 rainbow 使用渐变颜色",
+		              @"detail" : @"16进制,只填后6位即可,不填默认",
+		              @"cellType" : @18,
+		              @"imageName" : @"ic_location_outlined_20"},
 			    @{@"identifier" : @"DYYYEnabsuijiyanse",
 			      @"title" : @"属地颜色随机",
 			      @"detail" : @"",
@@ -384,7 +386,7 @@ extern "C"
 		              @"cellType" : @6,
 		              @"imageName" : @"ic_sun_outlined"},
 		            @{@"identifier" : @"DYYYfilterProp",
-		              @"title" : @"推荐过滤拍同款",
+		              @"title" : @"推荐过滤同款",
 		              @"detail" : @"",
 		              @"cellType" : @26,
 		              @"imageName" : @"ic_tag_outlined_20"},
@@ -2218,8 +2220,9 @@ extern "C"
 		              @"imageName" : @"ic_eye_outlined_20"},
 		            @{@"identifier" : @"DYYYVideoGesture",
 		              @"title" : @"启用横屏交互增强",
+                              @"subTitle" : @"横屏播放时，左右边缘上下滑动可调节音量和亮度",
 		              @"detail" : @"",
-		              @"cellType" : @6,
+		              @"cellType" : @37,
 		              @"imageName" : @"ic_phonearrowdown_outlined_20"},
                             @{@"identifier" : @"DYYYisAutoSelectOriginalPhoto",
 			      @"title" : @"启用自动勾选原图",
@@ -2243,13 +2246,15 @@ extern "C"
 			      @"imageName" : @"ic_video_outlined_20"},
                             @{@"identifier" : @"DYYYHapticFeedbackEnabled",
 			      @"title" : @"启用保存媒体反馈",
+                              @"subTitle" : @"需要先在系统设置中开启触感反馈",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_gearsimplify_outlined_20"},
                             @{@"identifier" : @"DYYYAllowConcurrentPlay",
 			      @"title" : @"启用应用同时播放",
+                              @"subTitle" : @"播放其它音乐时打开抖音，音乐不会停止",
 			      @"detail" : @"",
-			      @"cellType" : @6,
+			      @"cellType" : @37,
 			      @"imageName" : @"ic_vertrianglesquareonsquare_outlined_20"},
 			    @{@"identifier" : @"DYYYEnableDoubleOpenComment",
 			      @"title" : @"启用双击打开评论",
@@ -2258,8 +2263,9 @@ extern "C"
 			      @"imageName" : @"ic_comment_outlined_20"},
 		            @{@"identifier" : @"DYYYDefaultEnterWorks",
 		              @"title" : @"启用默认进入作品",
+                              @"subTitle" : @"有橱窗的作者默认展示作品",
 		              @"detail" : @"",
-		              @"cellType" : @6,
+		              @"cellType" : @37,
 		              @"imageName" : @"ic_playsquarestack_outlined_20"},
 			    @{@"identifier" : @"DYYYEnableDoubleOpenAlertController",
 			      @"title" : @"启用双击打开菜单",
@@ -2562,19 +2568,21 @@ extern "C"
 
 	  AWESettingItemModel *enableqingButton = [DYYYSettingsHelper
 	      createSettingItem:
-		  @{@"identifier" : @"DYYYEnabshijianjindu",
-		    @"title" : @"清屏移除时间进度",
-		    @"detail" : @"",
-		    @"cellType" : @6,
-		    @"imageName" : @"ic_eyeslash_outlined_16"}];
+	            @{@"identifier" : @"DYYYEnabshijianjindu",
+		      @"title" : @"清屏移除时间进度",
+                      @"subTitle" : @"彻底删除进度条，不可滑动！",
+		      @"detail" : @"",
+		      @"cellType" : @37,
+	              @"imageName" : @"ic_eyeslash_outlined_16"}];
 	  [clearButtonItems addObject:enableqingButton];
 	  // 清屏隐藏时间进度
 	  AWESettingItemModel *enableqingButton1 = [DYYYSettingsHelper
 	      createSettingItem:
 		  @{@"identifier" : @"DYYYHideTimeProgress",
 		    @"title" : @"清屏隐藏时间进度",
+                    @"subTitle" : @"只隐藏进度条，可滑动！",
 		    @"detail" : @"",
-		    @"cellType" : @6,
+		    @"cellType" : @37,
 		    @"imageName" : @"ic_eyeslash_outlined_16"}];
 	  [clearButtonItems addObject:enableqingButton1];
 	  AWESettingItemModel *hideSliderButton = [DYYYSettingsHelper
