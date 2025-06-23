@@ -1685,7 +1685,7 @@ extern "C"
 	  // 创建并推入二级设置页面，使用sections数组而不是直接使用removeSettingsItems
 	  AWESettingBaseViewController *subVC = [DYYYSettingsHelper createSubSettingsViewController:@"顶栏移除" sections:sections];
 	  [rootVC.navigationController pushViewController:(UIViewController *)subVC animated:YES];
-	}
+	};
 	[mainItems addObject:removeSettingItem];
 
 	// 创建增强设置分类项
