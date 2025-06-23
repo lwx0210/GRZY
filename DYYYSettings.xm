@@ -2250,7 +2250,7 @@ extern "C"
 			      @"title" : @"启用保存媒体反馈",
                               @"subTitle" : @"先在手机设置中开启系统触感反馈",
 			      @"detail" : @"",
-			      @"cellType" : @6,
+			      @"cellType" : @37,
 			      @"imageName" : @"ic_gearsimplify_outlined_20"},
                             @{@"identifier" : @"DYYYAllowConcurrentPlay",
 			      @"title" : @"启用应用同时播放",
