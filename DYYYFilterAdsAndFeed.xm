@@ -291,6 +291,21 @@
 
 %end
 
+%hook MTKView
+
+- (void)layoutSubviews {
+	%orig;
+	NSString *colorHex = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYVideoBGColor"];
+	if (colorHex && colorHex.length > 0) {
+		UIColor *customColor = [DYYYUtils colorWithHexString:colorHex];
+		if (customColor) {
+			self.backgroundColor = customColor;
+		}
+	}
+}
+
+%end
+
 // 拦截开屏广告
 %hook BDASplashControllerView
 + (id)alloc {
