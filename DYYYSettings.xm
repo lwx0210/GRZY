@@ -193,7 +193,7 @@ extern "C"
 		    @"title" : @"自定弹幕颜色",
 		    @"subTitle" : @"填入 random 使用随机颜色弹幕",
 		    @"detail" : @"16进制,只填后6位即可,不填默认",
-		    @"cellType" : @18,
+		    @"cellType" : @20,
 		    @"imageName" : @"ic_dansquarenut_outlined_20"},
 	  ];
 
@@ -209,7 +209,7 @@ extern "C"
 		              @"title" : @"视频背景颜色",
 			      @"subTitle" : @"可以自定义部分横屏视频的背景颜色",
 		              @"detail" : @"16进制,只填后6位即可,不填默认",
-		              @"cellType" : @18,
+		              @"cellType" : @20,
 		              @"imageName" : @"ic_tv_outlined_20"},
 			    @{@"identifier" : @"DYYYisShowScheduleDisplay",
 			      @"title" : @"显示进度时长",
@@ -260,13 +260,13 @@ extern "C"
 		              @"title" : @"属地国外解析",
 			      @"subTitle" : @"使用 Geonames.org 账号解析国外 IP 属地",
 		              @"detail" : @"此处填写网站的用户名,不填默认",
-		              @"cellType" : @18,
+		              @"cellType" : @20,
 		              @"imageName" : @"ic_location_outlined_20"},
 		            @{@"identifier" : @"DYYYLabelColor",
 		              @"title" : @"属地时间颜色",
 		              @"subTitle" : @"填入 rainbow 使用渐变颜色",
 		              @"detail" : @"16进制,只填后6位即可,不填默认",
-		              @"cellType" : @18,
+		              @"cellType" : @20,
 		              @"imageName" : @"ic_location_outlined_20"},
 			    @{@"identifier" : @"DYYYEnabsuijiyanse",
 			      @"title" : @"属地颜色随机",
@@ -2265,11 +2265,12 @@ extern "C"
 		              @"detail" : @"",
 		              @"cellType" : @37,
 		              @"imageName" : @"ic_playsquarestack_outlined_20"},
-			    @{@"identifier" : @"DYYYEnableDoubleOpenAlertController",
-			      @"title" : @"启用双击打开菜单",
-			      @"detail" : @"",
-			      @"cellType" : @26,
-			      @"imageName" : @"ic_xiaoxihuazhonghua_outlined_20"}
+		            @{@"identifier" : @"DYYYEnableDoubleOpenAlertController",
+		              @"title" : @"启用双击打开菜单",
+			      @"subTitle" : @"请勿与双击打开评论同时启用",
+		              @"detail" : @"",
+		              @"cellType" : @20,
+		              @"imageName" : @"ic_xiaoxihuazhonghua_outlined_20"}
 	  ];
 
 	  for (NSDictionary *dict in interactionSettings) {
