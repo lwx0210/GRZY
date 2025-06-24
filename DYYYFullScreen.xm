@@ -278,6 +278,220 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 }
 %end
 
+%hook AWEElementStackView
+static CGFloat stream_frame_y = 0;
+static CGFloat right_tx = 0;
+static CGFloat left_tx = 0;
+static CGFloat currentScale = 1.0;
+- (void)layoutSubviews {
+	%orig;
+	BOOL hasThreeBaseElementViews = NO;
+	if (self.subviews.count == 3) {
+		hasThreeBaseElementViews = YES;
+		for (UIView *subview in self.subviews) {
+			if (![subview isKindOfClass:%c(AWEBaseElementView)]) {
+				hasThreeBaseElementViews = NO;
+				break;
+			}
+		}
+	}
+
+	if (hasThreeBaseElementViews) {
+		return;
+	}
+	// 获取缩放比例
+	NSString *nicknameScaleStr = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
+	CGFloat nicknameScale = nicknameScaleStr.length > 0 ? [nicknameScaleStr floatValue] : 1.0;
+	NSString *elementScaleStr = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYElementScale"];
+	CGFloat elementScale = elementScaleStr.length > 0 ? [elementScaleStr floatValue] : 1.0;
+	// 判断视图属于哪个VC
+	UIResponder *nextResponder = [self nextResponder];
+	if ([nextResponder isKindOfClass:[UIView class]]) {
+		UIView *parentView = (UIView *)nextResponder;
+		UIViewController *viewController = [parentView firstAvailableUIViewController];
+		if ([viewController isKindOfClass:%c(AWELiveNewPreStreamViewController)]) {
+			// 直播间整体文案缩放
+			if (nicknameScale > 0 && nicknameScale != 1.0) {
+				self.transform = CGAffineTransformIdentity;
+				CGFloat ty = 0;
+				for (UIView *view in [self.subviews copy]) {
+					CGFloat viewHeight = view.frame.size.height;
+					ty += (viewHeight - viewHeight * nicknameScale) / 2;
+				}
+				CGFloat frameWidth = self.frame.size.width;
+				CGFloat tx = (frameWidth - frameWidth * nicknameScale) / 2 - frameWidth * (1 - nicknameScale);
+				CGAffineTransform newTransform = CGAffineTransformMakeScale(nicknameScale, nicknameScale);
+				newTransform = CGAffineTransformTranslate(newTransform, tx / nicknameScale, ty / nicknameScale);
+				self.transform = newTransform;
+			}
+			// 全屏处理
+			if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+				CGRect frame = self.frame;
+				frame.origin.y -= 83;
+				stream_frame_y = frame.origin.y;
+				self.frame = frame;
+			}
+		}
+	}
+	// 先检查accessibilityLabel
+	NSString *label = self.accessibilityLabel;
+	NSString *position = nil;
+	if (label != nil) {
+		if ([label isEqualToString:@"right"]) {
+			position = @"right";
+		} else if ([label isEqualToString:@"left"]) {
+			position = @"left";
+		}
+	} else {
+		// 只有在没有accessibilityLabel时才使用位置判断
+		CGFloat centerX = self.center.x;
+		CGFloat screenCenterX = [UIScreen mainScreen].bounds.size.width / 2.0;
+		if (centerX < screenCenterX - 5) {
+			position = @"left";
+		} else if (centerX > screenCenterX + 5) {
+			position = @"right";
+		}
+	}
+	// 根据推断位置进行变换
+	if ([position isEqualToString:@"right"] && elementScale > 0 && elementScale != 1.0) {
+		self.transform = CGAffineTransformIdentity;
+		CGFloat ty = 0;
+		for (UIView *view in self.subviews) {
+			CGFloat viewHeight = view.frame.size.height;
+			ty += (viewHeight - viewHeight * elementScale) / 2;
+		}
+		CGFloat frameWidth = self.frame.size.width;
+		right_tx = (frameWidth - frameWidth * elementScale) / 2;
+		self.transform = CGAffineTransformMake(elementScale, 0, 0, elementScale, right_tx, ty);
+	} else if ([position isEqualToString:@"left"] && nicknameScale > 0 && nicknameScale != 1.0) {
+		self.transform = CGAffineTransformIdentity;
+		CGFloat ty = 0;
+		for (UIView *view in [self.subviews copy]) {
+			CGFloat viewHeight = view.frame.size.height;
+			ty += (viewHeight - viewHeight * nicknameScale) / 2;
+		}
+		CGFloat frameWidth = self.frame.size.width;
+		left_tx = (frameWidth - frameWidth * nicknameScale) / 2 - frameWidth * (1 - nicknameScale);
+		CGAffineTransform newTransform = CGAffineTransformMakeScale(nicknameScale, nicknameScale);
+		newTransform = CGAffineTransformTranslate(newTransform, left_tx / nicknameScale, ty / nicknameScale);
+		self.transform = newTransform;
+	}
+}
+- (NSArray<__kindof UIView *> *)arrangedSubviews {
+	BOOL hasThreeBaseElementViews = NO;
+	if (self.subviews.count == 3) {
+		hasThreeBaseElementViews = YES;
+		for (UIView *subview in self.subviews) {
+			if (![subview isKindOfClass:%c(AWEBaseElementView)]) {
+				hasThreeBaseElementViews = NO;
+				break;
+			}
+		}
+	}
+
+	if (hasThreeBaseElementViews) {
+		return %orig;
+	}
+	NSString *label = self.accessibilityLabel;
+	BOOL isLeft = NO;
+	if (label != nil && [label isEqualToString:@"left"]) {
+		isLeft = YES;
+	} else if (label == nil) {
+		CGFloat centerX = self.center.x;
+		CGFloat screenCenterX = [UIScreen mainScreen].bounds.size.width / 2.0;
+		if (centerX < screenCenterX - 5) {
+			isLeft = YES;
+		}
+	}
+	if (isLeft) {
+		NSString *scaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
+		if (scaleValue.length > 0) {
+			CGFloat scale = [scaleValue floatValue];
+			if (scale > 0 && scale != 1.0) {
+				self.transform = CGAffineTransformIdentity;
+				CGFloat ty = 0;
+				for (UIView *view in [self.subviews copy]) {
+					CGFloat viewHeight = view.frame.size.height;
+					ty += (viewHeight - viewHeight * scale) / 2;
+				}
+				CGFloat frameWidth = self.frame.size.width;
+				CGFloat tx = (frameWidth - frameWidth * scale) / 2 - frameWidth * (1 - scale);
+				CGAffineTransform newTransform = CGAffineTransformMakeScale(scale, scale);
+				newTransform = CGAffineTransformTranslate(newTransform, tx / scale, ty / scale);
+				self.transform = newTransform;
+			}
+		}
+	}
+	return %orig;
+}
+%end
+
+%hook AWEStoryContainerCollectionView
+- (void)layoutSubviews {
+	%orig;
+	if ([self.subviews count] == 2)
+		return;
+
+	// 获取 enableEnterProfile 属性来判断是否是主页
+	id enableEnterProfile = [self valueForKey:@"enableEnterProfile"];
+	BOOL isHome = (enableEnterProfile != nil && [enableEnterProfile boolValue]);
+
+	// 检查是否在作者主页
+	BOOL isAuthorProfile = NO;
+	UIResponder *responder = self;
+	while ((responder = [responder nextResponder])) {
+		if ([NSStringFromClass([responder class]) containsString:@"UserHomeViewController"] || [NSStringFromClass([responder class]) containsString:@"ProfileViewController"]) {
+			isAuthorProfile = YES;
+			break;
+		}
+	}
+
+	// 如果不是主页也不是作者主页，直接返回
+	if (!isHome && !isAuthorProfile)
+		return;
+
+	for (UIView *subview in self.subviews) {
+		if ([subview isKindOfClass:[UIView class]]) {
+			UIView *nextResponder = (UIView *)subview.nextResponder;
+
+			// 处理主页的情况
+			if (isHome && [nextResponder isKindOfClass:%c(AWEPlayInteractionViewController)]) {
+				UIViewController *awemeBaseViewController = [nextResponder valueForKey:@"awemeBaseViewController"];
+				if (![awemeBaseViewController isKindOfClass:%c(AWEFeedCellViewController)]) {
+					continue;
+				}
+
+				CGRect frame = subview.frame;
+				if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+					frame.size.height = subview.superview.frame.size.height - 83;
+					subview.frame = frame;
+				}
+			}
+			// 处理作者主页的情况
+			else if (isAuthorProfile) {
+				// 检查是否是作品图片
+				BOOL isWorkImage = NO;
+
+				// 可以通过检查子视图、标签或其他特性来确定是否是作品图片
+				for (UIView *childView in subview.subviews) {
+					if ([NSStringFromClass([childView class]) containsString:@"ImageView"] || [NSStringFromClass([childView class]) containsString:@"ThumbnailView"]) {
+						isWorkImage = YES;
+						break;
+					}
+				}
+
+				if (isWorkImage) {
+					// 修复作者主页作品图片上移问题
+					CGRect frame = subview.frame;
+					frame.origin.y += 83;
+					subview.frame = frame;
+				}
+			}
+		}
+	}
+}
+%end
+
 %hook AWELandscapeFeedEntryView
 - (void)setCenter:(CGPoint)center {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"] || [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"]) {
