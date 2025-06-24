@@ -742,47 +742,52 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 }
 %end
 
+//纯净模式
 %hook AWEFeedContainerContentView
 - (void)setAlpha:(CGFloat)alpha {
 	// 纯净模式功能
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnablePure"]) {
-		%orig(0.0);
-		static dispatch_source_t timer = nil;
-		static int attempts = 0;
-		if (timer) {
-			dispatch_source_cancel(timer);
-			timer = nil;
-		}
-		void (^tryFindAndSetPureMode)(void) = ^{
-		  UIWindow *keyWindow = [DYYYUtils  getActiveWindow];
-		  if (keyWindow && keyWindow.rootViewController) {
-			  UIViewController *feedVC = [self findViewController:keyWindow.rootViewController ofClass:NSClassFromString(@"AWEFeedTableViewController")];
-			  if (feedVC) {
-				  [feedVC setValue:@YES forKey:@"pureMode"];
-				  if (timer) {
-					  dispatch_source_cancel(timer);
-					  timer = nil;
-				  }
-				  attempts = 0;
-				  return;
-			  }
-		  }
-		  attempts++;
-		  if (attempts >= 10) {
-			  if (timer) {
-				  dispatch_source_cancel(timer);
-				  timer = nil;
-			  }
-			  attempts = 0;
-		  }
-		};
-		timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
-		dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC, 0);
-		dispatch_source_set_event_handler(timer, tryFindAndSetPureMode);
-		dispatch_resume(timer);
-		tryFindAndSetPureMode();
-		return;
-	}
+        static dispatch_source_t timer = nil;
+        static int attempts = 0;
+        static BOOL pureModeSet = NO;
+        if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnablePure"]) {
+                %orig(0.0);
+                if (pureModeSet) {
+                        return;
+                }
+                if (!timer) {
+                        timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
+                        dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC, 0);
+                        dispatch_source_set_event_handler(timer, ^{
+                                UIWindow *keyWindow = [DYYYUtils getActiveWindow];
+                                if (keyWindow && keyWindow.rootViewController) {
+                                        UIViewController *feedVC = [self findViewController:keyWindow.rootViewController ofClass:NSClassFromString(@"AWEFeedTableViewController")];
+                                        if (feedVC) {
+                                                [feedVC setValue:@YES forKey:@"pureMode"];
+                                                pureModeSet = YES;
+                                                dispatch_source_cancel(timer);
+                                                timer = nil;
+                                                attempts = 0;
+                                                return;
+                                        }
+                                }
+                                attempts++;
+                                if (attempts >= 10) {
+                                        dispatch_source_cancel(timer);
+                                        timer = nil;
+                                        attempts = 0;
+                                }
+                        });
+                        dispatch_resume(timer);
+                }
+                return;
+        } else {
+                if (timer) {
+                        dispatch_source_cancel(timer);
+                        timer = nil;
+                }
+                attempts = 0;
+                pureModeSet = NO;
+        }
 	// 原来的透明度设置逻辑，保持不变
 	NSString *transparentValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYtopbartransparent"];
 	if (transparentValue && transparentValue.length > 0) {
