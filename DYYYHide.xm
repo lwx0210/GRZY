@@ -2084,6 +2084,7 @@
 @end
 
 static NSMutableDictionary *keepCellsInfo;
+static NSMutableDictionary *sectionKeepInfo;
 
 static NSString *const kAWELeftSideBarTopRightLayoutView = @"AWELeftSideBarTopRightLayoutView";
 static NSString *const kAWELeftSideBarFunctionContainerView = @"AWELeftSideBarFunctionContainerView";
@@ -2100,9 +2101,12 @@ static NSString *const kStreamlineSidebarKey = @"DYYYStreamlinethesidebar";
 		return;
 	}
 
-	if (!keepCellsInfo) {
-		keepCellsInfo = [NSMutableDictionary dictionary];
-	}
+        if (!keepCellsInfo) {
+                keepCellsInfo = [NSMutableDictionary dictionary];
+        }
+        if (!sectionKeepInfo) {
+                sectionKeepInfo = [NSMutableDictionary dictionary];
+        }
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -2112,7 +2116,8 @@ static NSString *const kStreamlineSidebarKey = @"DYYYStreamlinethesidebar";
 		return;
 	}
 
-	[keepCellsInfo removeAllObjects];
+        [keepCellsInfo removeAllObjects];
+        [sectionKeepInfo removeAllObjects];
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -2129,8 +2134,13 @@ static NSString *const kStreamlineSidebarKey = @"DYYYStreamlinethesidebar";
 		BOOL shouldKeep = [cell.contentView containsClassNamed:kAWELeftSideBarTopRightLayoutView] || [cell.contentView containsClassNamed:kAWELeftSideBarFunctionContainerView] ||
 				  [cell.contentView containsClassNamed:kAWELeftSideBarWeatherView];
 
-		NSString *key = [NSString stringWithFormat:@"%ld-%ld", (long)indexPath.section, (long)indexPath.row];
-		keepCellsInfo[key] = @(shouldKeep);
+                NSString *key = [NSString stringWithFormat:@"%ld-%ld", (long)indexPath.section, (long)indexPath.row];
+                keepCellsInfo[key] = @(shouldKeep);
+                if (shouldKeep) {
+                        sectionKeepInfo[@(indexPath.section)] = @YES;
+                } else if (!sectionKeepInfo[@(indexPath.section)]) {
+                        sectionKeepInfo[@(indexPath.section)] = @NO;
+                }
 
 		if (!shouldKeep) {
 			cell.hidden = YES;
@@ -2173,17 +2183,11 @@ static NSString *const kStreamlineSidebarKey = @"DYYYStreamlinethesidebar";
 		return originalInsets;
 	}
 
-	BOOL hasKeepCells = NO;
-	for (NSString *key in keepCellsInfo.allKeys) {
-		if ([key hasPrefix:[NSString stringWithFormat:@"%ld-", (long)section]] && [keepCellsInfo[key] boolValue]) {
-			hasKeepCells = YES;
-			break;
-		}
-	}
+        BOOL hasKeepCells = [sectionKeepInfo[@(section)] boolValue];
 
-	if (!hasKeepCells) {
-		return UIEdgeInsetsZero;
-	}
+        if (!hasKeepCells) {
+                return UIEdgeInsetsZero;
+        }
 
 	return originalInsets;
 }
@@ -2447,50 +2451,59 @@ static NSString *const kStreamlineSidebarKey = @"DYYYStreamlinethesidebar";
 }
 
 // 隐藏键盘ai
-//  隐藏父视图的子视图
+static __weak UIView *cachedHideView = nil;
 static void hideParentViewsSubviews(UIView *view) {
-	if (!view)
-		return;
-	// 获取第一层父视图
-	UIView *parentView = [view superview];
-	if (!parentView)
-		return;
-	// 获取第二层父视图
-	UIView *grandParentView = [parentView superview];
-	if (!grandParentView)
-		return;
-	// 获取第三层父视图
-	UIView *greatGrandParentView = [grandParentView superview];
-	if (!greatGrandParentView)
-		return;
-	// 隐藏所有子视图
-	for (UIView *subview in greatGrandParentView.subviews) {
-		subview.hidden = YES;
-	}
+        if (!view)
+                return;
+        UIView *parentView = [view superview];
+        if (!parentView)
+                return;
+        UIView *grandParentView = [parentView superview];
+        if (!grandParentView)
+                return;
+        UIView *greatGrandParentView = [grandParentView superview];
+        if (!greatGrandParentView)
+                return;
+        cachedHideView = greatGrandParentView;
+        for (UIView *subview in greatGrandParentView.subviews) {
+                subview.hidden = YES;
+        }
 }
 // 递归查找目标视图
 static void findTargetViewInView(UIView *view) {
-	if ([view isKindOfClass:NSClassFromString(@"AWESearchKeyboardVoiceSearchEntranceView")]) {
-		hideParentViewsSubviews(view);
-		return;
-	}
-	for (UIView *subview in view.subviews) {
-		findTargetViewInView(subview);
-	}
+        if (cachedHideView)
+                return;
+        if ([view isKindOfClass:NSClassFromString(@"AWESearchKeyboardVoiceSearchEntranceView")]) {
+                hideParentViewsSubviews(view);
+                return;
+        }
+        for (UIView *subview in view.subviews) {
+                findTargetViewInView(subview);
+                if (cachedHideView)
+                        break;
+        }
 }
-// 构造函数
+
 %ctor {
 	// 注册键盘通知
-	[[NSNotificationCenter defaultCenter] addObserverForName:UIKeyboardWillShowNotification
-							  object:nil
-							   queue:[NSOperationQueue mainQueue]
-						      usingBlock:^(NSNotification *notification) {
-							// 检查开关状态
-							if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"]) {
-								// 执行查找隐藏
-								for (UIWindow *window in [UIApplication sharedApplication].windows) {
-									findTargetViewInView(window);
-								}
-							}
-						      }];
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYUserAgreementAccepted"]) {
+                [[NSNotificationCenter defaultCenter] addObserverForName:UIKeyboardWillShowNotification
+                                                                  object:nil
+                                                                   queue:[NSOperationQueue mainQueue]
+                                                              usingBlock:^(NSNotification *notification) {
+                        if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidekeyboardai"]) {
+                                if (cachedHideView) {
+                                        for (UIView *subview in cachedHideView.subviews) {
+                                                subview.hidden = YES;
+                                        }
+                                } else {
+                                        for (UIWindow *window in [UIApplication sharedApplication].windows) {
+                                                findTargetViewInView(window);
+                                                if (cachedHideView)
+                                                        break;
+                                        }
+                                }
+                        }
+                }];
+	}
 }
