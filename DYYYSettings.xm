@@ -663,9 +663,8 @@ extern "C"
 	  NSArray *titleSettings = @[
 			    @{@"identifier" : @"DYYYModifyTopTabText",
 			      @"title" : @"设置顶栏标题",
-                              @"subTitle" : @"标题=修改 例如：推荐=DYYY",
 			      @"detail" : @"",
-			      @"cellType" : @20,
+			      @"cellType" : @26,
 			      @"imageName" : @"ic_tag_outlined_20"},
 			    @{@"identifier" : @"DYYYIndexTitle",
 			      @"title" : @"设置首页标题",
@@ -702,7 +701,7 @@ extern "C"
                             DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"设置顶栏标题" keywords:pairArray];
                             keywordListView.addItemTitle = @"添加标题修改";
                             keywordListView.editItemTitle = @"编辑标题修改";
-                            keywordListView.inputPlaceholder = @"原标题=新标题";
+                            keywordListView.inputPlaceholder = @"标题=修改 例如：推荐=DYYY";
                             keywordListView.onConfirm = ^(NSArray *keywords) {
                               NSString *keywordString = [keywords componentsJoinedByString:@"#"];
                               [DYYYSettingsHelper setUserDefaults:keywordString forKey:@"DYYYModifyTopTabText"];
