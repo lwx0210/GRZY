@@ -662,9 +662,10 @@ extern "C"
 	  NSMutableArray<AWESettingItemModel *> *titleItems = [NSMutableArray array];
 	  NSArray *titleSettings = @[
 			    @{@"identifier" : @"DYYYModifyTopTabText",
-			      @"title" : @"设置推荐标题",
-			      @"detail" : @"例如：推荐,DYYY",
-			      @"cellType" : @26,
+			      @"title" : @"设置顶栏标题",
+                              @"subTitle" : @"标题=修改#标题=修改",
+			      @"detail" : @"",
+			      @"cellType" : @37,
 			      @"imageName" : @"ic_tag_outlined_20"},
 			    @{@"identifier" : @"DYYYIndexTitle",
 			      @"title" : @"设置首页标题",
