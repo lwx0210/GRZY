@@ -1057,7 +1057,7 @@ static CGFloat currentScale = 1.0;
 		return;
 
 	for (NSString *pair in titlePairs) {
-		NSArray *components = [pair componentsSeparatedByString:@","];
+		NSArray *components = [pair componentsSeparatedByString:@"="];
 		if (components.count != 2)
 			continue;
 
@@ -1076,6 +1076,7 @@ static CGFloat currentScale = 1.0;
 }
 
 %end
+
 
 %hook AWEDanmakuContentLabel
 - (void)setTextColor:(UIColor *)textColor {
