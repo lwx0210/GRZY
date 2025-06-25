@@ -664,7 +664,7 @@ extern "C"
 			    @{@"identifier" : @"DYYYModifyTopTabText",
 			      @"title" : @"设置顶栏标题",
                               @"subTitle" : @"标题=修改#标题=修改",
-			      @"detail" : @"",
+			      @"detail" : @"例如：推荐=DYYY#",
 			      @"cellType" : @37,
 			      @"imageName" : @"ic_tag_outlined_20"},
 			    @{@"identifier" : @"DYYYIndexTitle",
