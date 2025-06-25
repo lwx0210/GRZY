@@ -19,6 +19,19 @@
 #import "DYYYCdyy.h"
 #import "DYYYUtils.h"
 
+// 关闭不可见水印
+%hook AWEHPChannelInvisibleWaterMarkModel
+
+- (BOOL)isEnter {
+	return NO;
+}
+
+- (BOOL)isAppear {
+	return NO;
+}
+
+%end
+
 //游戏作弊声明
 NSArray<NSString *> *diceImageURLs = @[@"url1", @"url2"];
 NSArray<NSString *> *rpsImageURLs = @[@"url1", @"url2"];
