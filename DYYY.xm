@@ -1438,7 +1438,7 @@ static CGFloat currentScale = 1.0;
 }
 %end
 
-
+//进度条样式
 %hook AWEFeedProgressSlider
 
 // layoutSubviews 保持不变
@@ -1603,6 +1603,78 @@ static CGFloat rightLabelRightMargin = -1;
 	}
 }
 
+%end
+
+%hook AWEPlayInteractionProgressContainerView
+- (void)layoutSubviews {
+	%orig;
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+		for (UIView *subview in self.subviews) {
+			if ([subview class] == [UIView class]) {
+				[subview setBackgroundColor:[UIColor clearColor]];
+			}
+		}
+	}
+	[self dyyy_applyShrinkIfNeeded];
+}
+
+%new
+- (void)dyyy_applyShrinkIfNeeded {
+	if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisShowScheduleDisplay"]) {
+		return;
+	}
+
+	NSString *scheduleStyle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYScheduleStyle"];
+	if (![scheduleStyle isEqualToString:@"进度条两侧左右"]) {
+		NSMutableDictionary *origFrames = objc_getAssociatedObject(self, @selector(dyyy_applyShrinkIfNeeded));
+		if (origFrames) {
+			for (UIView *subview in self.subviews) {
+				NSString *key = [NSString stringWithFormat:@"%p", subview];
+				NSValue *val = origFrames[key];
+				if (val) {
+					subview.frame = [val CGRectValue];
+				}
+			}
+		}
+		return;
+	}
+
+	UILabel *leftLabel = [self viewWithTag:10001];
+	UILabel *rightLabel = [self viewWithTag:10002];
+	if (!leftLabel || !rightLabel) {
+		return;
+	}
+
+	CGFloat padding = 5.0;
+	CGFloat shrinkX = CGRectGetMaxX(leftLabel.frame) + padding;
+	CGFloat shrinkWidth = rightLabel.frame.origin.x - padding - shrinkX;
+	if (shrinkWidth < 0)
+		shrinkWidth = 0;
+
+	NSMutableDictionary *origFrames = objc_getAssociatedObject(self, @selector(dyyy_applyShrinkIfNeeded));
+	if (!origFrames) {
+		origFrames = [NSMutableDictionary dictionary];
+		for (UIView *subview in self.subviews) {
+			NSString *key = [NSString stringWithFormat:@"%p", subview];
+			origFrames[key] = [NSValue valueWithCGRect:subview.frame];
+		}
+		objc_setAssociatedObject(self, @selector(dyyy_applyShrinkIfNeeded), origFrames, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	}
+
+	for (UIView *subview in self.subviews) {
+		NSString *key = [NSString stringWithFormat:@"%p", subview];
+		CGRect origFrame = [origFrames[key] CGRectValue];
+		if ([subview isKindOfClass:[UILabel class]])
+			continue;
+		CGFloat ratio = origFrame.size.width / origFrame.size.height;
+		if (ratio > 10.0) {
+			CGRect frame = origFrame;
+			frame.origin.x = shrinkX;
+			frame.size.width = shrinkWidth;
+			subview.frame = frame;
+		}
+	}
+}
 %end
 
 %hook AWEPlayInteractionProgressController
