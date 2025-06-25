@@ -19,19 +19,6 @@
 #import "DYYYCdyy.h"
 #import "DYYYUtils.h"
 
-// 关闭不可见水印
-%hook AWEHPChannelInvisibleWaterMarkModel
-
-- (BOOL)isEnter {
-	return NO;
-}
-
-- (BOOL)isAppear {
-	return NO;
-}
-
-%end
-
 //游戏作弊声明
 NSArray<NSString *> *diceImageURLs = @[@"url1", @"url2"];
 NSArray<NSString *> *rpsImageURLs = @[@"url1", @"url2"];
@@ -1070,7 +1057,7 @@ static CGFloat currentScale = 1.0;
 		return;
 
 	for (NSString *pair in titlePairs) {
-		NSArray *components = [pair componentsSeparatedByString:@"="];
+		NSArray *components = [pair componentsSeparatedByString:@","];
 		if (components.count != 2)
 			continue;
 
@@ -1089,7 +1076,6 @@ static CGFloat currentScale = 1.0;
 }
 
 %end
-
 
 %hook AWEDanmakuContentLabel
 - (void)setTextColor:(UIColor *)textColor {
@@ -1451,78 +1437,6 @@ static CGFloat currentScale = 1.0;
 }
 %end
 
-//进度条样式
-%hook AWEPlayInteractionProgressContainerView
-- (void)layoutSubviews {
-	%orig;
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-		for (UIView *subview in self.subviews) {
-			if ([subview class] == [UIView class]) {
-				[subview setBackgroundColor:[UIColor clearColor]];
-			}
-		}
-	}
-	[self dyyy_applyShrinkIfNeeded];
-}
-
-%new
-- (void)dyyy_applyShrinkIfNeeded {
-	if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisShowScheduleDisplay"]) {
-		return;
-	}
-
-	NSString *scheduleStyle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYScheduleStyle"];
-	if (![scheduleStyle isEqualToString:@"进度条两侧左右"]) {
-		NSMutableDictionary *origFrames = objc_getAssociatedObject(self, @selector(dyyy_applyShrinkIfNeeded));
-		if (origFrames) {
-			for (UIView *subview in self.subviews) {
-				NSString *key = [NSString stringWithFormat:@"%p", subview];
-				NSValue *val = origFrames[key];
-				if (val) {
-					subview.frame = [val CGRectValue];
-				}
-			}
-		}
-		return;
-	}
-
-	UILabel *leftLabel = [self viewWithTag:10001];
-	UILabel *rightLabel = [self viewWithTag:10002];
-	if (!leftLabel || !rightLabel) {
-		return;
-	}
-
-	CGFloat padding = 5.0;
-	CGFloat shrinkX = CGRectGetMaxX(leftLabel.frame) + padding;
-	CGFloat shrinkWidth = rightLabel.frame.origin.x - padding - shrinkX;
-	if (shrinkWidth < 0)
-		shrinkWidth = 0;
-
-	NSMutableDictionary *origFrames = objc_getAssociatedObject(self, @selector(dyyy_applyShrinkIfNeeded));
-	if (!origFrames) {
-		origFrames = [NSMutableDictionary dictionary];
-		for (UIView *subview in self.subviews) {
-			NSString *key = [NSString stringWithFormat:@"%p", subview];
-			origFrames[key] = [NSValue valueWithCGRect:subview.frame];
-		}
-		objc_setAssociatedObject(self, @selector(dyyy_applyShrinkIfNeeded), origFrames, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-	}
-
-	for (UIView *subview in self.subviews) {
-		NSString *key = [NSString stringWithFormat:@"%p", subview];
-		CGRect origFrame = [origFrames[key] CGRectValue];
-		if ([subview isKindOfClass:[UILabel class]])
-			continue;
-		CGFloat ratio = origFrame.size.width / origFrame.size.height;
-		if (ratio > 10.0) {
-			CGRect frame = origFrame;
-			frame.origin.x = shrinkX;
-			frame.size.width = shrinkWidth;
-			subview.frame = frame;
-		}
-	}
-}
-%end
 
 %hook AWEFeedProgressSlider
 
@@ -1557,7 +1471,18 @@ static CGFloat currentScale = 1.0;
 				sliderWidth = 0;
 
 			self.frame = CGRectMake(sliderX, sliderY, sliderWidth, sliderHeight);
+		} else {
+			CGFloat fallbackWidthPercent = 0.80;
+			CGFloat parentWidth = parentView.bounds.size.width;
+			CGFloat fallbackWidth = parentWidth * fallbackWidthPercent;
+			CGFloat fallbackX = (parentWidth - fallbackWidth) / 2.0;
+			// 使用 self.frame 获取当前 Y 和 Height (通常由 %orig 设置)
+			CGFloat currentY = self.frame.origin.y;
+			CGFloat currentHeight = self.frame.size.height;
+			// 应用回退 frame
+			self.frame = CGRectMake(fallbackX, currentY, fallbackWidth, currentHeight);
 		}
+	} else {
 	}
 }
 
@@ -1607,6 +1532,14 @@ static CGFloat rightLabelRightMargin = -1;
 		BOOL showLeftCompleteTime = [scheduleStyle isEqualToString:@"进度条左侧完整"];
 
 		NSString *labelColorHex = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYProgressLabelColor"];
+		UIColor *labelColor = [UIColor whiteColor];
+		if (labelColorHex && labelColorHex.length > 0) {
+			SEL colorSelector = NSSelectorFromString(@"colorWithHexString:");
+			Class dyyyManagerClass = NSClassFromString(@"DYYYManager");
+			if (dyyyManagerClass && [dyyyManagerClass respondsToSelector:colorSelector]) {
+				labelColor = [dyyyManagerClass performSelector:colorSelector withObject:labelColorHex];
+			}
+		}
 
 		CGFloat labelYPosition = sliderOriginalFrameInParent.origin.y + verticalOffset;
 		CGFloat labelHeight = 15.0;
@@ -1615,6 +1548,7 @@ static CGFloat rightLabelRightMargin = -1;
 		if (!showRemainingTime && !showCompleteTime) {
 			UILabel *leftLabel = [[UILabel alloc] init];
 			leftLabel.backgroundColor = [UIColor clearColor];
+			leftLabel.textColor = labelColor;
 			leftLabel.font = labelFont;
 			leftLabel.tag = 10001;
 			if (showLeftRemainingTime)
@@ -1632,13 +1566,12 @@ static CGFloat rightLabelRightMargin = -1;
 
 			leftLabel.frame = CGRectMake(leftLabelLeftMargin, labelYPosition, leftLabel.frame.size.width, labelHeight);
 			[parentView addSubview:leftLabel];
-
-			[DYYYUtils applyColorSettingsToLabel:leftLabel colorHexString:labelColorHex];
 		}
 
 		if (!showLeftRemainingTime && !showLeftCompleteTime) {
 			UILabel *rightLabel = [[UILabel alloc] init];
 			rightLabel.backgroundColor = [UIColor clearColor];
+			rightLabel.textColor = labelColor;
 			rightLabel.font = labelFont;
 			rightLabel.tag = 10002;
 			if (showRemainingTime)
@@ -1656,8 +1589,6 @@ static CGFloat rightLabelRightMargin = -1;
 
 			rightLabel.frame = CGRectMake(rightLabelRightMargin, labelYPosition, rightLabel.frame.size.width, labelHeight);
 			[parentView addSubview:rightLabel];
-
-			[DYYYUtils applyColorSettingsToLabel:rightLabel colorHexString:labelColorHex];
 		}
 
 		[self setNeedsLayout];
@@ -1701,7 +1632,13 @@ static CGFloat rightLabelRightMargin = -1;
 		UILabel *rightLabel = [parentView viewWithTag:10002];
 
 		NSString *labelColorHex = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYProgressLabelColor"];
-
+		UIColor *labelColor = [UIColor whiteColor];
+		if (labelColorHex && labelColorHex.length > 0) {
+			UIColor *customColor = [DYYYUtils colorWithHexString:labelColorHex];
+			if (customColor) {
+				labelColor = customColor;
+			}
+		}
 		NSString *scheduleStyle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYScheduleStyle"];
 		BOOL showRemainingTime = [scheduleStyle isEqualToString:@"进度条右侧剩余"];
 		BOOL showCompleteTime = [scheduleStyle isEqualToString:@"进度条右侧完整"];
@@ -1729,7 +1666,7 @@ static CGFloat rightLabelRightMargin = -1;
 				leftFrame.size.height = 15.0;
 				leftLabel.frame = leftFrame;
 			}
-			[DYYYUtils applyColorSettingsToLabel:leftLabel colorHexString:labelColorHex];
+			leftLabel.textColor = labelColor;
 		}
 
 		// 更新右标签
@@ -1753,7 +1690,7 @@ static CGFloat rightLabelRightMargin = -1;
 				rightFrame.size.height = 15.0;
 				rightLabel.frame = rightFrame;
 			}
-			[DYYYUtils applyColorSettingsToLabel:leftLabel colorHexString:labelColorHex];
+			rightLabel.textColor = labelColor;
 		}
 	}
 }
