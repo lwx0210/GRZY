@@ -663,9 +663,9 @@ extern "C"
 	  NSArray *titleSettings = @[
 			    @{@"identifier" : @"DYYYModifyTopTabText",
 			      @"title" : @"设置顶栏标题",
-                              @"subTitle" : @"标题=修改#标题=修改",
-			      @"detail" : @"例如：推荐=DYYY#",
-			      @"cellType" : @37,
+                              @"subTitle" : @"标题=修改# 例如：推荐=DYYY#",
+			      @"detail" : @"",
+			      @"cellType" : @20,
 			      @"imageName" : @"ic_tag_outlined_20"},
 			    @{@"identifier" : @"DYYYIndexTitle",
 			      @"title" : @"设置首页标题",
