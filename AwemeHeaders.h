@@ -324,6 +324,7 @@ static CGFloat gStartVal = 0.0;
 @end
 
 @interface AWEPlayInteractionProgressContainerView : UIView
+- (void)dyyy_applyShrinkIfNeeded;
 @end
 
 @interface AFDFastSpeedView : UIView
