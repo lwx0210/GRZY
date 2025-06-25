@@ -663,7 +663,7 @@ extern "C"
 	  NSArray *titleSettings = @[
 			    @{@"identifier" : @"DYYYModifyTopTabText",
 			      @"title" : @"设置顶栏标题",
-			      @"detail" : @"",
+			      @"detail" : @"标题=修改 例如：推荐=DYYY",
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_tag_outlined_20"},
 			    @{@"identifier" : @"DYYYIndexTitle",
