@@ -270,8 +270,9 @@ extern "C"
 		              @"imageName" : @"ic_location_outlined_20"},
 			    @{@"identifier" : @"DYYYEnabsuijiyanse",
 			      @"title" : @"属地颜色随机",
+                              @"subTitle" : @"不能与时间颜色同时开启",
 			      @"detail" : @"",
-			      @"cellType" : @6,
+			      @"cellType" : @37,
 			      @"imageName" : @"ic_location_outlined_20"}
 	  ];
 
@@ -699,8 +700,9 @@ extern "C"
 	  NSArray *MasturbationSettings = @[
      		            @{@"identifier" : @"DYYYEnableSocialStatsCustom",
 			      @"title" : @"启用数量伪造",
+                              @"subTitle" : @"此功能是全局修改，非必要请勿开启！",
 			      @"detail" : @"",
-			      @"cellType" : @6,
+			      @"cellType" : @37,
 			      @"imageName" : @"ic_personcircleclean_outlined_20"},
 			    @{@"identifier" : @"DYYYCustomLikes",
 			      @"title" : @"获赞数量伪造",
