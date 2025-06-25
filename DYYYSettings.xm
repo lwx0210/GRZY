@@ -292,7 +292,7 @@ extern "C"
 							     onPresentingVC:topView()
 							   selectionChanged:^(NSString *selectedValue) {
 							     item.detail = selectedValue;
-							     [DYYYSettingsHelper refreshTableView];
+							     [item refreshCell];
 							   }];
 			  };
 		  }
@@ -456,7 +456,7 @@ extern "C"
 			      NSString *keywordString = [keywords componentsJoinedByString:@","];
 			      [DYYYSettingsHelper setUserDefaults:keywordString forKey:@"DYYYfilterUsers"];
 			      item.detail = keywordString;
-			      [DYYYSettingsHelper refreshTableView];
+			      [item refreshCell];
 			    };
 
 			    // 显示关键词列表视图
@@ -2429,7 +2429,7 @@ extern "C"
 					   [[NSUserDefaults standardUserDefaults] setObject:trimmedText forKey:@"DYYYSpeedSettings"];
 					   [[NSUserDefaults standardUserDefaults] synchronize];
 					   speedSettingsItem.detail = trimmedText;
-					   [DYYYSettingsHelper refreshTableView];
+					   [speedSettingsItem refreshCell];
 					 }
 					  onCancel:nil];
 	  };
@@ -2492,8 +2492,8 @@ extern "C"
 					   if (size >= 20 && size <= 80) {
 						   [[NSUserDefaults standardUserDefaults] setFloat:size forKey:@"DYYYSpeedButtonSize"];
 						   [[NSUserDefaults standardUserDefaults] synchronize];
-						   buttonSizeItem.detail = [NSString stringWithFormat:@"%.0f", (CGFloat)size];
-						   [DYYYSettingsHelper refreshTableView];
+					           buttonSizeItem.detail = [NSString stringWithFormat:@"%.0f", (CGFloat)size];
+						   [buttonSizeItem refreshCell];
 					   } else {
 						   [DYYYUtils showToast:@"请输入20-80之间的有效数值"];
 					   }
@@ -2542,7 +2542,7 @@ extern "C"
 						   [[NSUserDefaults standardUserDefaults] setFloat:size forKey:@"DYYYEnableFloatClearButtonSize"];
 						   [[NSUserDefaults standardUserDefaults] synchronize];
 						   clearButtonSizeItem.detail = [NSString stringWithFormat:@"%.0f", (CGFloat)size];
-						   [DYYYSettingsHelper refreshTableView];
+						   [clearButtonSizeItem refreshCell];
 					   } else {
 						   [DYYYUtils showToast:@"请输入20-80之间的有效数值"];
 					   }
