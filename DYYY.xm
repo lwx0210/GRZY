@@ -1070,7 +1070,7 @@ static CGFloat currentScale = 1.0;
 		return;
 
 	for (NSString *pair in titlePairs) {
-		NSArray *components = [pair componentsSeparatedByString:@","];
+		NSArray *components = [pair componentsSeparatedByString:@"="];
 		if (components.count != 2)
 			continue;
 
@@ -1450,7 +1450,7 @@ static CGFloat currentScale = 1.0;
 }
 %end
 
-
+//进度条样式
 %hook AWEFeedProgressSlider
 
 // layoutSubviews 保持不变
