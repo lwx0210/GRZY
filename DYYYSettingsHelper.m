@@ -80,7 +80,8 @@
               @"DYYYHideLOTAnimationView" : @[ @"DYYYHideFollowPromptView" ],
               @"DYYYHideFollowPromptView" : @[ @"DYYYHideLOTAnimationView" ],
               @"DYYYisEnableModern" : @[ @"DYYYisEnableModernLight" ],
-              @"DYYYisEnableModernLight" : @[ @"DYYYisEnableModern" ]
+              @"DYYYisEnableModernLight" : @[ @"DYYYisEnableModern" ],
+              @"DYYYEnabsuijiyanse" : @[ @"DYYYLabelColor" ]
           },
 
           // ===== 互斥激活配置 =====
@@ -91,7 +92,8 @@
               @"DYYYEnabshijianjindu" : @[ @"DYYYHideTimeProgress" ],
               @"DYYYHideTimeProgress" : @[ @"DYYYEnabshijianjindu" ],
               @"DYYYHideLOTAnimationView" : @[ @"DYYYHideFollowPromptView" ],
-              @"DYYYHideFollowPromptView" : @[ @"DYYYHideLOTAnimationView" ]
+              @"DYYYHideFollowPromptView" : @[ @"DYYYHideLOTAnimationView" ],
+              @"DYYYEnabsuijiyanse" : @[ @"DYYYLabelColor" ]
           },
 
           // ===== 值依赖配置 =====
