@@ -294,6 +294,7 @@ static CGFloat currentScale = 1.0;
 }
 %end
 
+//旧修复
 %hook AWEStoryContainerCollectionView
 - (void)layoutSubviews {
 	%orig;
