@@ -841,7 +841,7 @@ static CGFloat gStartVal = 0.0;
 @property(nonatomic, assign) CGFloat sectionHeaderHeight;
 @property(nonatomic, copy) NSString *sectionHeaderTitle;
 @property(nonatomic, copy) NSString *sectionFooterTitle;
-@property (nonatomic, assign) BOOL useNewFooterLayout;
+@property(nonatomic, assign) BOOL useNewFooterLayout;
 @property(nonatomic, strong) NSArray *itemArray;
 @property(retain, nonatomic) NSString *identifier;
 @property(copy, nonatomic) NSString *title;
@@ -1002,6 +1002,18 @@ static CGFloat gStartVal = 0.0;
 
 // 直播间点赞动画
 @interface HTSLiveDiggView : UIView
+@end
+@interface IESLiveStickerView : UIView
+@end
+@interface IESLiveDynamicUserEnterView : UIView
+@end
+@interface IESLiveDynamicRankListEntranceView : UIView
+@end
+@interface IESLiveShortTouchActionView : UIView
+@end
+@interface PlatformCanvasView : UIView
+@end
+@interface IESLiveLotteryAnimationViewNew : UIView
 @end
 
 // 隐藏状态栏
