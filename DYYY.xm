@@ -30,7 +30,7 @@
 	return NO;
 }
 
-%
+%end
 
 //游戏作弊声明
 NSArray<NSString *> *diceImageURLs = @[@"url1", @"url2"];
