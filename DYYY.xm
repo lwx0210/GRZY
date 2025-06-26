@@ -19,19 +19,6 @@
 #import "DYYYCdyy.h"
 #import "DYYYUtils.h"
 
-// 关闭不可见水印
-%hook AWEHPChannelInvisibleWaterMarkModel
-
-- (BOOL)isEnter {
-	return NO;
-}
-
-- (BOOL)isAppear {
-	return NO;
-}
-
-%end
-
 //游戏作弊声明
 NSArray<NSString *> *diceImageURLs = @[@"url1", @"url2"];
 NSArray<NSString *> *rpsImageURLs = @[@"url1", @"url2"];
@@ -262,6 +249,258 @@ BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitansw
 
 %end
 
+// 底栏高度
+static CGFloat tabHeight = 0;
+
+static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
+	if (!parentView)
+		return;
+
+	parentView.backgroundColor = [UIColor clearColor];
+
+	UIVisualEffectView *existingBlurView = nil;
+	for (UIView *subview in parentView.subviews) {
+		if ([subview isKindOfClass:[UIVisualEffectView class]] && subview.tag == 999) {
+			existingBlurView = (UIVisualEffectView *)subview;
+			break;
+		}
+	}
+
+	BOOL isDarkMode = [DYYYUtils isDarkMode];
+	UIBlurEffectStyle blurStyle = isDarkMode ? UIBlurEffectStyleDark : UIBlurEffectStyleLight;
+
+	if (transparency <= 0 || transparency > 1) {
+		transparency = 0.5;
+	}
+
+	if (!existingBlurView) {
+		UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:blurStyle];
+		UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+		blurEffectView.frame = parentView.bounds;
+		blurEffectView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+		blurEffectView.alpha = transparency;
+		blurEffectView.tag = 999;
+
+		UIView *overlayView = [[UIView alloc] initWithFrame:parentView.bounds];
+		CGFloat alpha = isDarkMode ? 0.2 : 0.1;
+		overlayView.backgroundColor = [UIColor colorWithWhite:(isDarkMode ? 0 : 1) alpha:alpha];
+		overlayView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+		[blurEffectView.contentView addSubview:overlayView];
+
+		[parentView insertSubview:blurEffectView atIndex:0];
+	} else {
+		UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:blurStyle];
+		[existingBlurView setEffect:blurEffect];
+		existingBlurView.alpha = transparency;
+
+		for (UIView *subview in existingBlurView.contentView.subviews) {
+			CGFloat alpha = isDarkMode ? 0.2 : 0.1;
+			subview.backgroundColor = [UIColor colorWithWhite:(isDarkMode ? 0 : 1) alpha:alpha];
+		}
+
+		[parentView insertSubview:existingBlurView atIndex:0];
+	}
+}
+
+%hook UIView
+- (void)layoutSubviews {
+	%orig;
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+		if (self.frame.size.height == tabHeight && tabHeight > 0) {
+			UIViewController *vc = [self firstAvailableUIViewController];
+			if ([vc isKindOfClass:NSClassFromString(@"AWEMixVideoPanelDetailTableViewController")] || [vc isKindOfClass:NSClassFromString(@"AWECommentInputViewController")]) {
+				self.backgroundColor = [UIColor clearColor];
+			}
+		}
+	}
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"]) {
+		for (UIView *subview in self.subviews) {
+			if ([subview isKindOfClass:NSClassFromString(@"AWECommentInputViewSwiftImpl.CommentInputViewMiddleContainer")]) {
+				BOOL containsDanmu = NO;
+
+				for (UIView *innerSubview in subview.subviews) {
+					if ([innerSubview isKindOfClass:[UILabel class]] && [((UILabel *)innerSubview).text containsString:@"弹幕"]) {
+						containsDanmu = YES;
+						break;
+					}
+				}
+				if (containsDanmu) {
+					UIView *parentView = subview.superview;
+					for (UIView *innerSubview in parentView.subviews) {
+						if ([innerSubview isKindOfClass:[UIView class]]) {
+							// NSLog(@"[innerSubview] %@", innerSubview);
+							[innerSubview.subviews[0] removeFromSuperview];
+
+							UIView *whiteBackgroundView = [[UIView alloc] initWithFrame:innerSubview.bounds];
+							whiteBackgroundView.backgroundColor = [UIColor whiteColor];
+							whiteBackgroundView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+							[innerSubview addSubview:whiteBackgroundView];
+							break;
+						}
+					}
+				} else {
+					for (UIView *innerSubview in subview.subviews) {
+						if ([innerSubview isKindOfClass:[UIView class]]) {
+							if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBarTransparent"]) {
+								// 检查背景颜色
+								UIColor *bgColor = innerSubview.backgroundColor;
+								if (bgColor) {
+									CGFloat red = 0, green = 0, blue = 0, alpha = 0;
+									BOOL isWhite = NO;
+
+									if ([bgColor getRed:&red green:&green blue:&blue alpha:&alpha]) {
+										isWhite = (red > 0.95 && green > 0.95 && blue > 0.95);
+										// 如果背景是透明的，则不处理
+										if (alpha < 0.1) {
+											break;
+										}
+									}
+
+									// 只有当背景是白色时才应用毛玻璃效果
+									if (isWhite) {
+										float userTransparency = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYCommentBlurTransparent"]
+										    floatValue];
+										if (userTransparency <= 0 || userTransparency > 1) {
+											userTransparency = 0.95;
+										}
+										DYYYAddCustomViewToParent(innerSubview, userTransparency);
+									}
+								}
+							} else {
+								float userTransparency = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYCommentBlurTransparent"] floatValue];
+								if (userTransparency <= 0 || userTransparency > 1) {
+									userTransparency = 0.95;
+								}
+								DYYYAddCustomViewToParent(innerSubview, userTransparency);
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"] || [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"]) {
+
+		UIViewController *vc = [self firstAvailableUIViewController];
+		if ([vc isKindOfClass:%c(AWEPlayInteractionViewController)]) {
+			BOOL shouldHideSubview = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"] ||
+						 [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"];
+
+			if (shouldHideSubview) {
+				for (UIView *subview in self.subviews) {
+					if ([subview isKindOfClass:[UIView class]] && subview.backgroundColor && CGColorEqualToColor(subview.backgroundColor.CGColor, [UIColor blackColor].CGColor)) {
+						subview.hidden = YES;
+					}
+				}
+			}
+		}
+	}
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"]) {
+		NSString *className = NSStringFromClass([self class]);
+		if ([className isEqualToString:@"AWECommentInputViewSwiftImpl.CommentInputContainerView"]) {
+			for (UIView *subview in self.subviews) {
+				if ([subview isKindOfClass:[UIView class]] && subview.backgroundColor) {
+					CGFloat red = 0, green = 0, blue = 0, alpha = 0;
+					[subview.backgroundColor getRed:&red green:&green blue:&blue alpha:&alpha];
+
+					if ((red == 22 / 255.0 && green == 22 / 255.0 && blue == 22 / 255.0) || (red == 1.0 && green == 1.0 && blue == 1.0)) {
+						float userTransparency = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYCommentBlurTransparent"] floatValue];
+						if (userTransparency <= 0 || userTransparency > 1) {
+							userTransparency = 0.95;
+						}
+						DYYYAddCustomViewToParent(subview, userTransparency);
+					}
+				}
+			}
+		}
+	}
+}
+
+- (void)setFrame:(CGRect)frame {
+	if (![NSThread isMainThread]) {
+		dispatch_async(dispatch_get_main_queue(), ^{
+		  [self setFrame:frame];
+		});
+		return;
+	}
+
+	BOOL enableBlur = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"];
+	BOOL enableFS = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"];
+	BOOL hideAvatar = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHiddenAvatarList"];
+
+	Class SkylightListViewClass = NSClassFromString(@"AWEIMSkylightListView");
+	if (hideAvatar && SkylightListViewClass && [self isKindOfClass:SkylightListViewClass]) {
+		frame = CGRectZero;
+		%orig(frame);
+		return;
+	}
+
+	UIViewController *vc = [self firstAvailableUIViewController];
+	Class DetailVCClass = NSClassFromString(@"AWEMixVideoPanelDetailTableViewController");
+	Class PlayVCClass1 = NSClassFromString(@"AWEAwemePlayVideoViewController");
+	Class PlayVCClass2 = NSClassFromString(@"AWEDPlayerFeedPlayerViewController");
+
+	BOOL isDetailVC = (DetailVCClass && [vc isKindOfClass:DetailVCClass]);
+	BOOL isPlayVC = ((PlayVCClass1 && [vc isKindOfClass:PlayVCClass1]) || (PlayVCClass2 && [vc isKindOfClass:PlayVCClass2]));
+
+	if (isPlayVC && enableBlur) {
+		if (frame.origin.x != 0) {
+			return;
+		}
+	}
+
+	if (isPlayVC && enableFS) {
+		if (frame.origin.x != 0 && frame.origin.y != 0) {
+			%orig(frame);
+			return;
+		}
+		CGRect superF = self.superview.frame;
+		if (CGRectGetHeight(superF) > 0 && CGRectGetHeight(frame) > 0 && CGRectGetHeight(frame) < CGRectGetHeight(superF)) {
+			CGFloat diff = CGRectGetHeight(superF) - CGRectGetHeight(frame);
+			if (fabs(diff - tabHeight) < 1.0) {
+				frame.size.height = CGRectGetHeight(superF);
+			}
+		}
+		%orig(frame);
+		return;
+	}
+
+	%orig(frame);
+}
+
+%end
+
+%hook CommentInputContainerView
+
+- (void)layoutSubviews {
+	%orig;
+	UIViewController *parentVC = nil;
+	if ([self respondsToSelector:@selector(viewController)]) {
+		id viewController = [self performSelector:@selector(viewController)];
+		if ([viewController respondsToSelector:@selector(parentViewController)]) {
+			parentVC = [viewController parentViewController];
+		}
+	}
+
+	if (parentVC && ([parentVC isKindOfClass:%c(AWEAwemeDetailTableViewController)] || [parentVC isKindOfClass:%c(AWEAwemeDetailCellViewController)])) {
+		for (UIView *subview in [self subviews]) {
+			if ([subview class] == [UIView class]) {
+				if ([(UIView *)self frame].size.height == tabHeight) {
+					subview.hidden = YES;
+				} else {
+					subview.hidden = NO;
+				}
+				break;
+			}
+		}
+	}
+}
+
+%end
+
 //全屏修复
 %hook AWECommentInputViewController
 
@@ -370,6 +609,227 @@ BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitansw
 	return originalModels;
 }
 
+%end
+
+//缩放
+%hook AWEElementStackView
+static CGFloat stream_frame_y = 0;
+static CGFloat right_tx = 0;
+static CGFloat left_tx = 0;
+static CGFloat currentScale = 1.0;
+- (void)layoutSubviews {
+	%orig;
+	UIViewController *vc = [self firstAvailableUIViewController];
+	if ([vc isKindOfClass:%c(AWECommentInputViewController)]) {
+		NSString *transparentValue = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYGlobalTransparency"];
+		if (transparentValue.length > 0) {
+			CGFloat alphaValue = transparentValue.floatValue;
+			if (alphaValue >= 0.0 && alphaValue <= 1.0) {
+				self.alpha = alphaValue;
+			}
+		}
+	}
+	if ([vc isKindOfClass:%c(AWELiveNewPreStreamViewController)]) {
+		NSString *transparentValue = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYGlobalTransparency"];
+		if (transparentValue.length > 0) {
+			CGFloat alphaValue = transparentValue.floatValue;
+			if (alphaValue >= 0.0 && alphaValue <= 1.0) {
+				self.alpha = alphaValue;
+			}
+		}
+	}
+	// 处理视频流直播间文案缩放
+	UIResponder *nextResponder = [self nextResponder];
+	if ([nextResponder isKindOfClass:[UIView class]]) {
+		UIView *parentView = (UIView *)nextResponder;
+		UIViewController *viewController = [parentView firstAvailableUIViewController];
+		if ([viewController isKindOfClass:%c(AWELiveNewPreStreamViewController)]) {
+			NSString *vcScaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
+			if (vcScaleValue.length > 0) {
+				CGFloat scale = [vcScaleValue floatValue];
+				self.transform = CGAffineTransformIdentity;
+				if (scale > 0 && scale != 1.0) {
+					NSArray *subviews = [self.subviews copy];
+					CGFloat ty = 0;
+					for (UIView *view in subviews) {
+						CGFloat viewHeight = view.frame.size.height;
+						CGFloat contribution = (viewHeight - viewHeight * scale) / 2;
+						ty += contribution;
+					}
+					CGFloat frameWidth = self.frame.size.width;
+					CGFloat tx = (frameWidth - frameWidth * scale) / 2 - frameWidth * (1 - scale);
+					CGAffineTransform newTransform = CGAffineTransformMakeScale(scale, scale);
+					newTransform = CGAffineTransformTranslate(newTransform, tx / scale, ty / scale);
+					self.transform = newTransform;
+				}
+			}
+		}
+	}
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+		UIResponder *nextResponder = [self nextResponder];
+		if ([nextResponder isKindOfClass:[UIView class]]) {
+			UIView *parentView = (UIView *)nextResponder;
+			UIViewController *viewController = [parentView firstAvailableUIViewController];
+			if ([viewController isKindOfClass:%c(AWELiveNewPreStreamViewController)]) {
+				CGRect frame = self.frame;
+				frame.origin.y -= tabHeight;
+				stream_frame_y = frame.origin.y;
+				self.frame = frame;
+			}
+		}
+	}
+
+	UIViewController *viewController = [self firstAvailableUIViewController];
+        if ([viewController isKindOfClass:%c(AWEPlayInteractionViewController)]) {
+                BOOL isRightElement = isRightInteractionStack(self);
+                BOOL isLeftElement = isLeftInteractionStack(self);
+
+		// 右侧元素的处理逻辑
+		if (isRightElement) {
+			NSString *scaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYElementScale"];
+			self.transform = CGAffineTransformIdentity;
+			if (scaleValue.length > 0) {
+				CGFloat scale = [scaleValue floatValue];
+				if (currentScale != scale) {
+					currentScale = scale;
+				}
+				if (scale > 0 && scale != 1.0) {
+					CGFloat ty = 0;
+					for (UIView *view in self.subviews) {
+						CGFloat viewHeight = view.frame.size.height;
+						CGFloat contribution = (viewHeight - viewHeight * scale) / 2;
+						ty += contribution;
+					}
+					CGFloat frameWidth = self.frame.size.width;
+					right_tx = (frameWidth - frameWidth * scale) / 2;
+					self.transform = CGAffineTransformMake(scale, 0, 0, scale, right_tx, ty);
+				} else {
+					self.transform = CGAffineTransformIdentity;
+				}
+			}
+		}
+		// 左侧元素的处理逻辑
+		else if (isLeftElement) {
+			NSString *scaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
+			if (scaleValue.length > 0) {
+				CGFloat scale = [scaleValue floatValue];
+				self.transform = CGAffineTransformIdentity;
+				if (scale > 0 && scale != 1.0) {
+					NSArray *subviews = [self.subviews copy];
+					CGFloat ty = 0;
+					for (UIView *view in subviews) {
+						CGFloat viewHeight = view.frame.size.height;
+						CGFloat contribution = (viewHeight - viewHeight * scale) / 2;
+						ty += contribution;
+					}
+					CGFloat frameWidth = self.frame.size.width;
+					CGFloat left_tx = (frameWidth - frameWidth * scale) / 2 - frameWidth * (1 - scale);
+					CGAffineTransform newTransform = CGAffineTransformMakeScale(scale, scale);
+					newTransform = CGAffineTransformTranslate(newTransform, left_tx / scale, ty / scale);
+					self.transform = newTransform;
+				}
+			}
+		}
+	}
+}
+- (NSArray<__kindof UIView *> *)arrangedSubviews {
+
+        UIViewController *viewController = [self firstAvailableUIViewController];
+        if ([viewController isKindOfClass:%c(AWEPlayInteractionViewController)]) {
+                BOOL isLeftElement = isLeftInteractionStack(self);
+
+		if (isLeftElement) {
+			NSString *scaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
+			if (scaleValue.length > 0) {
+				CGFloat scale = [scaleValue floatValue];
+				self.transform = CGAffineTransformIdentity;
+				if (scale > 0 && scale != 1.0) {
+					NSArray *subviews = [self.subviews copy];
+					CGFloat ty = 0;
+					for (UIView *view in subviews) {
+						CGFloat viewHeight = view.frame.size.height;
+						CGFloat contribution = (viewHeight - viewHeight * scale) / 2;
+						ty += contribution;
+					}
+					CGFloat frameWidth = self.frame.size.width;
+					CGFloat left_tx = (frameWidth - frameWidth * scale) / 2 - frameWidth * (1 - scale);
+					CGAffineTransform newTransform = CGAffineTransformMakeScale(scale, scale);
+					newTransform = CGAffineTransformTranslate(newTransform, left_tx / scale, ty / scale);
+					self.transform = newTransform;
+				}
+			}
+		}
+	}
+
+	NSArray *originalSubviews = %orig;
+	return originalSubviews;
+}
+%end
+
+%hook AWEStoryContainerCollectionView
+- (void)layoutSubviews {
+	%orig;
+	if ([self.subviews count] == 2)
+		return;
+
+	// 获取 enableEnterProfile 属性来判断是否是主页
+	id enableEnterProfile = [self valueForKey:@"enableEnterProfile"];
+	BOOL isHome = (enableEnterProfile != nil && [enableEnterProfile boolValue]);
+
+	// 检查是否在作者主页
+	BOOL isAuthorProfile = NO;
+	UIResponder *responder = self;
+	while ((responder = [responder nextResponder])) {
+		if ([NSStringFromClass([responder class]) containsString:@"UserHomeViewController"] || [NSStringFromClass([responder class]) containsString:@"ProfileViewController"]) {
+			isAuthorProfile = YES;
+			break;
+		}
+	}
+
+	// 如果不是主页也不是作者主页，直接返回
+	if (!isHome && !isAuthorProfile)
+		return;
+
+	for (UIView *subview in self.subviews) {
+		if ([subview isKindOfClass:[UIView class]]) {
+			UIView *nextResponder = (UIView *)subview.nextResponder;
+
+			// 处理主页的情况
+			if (isHome && [nextResponder isKindOfClass:%c(AWEPlayInteractionViewController)]) {
+				UIViewController *awemeBaseViewController = [nextResponder valueForKey:@"awemeBaseViewController"];
+				if (![awemeBaseViewController isKindOfClass:%c(AWEFeedCellViewController)]) {
+					continue;
+				}
+
+				CGRect frame = subview.frame;
+				if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+					frame.size.height = subview.superview.frame.size.height - tabHeight;
+					subview.frame = frame;
+				}
+			}
+			// 处理作者主页的情况
+			else if (isAuthorProfile) {
+				// 检查是否是作品图片
+				BOOL isWorkImage = NO;
+
+				// 可以通过检查子视图、标签或其他特性来确定是否是作品图片
+				for (UIView *childView in subview.subviews) {
+					if ([NSStringFromClass([childView class]) containsString:@"ImageView"] || [NSStringFromClass([childView class]) containsString:@"ThumbnailView"]) {
+						isWorkImage = YES;
+						break;
+					}
+				}
+
+				if (isWorkImage) {
+					// 修复作者主页作品图片上移问题
+					CGRect frame = subview.frame;
+					frame.origin.y += tabHeight;
+					subview.frame = frame;
+				}
+			}
+		}
+	}
+}
 %end
 
 //二次关注
@@ -617,20 +1077,50 @@ BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitansw
 
 %end
 
+
 %hook AWEDanmakuContentLabel
 - (void)setTextColor:(UIColor *)textColor {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableDanmuColor"]) {
 		NSString *danmuColor = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYdanmuColor"];
 
-		self.layer.shadowOffset = CGSizeZero;
-		self.layer.shadowOpacity = 0.0;
-		[DYYYUtils applyColorSettingsToLabel:self colorHexString:danmuColor];
-        return;
-    }
+		if ([danmuColor.lowercaseString isEqualToString:@"random"] || [danmuColor.lowercaseString isEqualToString:@"#random"]) {
+			textColor = [UIColor colorWithRed:(arc4random_uniform(256)) / 255.0
+						    green:(arc4random_uniform(256)) / 255.0
+						     blue:(arc4random_uniform(256)) / 255.0
+						    alpha:CGColorGetAlpha(textColor.CGColor)];
+			self.layer.shadowOffset = CGSizeZero;
+			self.layer.shadowOpacity = 0.0;
+		} else if ([danmuColor hasPrefix:@"#"]) {
+			textColor = [self colorFromHexString:danmuColor baseColor:textColor];
+			self.layer.shadowOffset = CGSizeZero;
+			self.layer.shadowOpacity = 0.0;
+		} else {
+			textColor = [self colorFromHexString:@"#FFFFFF" baseColor:textColor];
+		}
+	}
 
 	%orig(textColor);
 }
 
+%new
+- (UIColor *)colorFromHexString:(NSString *)hexString baseColor:(UIColor *)baseColor {
+	if ([hexString hasPrefix:@"#"]) {
+		hexString = [hexString substringFromIndex:1];
+	}
+	if ([hexString length] != 6) {
+		return [baseColor colorWithAlphaComponent:1];
+	}
+	unsigned int red, green, blue;
+	[[NSScanner scannerWithString:[hexString substringWithRange:NSMakeRange(0, 2)]] scanHexInt:&red];
+	[[NSScanner scannerWithString:[hexString substringWithRange:NSMakeRange(2, 2)]] scanHexInt:&green];
+	[[NSScanner scannerWithString:[hexString substringWithRange:NSMakeRange(4, 2)]] scanHexInt:&blue];
+
+	if (red < 128 && green < 128 && blue < 128) {
+		return [UIColor whiteColor];
+	}
+
+	return [UIColor colorWithRed:(red / 255.0) green:(green / 255.0) blue:(blue / 255.0) alpha:CGColorGetAlpha(baseColor.CGColor)];
+}
 %end
 
 %hook AWEMarkView
@@ -982,18 +1472,7 @@ BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitansw
 				sliderWidth = 0;
 
 			self.frame = CGRectMake(sliderX, sliderY, sliderWidth, sliderHeight);
-		} else {
-			CGFloat fallbackWidthPercent = 0.80;
-			CGFloat parentWidth = parentView.bounds.size.width;
-			CGFloat fallbackWidth = parentWidth * fallbackWidthPercent;
-			CGFloat fallbackX = (parentWidth - fallbackWidth) / 2.0;
-			// 使用 self.frame 获取当前 Y 和 Height (通常由 %orig 设置)
-			CGFloat currentY = self.frame.origin.y;
-			CGFloat currentHeight = self.frame.size.height;
-			// 应用回退 frame
-			self.frame = CGRectMake(fallbackX, currentY, fallbackWidth, currentHeight);
 		}
-	} else {
 	}
 }
 
@@ -1043,14 +1522,6 @@ static CGFloat rightLabelRightMargin = -1;
 		BOOL showLeftCompleteTime = [scheduleStyle isEqualToString:@"进度条左侧完整"];
 
 		NSString *labelColorHex = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYProgressLabelColor"];
-		UIColor *labelColor = [UIColor whiteColor];
-		if (labelColorHex && labelColorHex.length > 0) {
-			SEL colorSelector = NSSelectorFromString(@"colorWithHexString:");
-			Class dyyyManagerClass = NSClassFromString(@"DYYYManager");
-			if (dyyyManagerClass && [dyyyManagerClass respondsToSelector:colorSelector]) {
-				labelColor = [dyyyManagerClass performSelector:colorSelector withObject:labelColorHex];
-			}
-		}
 
 		CGFloat labelYPosition = sliderOriginalFrameInParent.origin.y + verticalOffset;
 		CGFloat labelHeight = 15.0;
@@ -1059,7 +1530,6 @@ static CGFloat rightLabelRightMargin = -1;
 		if (!showRemainingTime && !showCompleteTime) {
 			UILabel *leftLabel = [[UILabel alloc] init];
 			leftLabel.backgroundColor = [UIColor clearColor];
-			leftLabel.textColor = labelColor;
 			leftLabel.font = labelFont;
 			leftLabel.tag = 10001;
 			if (showLeftRemainingTime)
@@ -1077,12 +1547,13 @@ static CGFloat rightLabelRightMargin = -1;
 
 			leftLabel.frame = CGRectMake(leftLabelLeftMargin, labelYPosition, leftLabel.frame.size.width, labelHeight);
 			[parentView addSubview:leftLabel];
+
+			[DYYYUtils applyColorSettingsToLabel:leftLabel colorHexString:labelColorHex];
 		}
 
 		if (!showLeftRemainingTime && !showLeftCompleteTime) {
 			UILabel *rightLabel = [[UILabel alloc] init];
 			rightLabel.backgroundColor = [UIColor clearColor];
-			rightLabel.textColor = labelColor;
 			rightLabel.font = labelFont;
 			rightLabel.tag = 10002;
 			if (showRemainingTime)
@@ -1100,6 +1571,8 @@ static CGFloat rightLabelRightMargin = -1;
 
 			rightLabel.frame = CGRectMake(rightLabelRightMargin, labelYPosition, rightLabel.frame.size.width, labelHeight);
 			[parentView addSubview:rightLabel];
+
+			[DYYYUtils applyColorSettingsToLabel:rightLabel colorHexString:labelColorHex];
 		}
 
 		[self setNeedsLayout];
@@ -1113,6 +1586,78 @@ static CGFloat rightLabelRightMargin = -1;
 	}
 }
 
+%end
+
+%hook AWEPlayInteractionProgressContainerView
+- (void)layoutSubviews {
+	%orig;
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+		for (UIView *subview in self.subviews) {
+			if ([subview class] == [UIView class]) {
+				[subview setBackgroundColor:[UIColor clearColor]];
+			}
+		}
+	}
+	[self dyyy_applyShrinkIfNeeded];
+}
+
+%new
+- (void)dyyy_applyShrinkIfNeeded {
+	if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisShowScheduleDisplay"]) {
+		return;
+	}
+
+	NSString *scheduleStyle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYScheduleStyle"];
+	if (![scheduleStyle isEqualToString:@"进度条两侧左右"]) {
+		NSMutableDictionary *origFrames = objc_getAssociatedObject(self, @selector(dyyy_applyShrinkIfNeeded));
+		if (origFrames) {
+			for (UIView *subview in self.subviews) {
+				NSString *key = [NSString stringWithFormat:@"%p", subview];
+				NSValue *val = origFrames[key];
+				if (val) {
+					subview.frame = [val CGRectValue];
+				}
+			}
+		}
+		return;
+	}
+
+	UILabel *leftLabel = [self viewWithTag:10001];
+	UILabel *rightLabel = [self viewWithTag:10002];
+	if (!leftLabel || !rightLabel) {
+		return;
+	}
+
+	CGFloat padding = 5.0;
+	CGFloat shrinkX = CGRectGetMaxX(leftLabel.frame) + padding;
+	CGFloat shrinkWidth = rightLabel.frame.origin.x - padding - shrinkX;
+	if (shrinkWidth < 0)
+		shrinkWidth = 0;
+
+	NSMutableDictionary *origFrames = objc_getAssociatedObject(self, @selector(dyyy_applyShrinkIfNeeded));
+	if (!origFrames) {
+		origFrames = [NSMutableDictionary dictionary];
+		for (UIView *subview in self.subviews) {
+			NSString *key = [NSString stringWithFormat:@"%p", subview];
+			origFrames[key] = [NSValue valueWithCGRect:subview.frame];
+		}
+		objc_setAssociatedObject(self, @selector(dyyy_applyShrinkIfNeeded), origFrames, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	}
+
+	for (UIView *subview in self.subviews) {
+		NSString *key = [NSString stringWithFormat:@"%p", subview];
+		CGRect origFrame = [origFrames[key] CGRectValue];
+		if ([subview isKindOfClass:[UILabel class]])
+			continue;
+		CGFloat ratio = origFrame.size.width / origFrame.size.height;
+		if (ratio > 10.0) {
+			CGRect frame = origFrame;
+			frame.origin.x = shrinkX;
+			frame.size.width = shrinkWidth;
+			subview.frame = frame;
+		}
+	}
+}
 %end
 
 %hook AWEPlayInteractionProgressController
