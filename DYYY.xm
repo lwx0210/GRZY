@@ -1312,10 +1312,15 @@ static CGFloat rightLabelRightMargin = -1;
 
 //IP属地
 %hook AWEPlayInteractionTimestampElement
+
 - (id)timestampLabel {
 	UILabel *label = %orig;
+	NSString *labelColorHex = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYLabelColor"];
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnabsuijiyanse"]) {
+		labelColorHex = @"random_rainbow";
+	}
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"]) {
-		NSString *text = label.text;
+		NSString *originalText = label.text ?: @"";
 		NSString *cityCode = self.model.cityCode;
 
 		if (cityCode.length > 0) {
@@ -1376,22 +1381,25 @@ static CGFloat rightLabelRightMargin = -1;
 					}
 
 					dispatch_async(dispatch_get_main_queue(), ^{
-					  NSString *currentText = label.text ?: @"";
-
-					  if ([currentText containsString:@"IP属地："]) {
-						  NSRange range = [currentText rangeOfString:@"IP属地："];
+					  NSString *currentLabelText = label.text ?: @"";
+					  if ([currentLabelText containsString:@"IP属地："]) {
+						  NSRange range = [currentLabelText rangeOfString:@"IP属地："];
 						  if (range.location != NSNotFound) {
-							  NSString *baseText = [currentText substringToIndex:range.location];
-							  if (![currentText containsString:displayLocation]) {
+							  NSString *baseText = [currentLabelText substringToIndex:range.location];
+							  if (![currentLabelText containsString:displayLocation]) {
 								  label.text = [NSString stringWithFormat:@"%@IP属地：%@", baseText, displayLocation];
 							  }
 						  }
 					  } else {
-						  NSString *baseText = label.text ?: @"";
-						  if (baseText.length > 0) {
-							  label.text = [NSString stringWithFormat:@"%@  IP属地：%@", baseText, displayLocation];
+						  if (currentLabelText.length > 0 && ![displayLocation isEqualToString:@"未知"]) {
+							  label.text = [NSString stringWithFormat:@"%@  IP属地：%@", currentLabelText, displayLocation];
+						  } else if (![displayLocation isEqualToString:@"未知"]) {
+							  label.text = [NSString stringWithFormat:@"IP属地：%@", displayLocation];
 						  }
 					  }
+
+					  [DYYYUtils applyColorSettingsToLabel:label colorHexString:labelColorHex];
+					  ;
 					});
 				} else {
 					[CityManager
@@ -1432,51 +1440,46 @@ static CGFloat rightLabelRightMargin = -1;
 							       }
 
 							       dispatch_async(dispatch_get_main_queue(), ^{
-								 NSString *currentText = label.text ?: @"";
+								 NSString *currentLabelText = label.text ?: @"";
 
-								 if ([currentText containsString:@"IP属地："]) {
-									 NSRange range = [currentText rangeOfString:@"IP属地："];
+								 if ([currentLabelText containsString:@"IP属地："]) {
+									 NSRange range = [currentLabelText rangeOfString:@"IP属地："];
 									 if (range.location != NSNotFound) {
-										 NSString *baseText = [currentText substringToIndex:range.location];
-										 if (![currentText containsString:displayLocation]) {
+										 NSString *baseText = [currentLabelText substringToIndex:range.location];
+										 if (![currentLabelText containsString:displayLocation]) {
 											 label.text = [NSString stringWithFormat:@"%@IP属地：%@", baseText, displayLocation];
 										 }
 									 }
 								 } else {
-									 NSString *baseText = label.text ?: @"";
-									 if (baseText.length > 0) {
-										 label.text = [NSString stringWithFormat:@"%@  IP属地：%@", baseText, displayLocation];
+									 if (currentLabelText.length > 0 && ![displayLocation isEqualToString:@"未知"]) {
+										 label.text = [NSString stringWithFormat:@"%@  IP属地：%@", currentLabelText, displayLocation];
+									 } else if (![displayLocation isEqualToString:@"未知"]) {
+										 label.text = [NSString stringWithFormat:@"IP属地：%@", displayLocation];
 									 }
 								 }
+
+								 [DYYYUtils applyColorSettingsToLabel:label colorHexString:labelColorHex];
+								 ;
 							       });
 						       }
 						     }];
 				}
-			} else if (![text containsString:cityName]) {
+			} else if (![originalText containsString:cityName]) {
+				BOOL isDirectCity = [provinceName isEqualToString:cityName] ||
+						    ([cityCode hasPrefix:@"11"] || [cityCode hasPrefix:@"12"] || [cityCode hasPrefix:@"31"] || [cityCode hasPrefix:@"50"]);
 				if (!self.model.ipAttribution) {
-					BOOL isDirectCity = [provinceName isEqualToString:cityName] ||
-							    ([cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"]);
-
 					if (isDirectCity) {
-						label.text = [NSString stringWithFormat:@"%@  IP属地：%@", text, cityName];
+						label.text = [NSString stringWithFormat:@"%@  IP属地：%@", originalText, cityName];
 					} else {
-						label.text = [NSString stringWithFormat:@"%@  IP属地：%@ %@", text, provinceName, cityName];
+						label.text = [NSString stringWithFormat:@"%@  IP属地：%@ %@", originalText, provinceName, cityName];
 					}
 				} else {
-					BOOL isDirectCity = [provinceName isEqualToString:cityName] ||
-							    ([cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"]);
-
-					BOOL containsProvince = [text containsString:provinceName];
-					if (containsProvince && !isDirectCity) {
-						label.text = [NSString stringWithFormat:@"%@ %@", text, cityName];
-					} else if (containsProvince && isDirectCity) {
-						label.text = [NSString stringWithFormat:@"%@  IP属地：%@", text, cityName];
-					} else if (isDirectCity && containsProvince) {
-						label.text = text;
-					} else if (containsProvince) {
-						label.text = [NSString stringWithFormat:@"%@ %@", text, cityName];
-					} else {
-						label.text = text;
+					BOOL containsProvince = [originalText containsString:provinceName];
+					BOOL containsCity = [originalText containsString:cityName];
+					if (containsProvince && !isDirectCity && !containsCity) {
+						label.text = [NSString stringWithFormat:@"%@ %@", originalText, cityName];
+					} else if (isDirectCity && !containsCity) {
+						label.text = [NSString stringWithFormat:@"%@  IP属地：%@", originalText, cityName];
 					}
 				}
 			}
