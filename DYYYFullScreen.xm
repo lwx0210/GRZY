@@ -228,57 +228,6 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 }
 %end
 
-%hook UIView
-
-- (void)setFrame:(CGRect)frame {
-
-	if ([self isKindOfClass:%c(AWEIMSkylightListView)] && [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHiddenAvatarList"]) {
-		frame = CGRectZero;
-	}
-
-	if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"] && ![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-		%orig;
-		return;
-	}
-
-	UIViewController *viewController = [self firstAvailableUIViewController];
-	if ([viewController isKindOfClass:%c(AWEMixVideoPanelDetailTableViewController)] && [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-		self.backgroundColor = [UIColor clearColor];
-
-		for (UIView *subview in self.subviews) {
-			if ([subview isKindOfClass:[UIView class]]) {
-				subview.backgroundColor = [UIColor clearColor];
-			}
-		}
-	}
-
-	UIViewController *vc = [self firstAvailableUIViewController];
-	if ([vc isKindOfClass:%c(AWEAwemePlayVideoViewController)] || [vc isKindOfClass:%c(AWEDPlayerFeedPlayerViewController)]) {
-
-		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"] && frame.origin.x != 0) {
-			return;
-		} else if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"] && frame.origin.x != 0 && frame.origin.y != 0) {
-			%orig;
-			return;
-		} else {
-			CGRect superviewFrame = self.superview.frame;
-
-			if (superviewFrame.size.height > 0 && frame.size.height > 0 && frame.size.height < superviewFrame.size.height && frame.origin.x == 0 && frame.origin.y == 0) {
-
-				CGFloat heightDifference = superviewFrame.size.height - frame.size.height;
-				if (fabs(heightDifference - 83) < 1.0) {
-					frame.size.height = superviewFrame.size.height;
-					%orig(frame);
-					return;
-				}
-			}
-		}
-	}
-	%orig;
-}
-
-%end
-
 %hook AWEPlayInteractionViewController
 - (void)viewDidLayoutSubviews {
 	%orig;
