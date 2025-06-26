@@ -520,7 +520,6 @@ static CGFloat currentScale = 1.0;
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYUserAgreementAccepted"]) {
 		static dispatch_once_t onceToken;
 		dispatch_once(&onceToken, ^{
-		  Class wSwiftImpl = objc_getClass("AWECommentInputViewSwiftImpl.CommentInputContainerView");
 		  %init(CommentInputContainerView = wSwiftImpl);
 		});
 	}
