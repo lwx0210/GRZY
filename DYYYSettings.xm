@@ -618,8 +618,9 @@ extern "C"
 			      @"imageName" : @"ic_eye_outlined_20"},
 		            @{@"identifier" : @"DYYYTabBarHeight",
 		              @"title" : @"首页底栏高度",
+                              @"subTitle" : @"数值越小底栏越低，反之增高，推荐69",
 		              @"detail" : @"默认83",
-		              @"cellType" : @26,
+		              @"cellType" : @20,
 		              @"imageName" : @"ic_pensketch_outlined_20"},
 
 	  ];
