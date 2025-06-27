@@ -7,6 +7,15 @@
 // 底栏高度
 static CGFloat tabHeight = 0;
 
+static CGFloat customTabBarHeight() {
+	NSString *value = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYTabBarHeight"];
+	if (value.length > 0) {
+		CGFloat h = [value floatValue];
+		return h > 0 ? h : 83;
+	}
+	return 83;
+}
+
 static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 	if (!parentView)
 		return;
@@ -285,9 +294,23 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 %hook AWEFeedTableView
 - (void)layoutSubviews {
 	%orig;
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+	CGFloat customHeight = customTabBarHeight();
+	BOOL enableFS = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"];
+
+	if (enableFS || customHeight > 0) {
+		if (self.superview) {
+			CGFloat diff = self.superview.frame.size.height - self.frame.size.height;
+			if (diff > 0 && diff != tabHeight) {
+				tabHeight = diff;
+			}
+		}
+
 		CGRect frame = self.frame;
-		frame.size.height = self.superview.frame.size.height;
+		if (enableFS) {
+			frame.size.height = self.superview.frame.size.height;
+		} else if (customHeight > 0) {
+			frame.size.height = self.superview.frame.size.height - customHeight;
+		}
 		self.frame = frame;
 	}
 }
@@ -547,17 +570,115 @@ static CGFloat currentScale = 1.0;
 
 %hook AWENormalModeTabBar
 
+- (void)layoutSubviews {
+	%orig;
+
+	CGFloat h = customTabBarHeight();
+	if (h > 0) {
+		if ([self respondsToSelector:@selector(setDesiredHeight:)]) {
+			((void (*)(id, SEL, double))objc_msgSend)(self, @selector(setDesiredHeight:), h);
+		}
+		CGRect frame = self.frame;
+		if (fabs(frame.size.height - h) > 0.5) {
+			frame.size.height = h;
+			if (self.superview) {
+				frame.origin.y = self.superview.bounds.size.height - h;
+			}
+			self.frame = frame;
+		}
+	}
+
+	BOOL hideShop = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideShopButton"];
+	BOOL hideMsg = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideMessageButton"];
+	BOOL hideFri = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideFriendsButton"];
+	BOOL hideMe = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideMyButton"];
+
+	NSMutableArray *visibleButtons = [NSMutableArray array];
+	Class generalButtonClass = %c(AWENormalModeTabBarGeneralButton);
+	Class plusButtonClass = %c(AWENormalModeTabBarGeneralPlusButton);
+	Class tabBarButtonClass = %c(UITabBarButton);
+
+	for (UIView *subview in self.subviews) {
+		if (![subview isKindOfClass:generalButtonClass] && ![subview isKindOfClass:plusButtonClass])
+			continue;
+
+		NSString *label = subview.accessibilityLabel;
+		BOOL shouldHide = NO;
+
+		if ([label isEqualToString:@"商城"]) {
+			shouldHide = hideShop;
+		} else if ([label containsString:@"消息"]) {
+			shouldHide = hideMsg;
+		} else if ([label containsString:@"朋友"]) {
+			shouldHide = hideFri;
+		} else if ([label containsString:@"我"]) {
+			shouldHide = hideMe;
+		}
+
+		if (!shouldHide) {
+			[visibleButtons addObject:subview];
+		} else {
+			subview.userInteractionEnabled = NO;
+			[subview removeFromSuperview];
+		}
+	}
+
+	for (UIView *subview in self.subviews) {
+		if (![subview isKindOfClass:tabBarButtonClass])
+			continue;
+		subview.userInteractionEnabled = NO;
+		[subview removeFromSuperview];
+	}
+
+	[visibleButtons sortUsingComparator:^NSComparisonResult(UIView *a, UIView *b) {
+	  return [@(a.frame.origin.x) compare:@(b.frame.origin.x)];
+	}];
+
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+		// iPad端布局逻辑
+		UIView *targetView = nil;
+		CGFloat containerWidth = self.bounds.size.width;
+		CGFloat offsetX = 0;
+
+		// 查找目标容器视图
+		for (UIView *subview in self.subviews) {
+			if ([subview class] == [UIView class] && fabs(subview.frame.size.width - self.bounds.size.width) > 0.1) {
+				targetView = subview;
+				containerWidth = subview.frame.size.width;
+				offsetX = subview.frame.origin.x;
+				break;
+			}
+		}
+
+		// 在目标容器内均匀分布按钮
+		CGFloat buttonWidth = containerWidth / visibleButtons.count;
+		for (NSInteger i = 0; i < visibleButtons.count; i++) {
+			UIView *button = visibleButtons[i];
+			button.frame = CGRectMake(offsetX + (i * buttonWidth), button.frame.origin.y, buttonWidth, button.frame.size.height);
+		}
+	} else {
+		// iPhone端布局逻辑
+		CGFloat totalWidth = self.bounds.size.width;
+		CGFloat buttonWidth = totalWidth / visibleButtons.count;
+
+		for (NSInteger i = 0; i < visibleButtons.count; i++) {
+			UIView *button = visibleButtons[i];
+			button.frame = CGRectMake(i * buttonWidth, button.frame.origin.y, buttonWidth, button.frame.size.height);
+		}
+	}
+}
+
 - (void)setHidden:(BOOL)hidden {
 	%orig(hidden);
 
 	Class generalButtonClass = %c(AWENormalModeTabBarGeneralButton);
+	BOOL disableHomeRefresh = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHomeRefresh"];
+
 	for (UIView *subview in self.subviews) {
 		if ([subview isKindOfClass:generalButtonClass]) {
 			AWENormalModeTabBarGeneralButton *button = (AWENormalModeTabBarGeneralButton *)subview;
-			if ([button.accessibilityLabel isEqualToString:@"首页"] && [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHomeRefresh"] && button.status == 2) {
-				button.userInteractionEnabled = NO;
-			} else if ([button.accessibilityLabel isEqualToString:@"首页"] && [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHomeRefresh"] && button.status == 1) {
-				button.userInteractionEnabled = YES;
+			if ([button.accessibilityLabel isEqualToString:@"首页"] && disableHomeRefresh) {
+				button.userInteractionEnabled = (button.status != 2);
 			}
 		}
 	}
