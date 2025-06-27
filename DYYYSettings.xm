@@ -615,8 +615,12 @@ extern "C"
 			      @"title" : @"菜单玻璃度数",
 			      @"detail" : @"0-1小数",
 			      @"cellType" : @26,
-			      @"imageName" : @"ic_eye_outlined_20"}
-
+			      @"imageName" : @"ic_eye_outlined_20"},
+		            @{@"identifier" : @"DYYYTabBarHeight",
+		              @"title" : @"首页底栏高度",
+		              @"detail" : @"默认83",
+		              @"cellType" : @26,
+		              @"imageName" : @"ic_pensketch_outlined_20"},
 
 	  ];
 
