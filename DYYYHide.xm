@@ -40,15 +40,6 @@
 }
 %end
 
-%hook IESLiveBottomRightCardView
-- (void)layoutSubviews {
-	%orig;
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveGoodsMsg"]) {
-		[self removeFromSuperview];
-	}
-}
-%end
-
 %hook IESLiveGameCPExplainCardContainerImpl
 - (void)layoutSubviews {
 	%orig;
@@ -68,6 +59,15 @@
 %end
 
 %hook IESLiveActivityBannnerView
+- (void)layoutSubviews {
+	%orig;
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveGoodsMsg"]) {
+		[self removeFromSuperview];
+	}
+}
+%end
+
+%hook IESLiveBottomRightCardView
 - (void)layoutSubviews {
 	%orig;
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveGoodsMsg"]) {
@@ -1979,16 +1979,6 @@
 	if (![[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYHideLiveGIF"])
 		%orig;
 }
-%end
-
-%hook IESLiveActivityBannnerView
-- (void)layoutSubviews {
-	%orig;
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideGiftPavilion"]) {
-		self.hidden = YES;
-	}
-}
-
 %end
 
 // 隐藏双栏入口
