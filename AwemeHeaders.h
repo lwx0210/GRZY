@@ -1005,6 +1005,8 @@ static CGFloat gStartVal = 0.0;
 @end
 @interface IESLiveStickerView : UIView
 @end
+@interface IESLivePreAnnouncementPanelViewNew : UIView
+@end
 @interface IESLiveDynamicUserEnterView : UIView
 @end
 @interface IESLiveDynamicRankListEntranceView : UIView
@@ -1014,6 +1016,18 @@ static CGFloat gStartVal = 0.0;
 @interface PlatformCanvasView : UIView
 @end
 @interface IESLiveLotteryAnimationViewNew : UIView
+@end
+@interface IESLiveMatrixEntranceView : UIView
+@end
+@interface IESLiveConfigurableShortTouchEntranceView : UIView
+@end
+@interface IESLiveRedEnvelopeAniLynxView : UIView
+@end
+@interface IESLiveBottomRightCardView : UIView
+@end
+@interface IESLiveGameCPExplainCardContainerImpl : UIView
+@end
+@interface AWEPOILivePurchaseAtmosphereView : UIView
 @end
 
 // 隐藏状态栏
