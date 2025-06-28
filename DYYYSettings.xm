@@ -1268,7 +1268,7 @@ extern "C"
 		    @"imageName" : @"ic_eyeslash_outlined_16"},
 		  @{@"identifier" : @"DYYYHidePendantGroup",
 		    @"title" : @"隐藏红包悬浮",
-		    @"subTitle" : @"隐藏极速版的红包悬浮按钮，可能失效，不修复。",
+		    @"subTitle" : @"隐藏极速版的红包悬浮按钮,可能失效,不修复。",
 		    @"detail" : @"",
 		    @"cellType" : @37,
 		    @"imageName" : @"ic_eyeslash_outlined_16"},
