@@ -131,6 +131,7 @@ static CGFloat gStartVal = 0.0;
 @property(nonatomic, strong) AWEAnimatedImageVideoInfo *animatedImageVideoInfo;
 @property(nonatomic, strong) AWEAwemeStatisticsModel *statistics;
 @property(nonatomic, strong) AWEPropGuideV2Model *propGuideV2;
+@property(nonatomic, strong) AWEECommerceLabel *ecommerceBelowLabel;
 - (BOOL)isLive;
 - (AWESearchAwemeExtraModel *)searchExtraModel;
 @end
