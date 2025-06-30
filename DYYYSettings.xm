@@ -620,7 +620,7 @@ extern "C"
 		            @{@"identifier" : @"DYYYTabBarHeight",
 		              @"title" : @"首页底栏高度",
                               @"subTitle" : @"数值越小底栏越低，反之增高，推荐69或70",
-		              @"detail" : @"默认83",
+		              @"detail" : @"默认为空",
 		              @"cellType" : @20,
 		              @"imageName" : @"ic_pensketch_outlined_20"},
 
