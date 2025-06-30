@@ -620,47 +620,33 @@ BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitansw
 //弹幕
 %hook AWEDanmakuContentLabel
 - (void)setTextColor:(UIColor *)textColor {
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableDanmuColor"]) {
-		NSString *danmuColor = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYdanmuColor"];
-
-		if ([danmuColor.lowercaseString isEqualToString:@"random"] || [danmuColor.lowercaseString isEqualToString:@"#random"]) {
-			textColor = [UIColor colorWithRed:(arc4random_uniform(256)) / 255.0
-						    green:(arc4random_uniform(256)) / 255.0
-						     blue:(arc4random_uniform(256)) / 255.0
-						    alpha:CGColorGetAlpha(textColor.CGColor)];
-			self.layer.shadowOffset = CGSizeZero;
-			self.layer.shadowOpacity = 0.0;
-		} else if ([danmuColor hasPrefix:@"#"]) {
-			textColor = [self colorFromHexString:danmuColor baseColor:textColor];
-			self.layer.shadowOffset = CGSizeZero;
-			self.layer.shadowOpacity = 0.0;
-		} else {
-			textColor = [self colorFromHexString:@"#FFFFFF" baseColor:textColor];
-		}
-	}
-
-	%orig(textColor);
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableDanmuColor"]) {
+        NSString *danmuColor = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYdanmuColor"];
+        if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDanmuRainbowRotating"]) {
+            danmuColor = @"rainbow_rotating";
+        }
+        [DYYYUtils applyColorSettingsToLabel:self colorHexString:danmuColor];
+    } else {
+        %orig(textColor);
+    }
 }
 
-%new
-- (UIColor *)colorFromHexString:(NSString *)hexString baseColor:(UIColor *)baseColor {
-	if ([hexString hasPrefix:@"#"]) {
-		hexString = [hexString substringFromIndex:1];
-	}
-	if ([hexString length] != 6) {
-		return [baseColor colorWithAlphaComponent:1];
-	}
-	unsigned int red, green, blue;
-	[[NSScanner scannerWithString:[hexString substringWithRange:NSMakeRange(0, 2)]] scanHexInt:&red];
-	[[NSScanner scannerWithString:[hexString substringWithRange:NSMakeRange(2, 2)]] scanHexInt:&green];
-	[[NSScanner scannerWithString:[hexString substringWithRange:NSMakeRange(4, 2)]] scanHexInt:&blue];
-
-	if (red < 128 && green < 128 && blue < 128) {
-		return [UIColor whiteColor];
-	}
-
-	return [UIColor colorWithRed:(red / 255.0) green:(green / 255.0) blue:(blue / 255.0) alpha:CGColorGetAlpha(baseColor.CGColor)];
+- (void)setStrokeWidth:(double)strokeWidth {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableDanmuColor"]) {
+        %orig(FLT_MIN);
+    } else {
+        %orig(strokeWidth);
+    }
 }
+
+- (void)setStrokeColor:(UIColor *)strokeColor {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableDanmuColor"]) {
+        %orig(nil);
+    } else {
+        %orig(strokeColor);
+    }
+}
+
 %end
 
 
