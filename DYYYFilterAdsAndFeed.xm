@@ -286,10 +286,10 @@
 - (UIColor *)awe_smartBackgroundColor {
 	NSString *colorHex = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYVideoBGColor"];
 	if (colorHex && colorHex.length > 0) {
-		UIColor *customColor = [DYYYUtils colorWithHexString:colorHex];
-		if (customColor) {
-			return customColor;
-		}
+		CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
+		UIColor *customColor = [DYYYUtils colorFromSchemeHexString:colorHex targetWidth:screenWidth];
+		if (customColor) return customColor;
+		
 	}
 	return %orig;
 }
