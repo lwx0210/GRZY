@@ -647,8 +647,11 @@
 
 		filterKeywords.action = ^{
 		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
-
-		  DYYYFilterSettingsView *filterView = [[DYYYFilterSettingsView alloc] initWithTitle:@"选择需要过滤的文案" text:descText];
+                  NSString *propName = nil;
+                  if (self.awemeModel.propGuideV2) {
+                      propName = self.awemeModel.propGuideV2.propName;
+                  }
+                  DYYYFilterSettingsView *filterView = [[DYYYFilterSettingsView alloc] initWithTitle:@"选择需要过滤的文案" text:descText propName:propName];
 		  filterView.onConfirm = ^(NSString *selectedText) {
 		    if (selectedText.length > 0) {
 			    NSString *currentKeywords = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterKeywords"] ?: @"";
@@ -1483,8 +1486,11 @@
 
 		filterKeywords.action = ^{
 		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
-
-		  DYYYFilterSettingsView *filterView = [[DYYYFilterSettingsView alloc] initWithTitle:@"选择需要过滤的文案" text:descText];
+                  NSString *propName = nil;
+                  if (self.awemeModel.propGuideV2) {
+                      propName = self.awemeModel.propGuideV2.propName;
+                  }
+                  DYYYFilterSettingsView *filterView = [[DYYYFilterSettingsView alloc] initWithTitle:@"选择需要过滤的文案" text:descText propName:propName];
 		  filterView.onConfirm = ^(NSString *selectedText) {
 		    if (selectedText.length > 0) {
 			    NSString *currentKeywords = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterKeywords"] ?: @"";
