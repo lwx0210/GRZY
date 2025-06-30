@@ -253,6 +253,13 @@
 	return orig;
 }
 
+- (AWEECommerceLabel *)ecommerceBelowLabel {
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideHisShop"]) {
+		return nil;
+	}
+	return %orig;
+}
+
 - (bool)preventDownload {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYNoAds"]) {
 		return NO;
