@@ -101,6 +101,9 @@ static CGFloat gStartVal = 0.0;
 @property(nonatomic, copy) NSString *propName;
 @end
 
+@interface AWEECommerceLabel : NSObject
+@end
+
 @interface AWEAwemeModel : NSObject
 @property(nonatomic, strong, readwrite) NSNumber *createTime;
 @property(nonatomic, assign, readwrite) CGFloat videoDuration;
