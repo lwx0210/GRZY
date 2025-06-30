@@ -66,7 +66,7 @@
           // ===== 条件依赖配置 =====
           // 一些设置项依赖于多个其他设置项的复杂条件
           @"conditionalDependencies" : @{
-          @"DYYYCommentBlurTransparent" : @{@"condition" : @"OR", @"settings" : @[ @"DYYYisEnableCommentBlur", @"DYYYisEnableCommentBarBlur", @"DYYYEnableNotificationTransparency" ]},
+              @"DYYYCommentBlurTransparent" : @{@"condition" : @"OR", @"settings" : @[ @"DYYYisEnableCommentBlur", @"DYYYisEnableCommentBarBlur", @"DYYYEnableNotificationTransparency" ]},
           },
 
           // ===== 冲突配置 =====
@@ -80,7 +80,7 @@
               @"DYYYHideFollowPromptView" : @[ @"DYYYHideLOTAnimationView" ],
               @"DYYYisEnableModern" : @[ @"DYYYisEnableModernLight" ],
               @"DYYYisEnableModernLight" : @[ @"DYYYisEnableModern" ],
-              @"DYYYLabelColor" : @[ @"DYYYEnabsuijiyanse" ],
+              @"DYYYDanmuRainbowRotating" : @[ @"DYYYdanmuColor" ],
               @"DYYYEnabsuijiyanse" : @[ @"DYYYLabelColor" ]
           },
 
@@ -93,7 +93,7 @@
               @"DYYYHideTimeProgress" : @[ @"DYYYEnabshijianjindu" ],
               @"DYYYHideLOTAnimationView" : @[ @"DYYYHideFollowPromptView" ],
               @"DYYYHideFollowPromptView" : @[ @"DYYYHideLOTAnimationView" ],
-              @"DYYYLabelColor" : @[ @"DYYYEnabsuijiyanse" ],
+              @"DYYYDanmuRainbowRotating" : @[ @"DYYYdanmuColor" ],
               @"DYYYEnabsuijiyanse" : @[ @"DYYYLabelColor" ]
           },
 
