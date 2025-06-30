@@ -620,33 +620,47 @@ BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitansw
 //弹幕
 %hook AWEDanmakuContentLabel
 - (void)setTextColor:(UIColor *)textColor {
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableDanmuColor"]) {
-        NSString *danmuColor = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYdanmuColor"];
-        if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDanmuRainbowRotating"]) {
-            danmuColor = @"rainbow_rotating";
-        }
-        [DYYYUtils applyColorSettingsToLabel:self colorHexString:danmuColor];
-    } else {
-        %orig(textColor);
-    }
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableDanmuColor"]) {
+		NSString *danmuColor = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYdanmuColor"];
+
+		if ([danmuColor.lowercaseString isEqualToString:@"random"] || [danmuColor.lowercaseString isEqualToString:@"#random"]) {
+			textColor = [UIColor colorWithRed:(arc4random_uniform(256)) / 255.0
+						    green:(arc4random_uniform(256)) / 255.0
+						     blue:(arc4random_uniform(256)) / 255.0
+						    alpha:CGColorGetAlpha(textColor.CGColor)];
+			self.layer.shadowOffset = CGSizeZero;
+			self.layer.shadowOpacity = 0.0;
+		} else if ([danmuColor hasPrefix:@"#"]) {
+			textColor = [self colorFromHexString:danmuColor baseColor:textColor];
+			self.layer.shadowOffset = CGSizeZero;
+			self.layer.shadowOpacity = 0.0;
+		} else {
+			textColor = [self colorFromHexString:@"#FFFFFF" baseColor:textColor];
+		}
+	}
+
+	%orig(textColor);
 }
 
-- (void)setStrokeWidth:(double)strokeWidth {
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableDanmuColor"]) {
-        %orig(FLT_MIN);
-    } else {
-        %orig(strokeWidth);
-    }
-}
+%new
+- (UIColor *)colorFromHexString:(NSString *)hexString baseColor:(UIColor *)baseColor {
+	if ([hexString hasPrefix:@"#"]) {
+		hexString = [hexString substringFromIndex:1];
+	}
+	if ([hexString length] != 6) {
+		return [baseColor colorWithAlphaComponent:1];
+	}
+	unsigned int red, green, blue;
+	[[NSScanner scannerWithString:[hexString substringWithRange:NSMakeRange(0, 2)]] scanHexInt:&red];
+	[[NSScanner scannerWithString:[hexString substringWithRange:NSMakeRange(2, 2)]] scanHexInt:&green];
+	[[NSScanner scannerWithString:[hexString substringWithRange:NSMakeRange(4, 2)]] scanHexInt:&blue];
 
-- (void)setStrokeColor:(UIColor *)strokeColor {
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableDanmuColor"]) {
-        %orig(nil);
-    } else {
-        %orig(strokeColor);
-    }
-}
+	if (red < 128 && green < 128 && blue < 128) {
+		return [UIColor whiteColor];
+	}
 
+	return [UIColor colorWithRed:(red / 255.0) green:(green / 255.0) blue:(blue / 255.0) alpha:CGColorGetAlpha(baseColor.CGColor)];
+}
 %end
 
 
@@ -1160,7 +1174,13 @@ static CGFloat rightLabelRightMargin = -1;
 		UILabel *rightLabel = [parentView viewWithTag:10002];
 
 		NSString *labelColorHex = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYProgressLabelColor"];
-
+		UIColor *labelColor = [UIColor whiteColor];
+		if (labelColorHex && labelColorHex.length > 0) {
+			UIColor *customColor = [DYYYUtils colorWithHexString:labelColorHex];
+			if (customColor) {
+				labelColor = customColor;
+			}
+		}
 		NSString *scheduleStyle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYScheduleStyle"];
 		BOOL showRemainingTime = [scheduleStyle isEqualToString:@"进度条右侧剩余"];
 		BOOL showCompleteTime = [scheduleStyle isEqualToString:@"进度条右侧完整"];
@@ -1188,7 +1208,7 @@ static CGFloat rightLabelRightMargin = -1;
 				leftFrame.size.height = 15.0;
 				leftLabel.frame = leftFrame;
 			}
-			[DYYYUtils applyColorSettingsToLabel:leftLabel colorHexString:labelColorHex];
+			leftLabel.textColor = labelColor;
 		}
 
 		// 更新右标签
@@ -1212,7 +1232,7 @@ static CGFloat rightLabelRightMargin = -1;
 				rightFrame.size.height = 15.0;
 				rightLabel.frame = rightFrame;
 			}
-			[DYYYUtils applyColorSettingsToLabel:leftLabel colorHexString:labelColorHex];
+			rightLabel.textColor = labelColor;
 		}
 	}
 }
@@ -1481,10 +1501,60 @@ static CGFloat rightLabelRightMargin = -1;
 
 		label.font = originalFont;
 	}
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnabsuijiyanse"]) {
+		UIColor *color1 = [UIColor colorWithRed:(CGFloat)arc4random_uniform(256) / 255.0
+						  green:(CGFloat)arc4random_uniform(256) / 255.0
+						   blue:(CGFloat)arc4random_uniform(256) / 255.0
+						  alpha:1.0];
+		UIColor *color2 = [UIColor colorWithRed:(CGFloat)arc4random_uniform(256) / 255.0
+						  green:(CGFloat)arc4random_uniform(256) / 255.0
+						   blue:(CGFloat)arc4random_uniform(256) / 255.0
+						  alpha:1.0];
+		UIColor *color3 = [UIColor colorWithRed:(CGFloat)arc4random_uniform(256) / 255.0
+						  green:(CGFloat)arc4random_uniform(256) / 255.0
+						   blue:(CGFloat)arc4random_uniform(256) / 255.0
+						  alpha:1.0];
 
-	[DYYYUtils applyColorSettingsToLabel:label colorHexString:labelColorHex];
-	;
+		NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:label.text];
+		CFIndex length = [attributedText length];
+		for (CFIndex i = 0; i < length; i++) {
+			CGFloat progress = (CGFloat)i / (length == 0 ? 1 : length - 1);
 
+			UIColor *startColor;
+			UIColor *endColor;
+			CGFloat subProgress;
+
+			if (progress < 0.5) {
+				startColor = color1;
+				endColor = color2;
+				subProgress = progress * 2;
+			} else {
+				startColor = color2;
+				endColor = color3;
+				subProgress = (progress - 0.5) * 2;
+			}
+
+			CGFloat startRed, startGreen, startBlue, startAlpha;
+			CGFloat endRed, endGreen, endBlue, endAlpha;
+			[startColor getRed:&startRed green:&startGreen blue:&startBlue alpha:&startAlpha];
+			[endColor getRed:&endRed green:&endGreen blue:&endBlue alpha:&endAlpha];
+
+			CGFloat red = startRed + (endRed - startRed) * subProgress;
+			CGFloat green = startGreen + (endGreen - startGreen) * subProgress;
+			CGFloat blue = startBlue + (endBlue - startBlue) * subProgress;
+			CGFloat alpha = startAlpha + (endAlpha - startAlpha) * subProgress;
+
+			UIColor *currentColor = [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
+			[attributedText addAttribute:NSForegroundColorAttributeName value:currentColor range:NSMakeRange(i, 1)];
+		}
+
+		label.attributedText = attributedText;
+	} else {
+		NSString *labelColor = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYLabelColor"];
+		if (labelColor.length > 0) {
+			label.textColor = [DYYYUtils colorWithHexString:labelColor];
+		}
+	}
 	return label;
 }
 
