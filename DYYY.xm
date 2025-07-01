@@ -709,6 +709,19 @@ BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitansw
 }
 %end
 
+//弹幕透明
+%hook XIGDanmakuPlayerView
+
+- (id)initWithFrame:(CGRect)frame {
+    id orig = %orig;
+
+    ((UIView *)orig).tag = DYYY_IGNORE_GLOBAL_ALPHA_TAG;
+
+    return orig;
+}
+
+%end
+
 %hook AWEMarkView
 
 - (void)layoutSubviews {
