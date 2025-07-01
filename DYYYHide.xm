@@ -1388,7 +1388,7 @@
 }
 %end
 
-// 隐藏视频上方搜索长框、隐藏搜索指示条、应用全局透明
+// 隐藏视频顶部搜索框、隐藏搜索框背景、应用全局透明
 %hook AWESearchEntranceView
 
 - (void)layoutSubviews {
@@ -1399,9 +1399,10 @@
 	}
 
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideSearchEntranceIndicator"]) {
-		for (UIView *subview in self.subviews) {
-			if ([subview isKindOfClass:[UIImageView class]] && [NSStringFromClass([((UIImageView *)subview).image class]) isEqualToString:@"_UIResizableImage"]) {
-				((UIImageView *)subview).hidden = YES;
+		for (UIView *subviews in self.subviews) {
+			if ([subviews isKindOfClass:%c(UIImageView)] && 
+				[NSStringFromClass([((UIImageView *)subviews).image class]) isEqualToString:@"_UIResizableImage"]) {
+				((UIImageView *)subviews).hidden = YES;
 			}
 		}
 	}
