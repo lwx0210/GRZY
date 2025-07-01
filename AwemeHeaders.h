@@ -104,6 +104,10 @@ static CGFloat gStartVal = 0.0;
 @interface AWEECommerceLabel : NSObject
 @end
 
+//弹幕透明度
+@interface XIGDanmakuPlayerView : UIView
+@end
+
 @interface AWEAwemeModel : NSObject
 @property(nonatomic, strong, readwrite) NSNumber *createTime;
 @property(nonatomic, assign, readwrite) CGFloat videoDuration;
