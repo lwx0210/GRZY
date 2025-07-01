@@ -462,6 +462,16 @@ static CGFloat gStartVal = 0.0;
 - (AWECommentLongPressPanelContext *)commentPageContext;
 @end
 
+//直播间文案
+@interface IESLiveStackView : UIView
+@property(nonatomic, assign) CGRect frame;
+@property(nonatomic, assign) CGAffineTransform transform;
+@property(nonatomic, assign) CGFloat alpha;
+@property(nonatomic, strong) UIView *superview;
+@property(nonatomic, strong) NSArray *subviews;
+@property(nonatomic, copy) NSString *accessibilityLabel;
+@end
+
 @interface _TtC33AWECommentLongPressPanelSwiftImpl32CommentLongPressPanelCopyElement : NSObject
 - (AWECommentLongPressPanelContext *)commentPageContext;
 @end
