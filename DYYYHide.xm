@@ -2239,17 +2239,6 @@
 	return nil;
 }
 
-- (NSArray<UIView *> *)findAllViewsWithClassName:(NSString *)className {
-    NSMutableArray *foundViews = [NSMutableArray array];
-    if ([[[self class] description] isEqualToString:className]) {
-        [foundViews addObject:self];
-    }
-    for (UIView *subview in self.subviews) {
-        [foundViews addObjectsFromArray:[subview findAllViewsWithClassName:className]];
-    }
-    return [foundViews copy];
-}
-
 @end
 
 static NSMutableDictionary *keepCellsInfo;
