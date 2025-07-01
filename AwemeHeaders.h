@@ -104,10 +104,6 @@ static CGFloat gStartVal = 0.0;
 @interface AWEECommerceLabel : NSObject
 @end
 
-//弹幕透明度
-@interface XIGDanmakuPlayerView : UIView
-@end
-
 @interface AWEAwemeModel : NSObject
 @property(nonatomic, strong, readwrite) NSNumber *createTime;
 @property(nonatomic, assign, readwrite) CGFloat videoDuration;
@@ -195,7 +191,6 @@ static CGFloat gStartVal = 0.0;
 @end
 
 @interface AWEFeedContainerContentView : UIView
-- (UIViewController *)findViewController:(UIViewController *)vc ofClass:(Class)targetClass;
 @end
 
 @interface AWELeftSideBarEntranceView : UIView
@@ -204,7 +199,55 @@ static CGFloat gStartVal = 0.0;
 @end
 
 @interface AWEDanmakuContentLabel : UILabel
-- (UIColor *)colorFromHexString:(NSString *)hexString baseColor:(UIColor *)baseColor;
+@property (nonatomic, assign) long long type;
+@property (nonatomic, copy) NSString *danmakuText;
+@property (nonatomic, copy) NSArray *danmakuStyleList;
+@property (nonatomic, strong) UIColor *strokeColor;
+@property (nonatomic, assign) double strokeWidth;
+- (id)colorFromHexString:(id)arg0 baseColor:(id)arg1 ;
+- (void)setTextColor:(id)arg0 ;
+- (id)initWithFrame:(id)arg0 textColor:(id)arg1 type:(long long)arg2 ;
+- (id)danmakuText;
+- (void)setDanmakuText:(id)arg0 ;
+- (id)danmakuStyleList;
+- (void)drawUnderLineWithStart:(long long)arg0 len:(long long)arg1 ;
+- (void)setDanmakuStyleList:(id)arg0 ;
+- (double)strokeWidth;
+- (id)accessibilityLabel;
+- (void)setStrokeWidth:(double)arg0 ;
+- (void)setAccessibilityLabel:(id)arg0 ;
+- (void)setStrokeColor:(id)arg0 ;
+- (id)strokeColor;
+- (long long)type;
+- (id)initWithFrame:(id)arg0 ;
+- (id)boundingRectForCharacterRange:(id)arg0 ;
+- (void)drawTextInRect:(id)arg0 ;
+- (void)setType:(long long)arg0 ;
+@end
+
+@interface XIGDanmakuPlayerView : UIView
+@end
+
+@interface AWEDanmakuItemTextInfo : NSObject
+@property (nonatomic, strong) NSAttributedString *danmakuText;
+@property (nonatomic, assign) id danmakuTextFrame;
+@property (nonatomic, assign) double strokeWidth;
+@property (nonatomic, strong) UIColor *strokeColor;
+@property (nonatomic, strong) UIFont *danmakuFont;
+@property (nonatomic, strong) UIColor *danmakuTextColor;
+- (id)colorFromHexStringForTextInfo:(id)arg0 ;
+- (void)setDanmakuFont:(id)arg0 ;
+- (id)danmakuFont;
+- (id)danmakuText;
+- (void)setDanmakuText:(id)arg0 ;
+- (id)danmakuTextFrame;
+- (void)setDanmakuTextFrame:(id)arg0 ;
+- (id)danmakuTextColor;
+- (void)setDanmakuTextColor:(id)arg0 ;
+- (double)strokeWidth;
+- (void)setStrokeWidth:(double)arg0 ;
+- (void)setStrokeColor:(id)arg0 ;
+- (id)strokeColor;
 @end
 
 @interface AWELandscapeFeedEntryView : UIView
@@ -218,7 +261,7 @@ static CGFloat gStartVal = 0.0;
 
 @interface AWEPlayInteractionViewController : UIViewController
 @property(nonatomic, strong) UIView *view;
-@property (nonatomic, strong) AWEAwemeModel *model;
+@property(nonatomic, strong) AWEAwemeModel *model;
 @property(nonatomic, strong) NSString *referString;
 @property(nonatomic, assign) BOOL isCommentVCShowing;
 - (void)performCommentAction;
@@ -248,17 +291,11 @@ static CGFloat gStartVal = 0.0;
 
 @end
 
-@interface AWEDanmakuItemTextInfo : NSObject
-- (void)setDanmakuTextColor:(id)arg1;
-- (UIColor *)colorFromHexStringForTextInfo:(NSString *)hexString;
-@end
-
 @interface AWECommentMiniEmoticonPanelView : UIView
 
 @end
 
 @interface AWEBaseElementView : UIView
-
 @end
 
 @interface AWESearchEntranceView : UIView
@@ -288,7 +325,6 @@ static CGFloat gStartVal = 0.0;
 @end
 
 @interface AWEPlayInteractionProgressController : AWEPlayInteractionNewBaseController
-- (UIViewController *)findViewController:(UIViewController *)vc ofClass:(Class)targetClass;
 @property(retain, nonatomic) id progressSlider;
 - (NSString *)formatTimeFromSeconds:(CGFloat)seconds;
 - (NSString *)convertSecondsToTimeString:(NSInteger)totalSeconds;
@@ -333,7 +369,6 @@ static CGFloat gStartVal = 0.0;
 @end
 
 @interface AWEPlayInteractionProgressContainerView : UIView
-- (void)dyyy_applyShrinkIfNeeded;
 @end
 
 @interface AFDFastSpeedView : UIView
@@ -431,6 +466,15 @@ static CGFloat gStartVal = 0.0;
 - (BOOL)view:(UIView *)view containsSubviewOfClass:(Class)viewClass;
 @end
 
+@interface IESLiveStackView : UIView
+@property(nonatomic, assign) CGRect frame;
+@property(nonatomic, assign) CGAffineTransform transform;
+@property(nonatomic, assign) CGFloat alpha;
+@property(nonatomic, strong) UIView *superview;
+@property(nonatomic, strong) NSArray *subviews;
+@property(nonatomic, copy) NSString *accessibilityLabel;
+@end
+
 @interface AWECommentImageModel : NSObject
 @property(nonatomic, copy) NSString *originUrl;
 @end
@@ -462,16 +506,6 @@ static CGFloat gStartVal = 0.0;
 - (AWECommentLongPressPanelContext *)commentPageContext;
 @end
 
-//直播间文案
-@interface IESLiveStackView : UIView
-@property(nonatomic, assign) CGRect frame;
-@property(nonatomic, assign) CGAffineTransform transform;
-@property(nonatomic, assign) CGFloat alpha;
-@property(nonatomic, strong) UIView *superview;
-@property(nonatomic, strong) NSArray *subviews;
-@property(nonatomic, copy) NSString *accessibilityLabel;
-@end
-
 @interface _TtC33AWECommentLongPressPanelSwiftImpl32CommentLongPressPanelCopyElement : NSObject
 - (AWECommentLongPressPanelContext *)commentPageContext;
 @end
@@ -481,8 +515,6 @@ static CGFloat gStartVal = 0.0;
 @property(nonatomic, strong) UIView *leftLabelUI;
 @property(nonatomic, strong) UIView *rightLabelUI;
 @property(nonatomic) AWEPlayInteractionProgressController *progressSliderDelegate;
-
-- (void)applyCustomProgressStyle;
 - (void)applyWidthPercentToSubviews:(CGFloat)widthPercent;
 @end
 
@@ -701,11 +733,9 @@ static CGFloat gStartVal = 0.0;
 @end
 
 @interface AWEFeedTopBarContainer : UIView
-- (void)applyDYYYTransparency;
 @end
 
 @interface AWEHPTopBarCTAContainer : UIView
-- (void)applyDYYYTransparency;
 @end
 
 @interface ACCStickerContainerView : UIView
@@ -804,7 +834,6 @@ static CGFloat gStartVal = 0.0;
 @end
 
 @interface AWEFakeProgressSliderView : UIView
-- (void)applyCustomProgressStyle;
 @end
 
 @protocol IESIMContentSheetVCProtocol
@@ -1264,28 +1293,4 @@ static CGFloat gStartVal = 0.0;
 @end
 
 @interface MTKView : UIView
-@end
-
-//修改id附加起始位 
-@interface AWEUserHomeAccessibilityViewV2 : UIView
-- (void)findAndModifyDouyinLabelInView:(UIView *)view;
-- (void)findAndModify:(UIView *)view;
-- (void)modifyNicknameInView:(UIView *)view;
-@end
-
-//数据伪造
-@interface AWEProfileSocialStatisticView : UIView
-- (void)setFansCount:(NSNumber *)count;
-- (void)setPraiseCount:(NSNumber *)count;
-- (void)setFollowingCount:(NSNumber *)count;
-- (void)setFriendCount:(NSNumber *)count;
-- (void)p_updateSocialStatisticContent:(BOOL)animated;
-@end
-
-@interface AWEProfileHeaderMyProfileViewController : UIViewController
-- (void)reloadSettings;
-@end
-
-//AI搜索
-@interface AWESearchKeyboardVoiceSearchEntranceView : UIView
 @end
