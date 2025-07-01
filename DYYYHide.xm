@@ -2166,6 +2166,51 @@
 }
 %end
 
+//直播间文案调整
+%hook IESLiveStackView
+- (void)layoutSubviews {
+    %orig;
+
+    UIView *superView = self.superview;
+    if (![superView isKindOfClass:%c(HTSEventForwardingView)] ||
+        ![superView.accessibilityLabel isEqualToString:@"ContentContainerLayer"]) {
+        return;
+	}
+
+    NSString *transparentValue = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYGlobalTransparency"];
+    if (transparentValue.length > 0) {
+        CGFloat alphaValue = transparentValue.floatValue;
+        if (alphaValue >= 0.0 && alphaValue <= 1.0) {
+            self.alpha = alphaValue;
+        }
+    }
+
+    NSString *vcScaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
+    if (vcScaleValue.length > 0) {
+        CGFloat scale = vcScaleValue.floatValue;
+        self.transform = CGAffineTransformIdentity;
+        if (scale > 0 && scale != 1.0) {
+            NSArray *subviews = [self.subviews copy];
+            CGFloat ty = 0;
+            for (UIView *view in subviews) {
+                CGFloat viewHeight = view.frame.size.height;
+                CGFloat contribution = (viewHeight - viewHeight * scale) / 2;
+                ty += contribution;
+            }
+            CGFloat frameWidth = self.frame.size.width;
+            CGFloat tx = (frameWidth - frameWidth * scale) / 2 - frameWidth * (1 - scale);
+            CGAffineTransform newTransform = CGAffineTransformMakeScale(scale, scale);
+            newTransform = CGAffineTransformTranslate(newTransform, tx / scale, ty / scale);
+            self.transform = newTransform;
+        }
+    }
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+        CGRect frame = self.frame;
+        self.frame = frame;
+    }
+}
+%end
+
 //精简侧边
 @implementation UIView (Helper)
 - (BOOL)containsClassNamed:(NSString *)className {
@@ -2191,6 +2236,17 @@
 		}
 	}
 	return nil;
+}
+
+- (NSArray<UIView *> *)findAllViewsWithClassName:(NSString *)className {
+    NSMutableArray *foundViews = [NSMutableArray array];
+    if ([[[self class] description] isEqualToString:className]) {
+        [foundViews addObject:self];
+    }
+    for (UIView *subview in self.subviews) {
+        [foundViews addObjectsFromArray:[subview findAllViewsWithClassName:className]];
+    }
+    return [foundViews copy];
 }
 
 @end
