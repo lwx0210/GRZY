@@ -1106,7 +1106,7 @@ extern "C"
 		    @"cellType" : @6,
 		    @"imageName" : @"ic_eyeslash_outlined_16"},
 		  @{@"identifier" : @"DYYYHideSearchEntranceIndicator",
-		    @"title" : @"隐藏搜索指示",
+		    @"title" : @"隐藏搜索背景",
 		    @"detail" : @"",
 		    @"cellType" : @6,
 		    @"imageName" : @"ic_eyeslash_outlined_16"},
