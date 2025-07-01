@@ -480,6 +480,46 @@ BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitansw
 }
 %end
 
+@implementation UIView (Helper)
+- (BOOL)containsClassNamed:(NSString *)className {
+	if ([[[self class] description] isEqualToString:className]) {
+		return YES;
+	}
+	for (UIView *subview in self.subviews) {
+		if ([subview containsClassNamed:className]) {
+			return YES;
+		}
+	}
+	return NO;
+}
+
+- (UIView *)findViewWithClassName:(NSString *)className {
+	if ([[[self class] description] isEqualToString:className]) {
+		return self;
+	}
+	for (UIView *subview in self.subviews) {
+		UIView *result = [subview findViewWithClassName:className];
+		if (result) {
+			return result;
+		}
+	}
+	return nil;
+}
+
+- (NSArray<UIView *> *)findAllViewsWithClassName:(NSString *)className {
+    NSMutableArray *foundViews = [NSMutableArray array];
+    if ([[[self class] description] isEqualToString:className]) {
+        [foundViews addObject:self];
+    }
+    for (UIView *subview in self.subviews) {
+        [foundViews addObjectsFromArray:[subview findAllViewsWithClassName:className]];
+    }
+    return [foundViews copy];
+}
+
+@end
+
+
 %hook AWEPlayInteractionUserAvatarFollowController
 - (void)onFollowViewClicked:(UITapGestureRecognizer *)gesture {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYfollowTips"]) {
