@@ -1191,6 +1191,7 @@ static CGFloat gStartVal = 0.0;
 @interface UIView (Helper)
 - (BOOL)containsClassNamed:(NSString *)className;
 - (UIView *)findViewWithClassName:(NSString *)className;
+- (NSArray<UIView *> *)findAllViewsWithClassName:(NSString *)className;
 @end
 
 @interface AWESettingsTableViewController : AWESettingBaseViewController
