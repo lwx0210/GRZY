@@ -473,8 +473,6 @@ BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitansw
     }
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
         CGRect frame = self.frame;
-        frame.origin.y -= tabHeight;
-        stream_frame_y = frame.origin.y;
         self.frame = frame;
     }
 }
