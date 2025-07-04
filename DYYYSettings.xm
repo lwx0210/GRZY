@@ -1396,6 +1396,12 @@ extern "C"
 		    @"detail" : @"",
 		    @"cellType" : @6,
 		    @"imageName" : @"ic_eyeslash_outlined_16"},
+		  @{@"identifier" : @"DYYYHideLiveHotMessage",
+		    @"title" : @"隐藏大家在说",
+		    @"subTitle" : @"隐藏出现在弹幕顶部的大家说热搜词",
+		    @"detail" : @"",
+		    @"cellType" : @37,
+		    @"imageName" : @"ic_eyeslash_outlined_16"},
 		  @{@"identifier" : @"DYYYHideCellularAlert",
 		    @"title" : @"隐藏流量提醒",
 		    @"detail" : @"",
@@ -2336,6 +2342,11 @@ extern "C"
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_video_outlined_20"},
+		            @{@"identifier" : @"DYYYCommentShowDanmaku",
+		              @"title" : @"启用评论显示弹幕",
+		              @"detail" : @"",
+		              @"cellType" : @6,
+		              @"imageName" : @"ic_comment_outlined_20"},
 		            @{@"identifier" : @"DYYYCommentCopyText",
 		              @"title" : @"启用评论长按复制",
 		              @"detail" : @"",
@@ -3086,6 +3097,13 @@ extern "C"
             for (NSString *basePath in allPaths) {
                     [DYYYUtils removeAllContentsAtPath:basePath];
             }
+
+             // 修复搜索界面的猜你想搜和猜你想看
+	    NSFileManager *fileManager = [NSFileManager defaultManager];
+	    NSString *activeMetadataFilePath = [libraryDir stringByAppendingPathComponent:@"Application Support/gurd_cache/.active_metadata"];
+	    if ([fileManager fileExistsAtPath:activeMetadataFilePath]) {
+		    [fileManager removeItemAtPath:activeMetadataFilePath error:nil];
+	    }
 
 	    unsigned long long afterSize = 0;
 	    for (NSString *basePath in allPaths) {
