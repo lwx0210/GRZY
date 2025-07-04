@@ -526,9 +526,9 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveHotMessage"]
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideHisShop"]) {
 		UIView *parentView = self.superview;
 		if (parentView) {
-			parentView.hidden = YES;
+			[parentView removeFromSuperview];
 		} else {
-			self.hidden = YES;
+			[self removeFromSuperview];
 		}
 	}
 }
@@ -1362,7 +1362,7 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveHotMessage"]
 	if ((hideFeedAnchor && !isPoi) || (hideLocation && isPoi)) {
 		UIView *parentView = self.superview;
 		if (parentView) {
-			parentView.hidden = YES;
+			[parentView removeFromSuperview];
 		}
 	}
 }
