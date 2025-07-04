@@ -728,6 +728,14 @@ BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitansw
     return orig;
 }
 
+- (void)setAlpha:(CGFloat)alpha {
+		if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYCommentShowDanmaku"]) {
+		return;
+	} else{
+		%orig(alpha);
+	}
+}
+
 %end
 
 %hook AWEMarkView
