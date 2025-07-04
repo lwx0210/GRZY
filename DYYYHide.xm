@@ -40,6 +40,33 @@
 }
 %end
 
+%hook AWEHomePageBubbleLiveHeadLabelContentView
+- (void)layoutSubviews {
+	%orig;
+		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideConcernCapsuleView"]) {
+		UIView *parentView = self.superview;
+		UIView *grandparentView = parentView.superview;
+
+		if (grandparentView) {
+			[grandparentView removeFromSuperview];
+		} else if (parentView) {
+			[parentView removeFromSuperview];
+		} else {
+			[self removeFromSuperview];
+		}
+	}
+}
+%end
+
+%hook IESLiveHotMessageView
+- (void)layoutSubviews {
+	%orig;
+if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveHotMessage"]) {
+		[self removeFromSuperview];
+	}
+}
+%end
+
 %hook IESLiveGameCPExplainCardContainerImpl
 - (void)layoutSubviews {
 	%orig;
