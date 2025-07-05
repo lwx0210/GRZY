@@ -302,11 +302,15 @@
 
 - (void)layoutSubviews {
 	%orig;
-	NSString *colorHex = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYVideoBGColor"];
-	if (colorHex && colorHex.length > 0) {
-		UIColor *customColor = [DYYYUtils colorWithHexString:colorHex];
-		if (customColor) {
-			self.backgroundColor = customColor;
+	UIViewController *vc = [DYYYUtils firstAvailableViewControllerFromView:self];
+	Class playVCClass = NSClassFromString(@"AWEPlayVideoViewController");
+	if (vc && playVCClass && [vc isKindOfClass:playVCClass]) {
+		NSString *colorHex = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYVideoBGColor"];
+		if (colorHex && colorHex.length > 0) {
+			CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
+			UIColor *customColor = [DYYYUtils colorFromSchemeHexString:colorHex targetWidth:screenWidth];
+			if (customColor)
+				self.backgroundColor = customColor;
 		}
 	}
 }
