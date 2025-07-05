@@ -731,7 +731,7 @@ BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitansw
 - (void)setAlpha:(CGFloat)alpha {
 		if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYCommentShowDanmaku"]) {
 		return;
-	} else{
+	} else {
 		%orig(alpha);
 	}
 }
