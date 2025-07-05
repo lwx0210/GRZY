@@ -128,6 +128,7 @@ static CGFloat gStartVal = 0.0;
 @property(nonatomic, assign) BOOL isLivePhoto;
 @property(nonatomic, strong) NSString *shareURL;
 @property(nonatomic, strong) id hotSpotLynxCardModel;
+@property(nonatomic, copy) NSString *liveReason;
 @property(nonatomic, strong) AWELiveFollowFeedCellModel *cellRoom;
 @property(nonatomic, strong) id shareRecExtra; // 推荐视频专有属性
 @property(nonatomic, strong) NSArray<AWEAwemeTextExtraModel *> *textExtras;
