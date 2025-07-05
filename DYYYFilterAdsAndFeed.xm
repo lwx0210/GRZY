@@ -44,7 +44,7 @@
 	NSString *filterUsers = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterUsers"];
 
 	// 检查是否需要过滤特定用户
-	if (self.shareRecExtra && filterUsers.length > 0 && self.author) {
+	if (self.shareRecExtra && ![self.shareRecExtra isEqual:@""] && filterUsers.length > 0 && self.author) {
 		NSArray *usersList = [filterUsers componentsSeparatedByString:@","];
 		NSString *currentShortID = self.author.shortID;
 		NSString *currentNickname = self.author.nickname;
@@ -246,11 +246,8 @@
 		}
 	}
 
-	if (shouldFilterAds || shouldFilterRec || shouldFilterHotSpot || shouldFilterHDR || shouldFilterLowLikes || shouldFilterKeywords || shouldFilterProp || shouldFilterTime) {
-		return nil;
-	}
-
-	return orig;
+	return shouldFilterAds || shouldFilterRecLive || shouldFilterHotSpot || shouldFilterHDR || shouldFilterLowLikes || shouldFilterKeywords || shouldFilterProp || shouldFilterTime || shouldFilterUser;
+	
 }
 
 - (AWEECommerceLabel *)ecommerceBelowLabel {
@@ -302,11 +299,15 @@
 
 - (void)layoutSubviews {
 	%orig;
-	NSString *colorHex = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYVideoBGColor"];
-	if (colorHex && colorHex.length > 0) {
-		UIColor *customColor = [DYYYUtils colorWithHexString:colorHex];
-		if (customColor) {
-			self.backgroundColor = customColor;
+	UIViewController *vc = [DYYYUtils firstAvailableViewControllerFromView:self];
+	Class playVCClass = NSClassFromString(@"AWEPlayVideoViewController");
+	if (vc && playVCClass && [vc isKindOfClass:playVCClass]) {
+		NSString *colorHex = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYVideoBGColor"];
+		if (colorHex && colorHex.length > 0) {
+			CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
+			UIColor *customColor = [DYYYUtils colorFromSchemeHexString:colorHex targetWidth:screenWidth];
+			if (customColor)
+				self.backgroundColor = customColor;
 		}
 	}
 }
