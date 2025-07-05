@@ -2447,8 +2447,6 @@ extern "C"
 	  }
 	  refreshConfigConflictState();
 
-	  }
-
 	  // 【交互增强】分类
 	  NSMutableArray<AWESettingItemModel *> *interactionItems = [NSMutableArray array];
 	  NSArray *interactionSettings = @[
