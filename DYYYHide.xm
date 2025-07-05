@@ -1367,6 +1367,7 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveHotMessage"]
 				[grandparentView removeFromSuperview];
 		}
 	}
+    }
 }
 
 %end
