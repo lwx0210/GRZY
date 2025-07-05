@@ -15,7 +15,7 @@
 	BOOL filterHDR = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYfilterFeedHDR"];
 
 	BOOL shouldFilterAds = noAds && (self.hotSpotLynxCardModel || self.isAds);
-	BOOL shouldFilterRec = skipLive && (self.liveReason != nil);
+        BOOL shouldFilterRecLive = skipLive && (self.cellRoom != nil);
 	BOOL shouldFilterHotSpot = skipHotSpot && self.hotSpotLynxCardModel;
 	BOOL shouldFilterHDR = NO;
 	BOOL shouldFilterLowLikes = NO;
