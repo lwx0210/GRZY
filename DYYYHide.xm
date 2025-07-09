@@ -157,37 +157,6 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveHotMessage"]
 }
 %end
 
-// 隐藏特殊进场特效
-%hook PlatformCanvasView
-- (void)layoutSubviews {
-	%orig;
-	if (DYYYGetBool(@"DYYYHideLivePopup")) {
-		UIView *pview = self.superview;
-		UIView *gpview = pview.superview;
-		// 基于accessibilitylabel的判断
-		BOOL isLynxView = [pview isKindOfClass:%c(UILynxView)] &&
-				  [gpview isKindOfClass:%c(LynxView)] &&
-				  [gpview.accessibilityLabel isEqualToString:@"lynxview"];
-		// 基于最近的视图控制器IESLiveAudienceViewController的判断
-		
-		BOOL isLiveAudienceVC = [vc isKindOfClass:%c(IESLiveAudienceViewController)];
-		if (isLynxView && isLiveAudienceVC) {
-			[self removeFromSuperview];
-		}
-	}
-}
-%end
-
-%hook IESLiveDanmakuVariousView
-- (void)layoutSubviews {
-	%orig;
-	if (DYYYGetBool(@"DYYYHideLiveDanmaku")) {
-		[self removeFromSuperview];
-	}
-}
-
-%end
-
 // 禁用自动进入直播间
 %hook AWELiveGuideElement
 
