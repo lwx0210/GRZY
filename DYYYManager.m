@@ -23,6 +23,10 @@
 #import "DYYYToast.h"
 #import "DYYYUtils.h"
 
+#define DYYYLogVideo(format, ...) NSLog((@"[DYYY视频合成] " format), ##__VA_ARGS__)
+#define DYYYLogDownload(format, ...) NSLog((@"[DYYY下载] " format), ##__VA_ARGS__)
+#define DYYYLogMerge(format, ...) NSLog((@"[DYYY音频合成] " format), ##__VA_ARGS__)
+
 static const NSTimeInterval kDYYYDefaultFrameDelay = 0.1f;
 static const CGFloat kDYYYMillisecondsPerSecond = 1000.0f;
 
@@ -371,8 +375,7 @@ static void ReleaseWebPData(void *info, const void *data, size_t size) {
             [[webpURL.lastPathComponent stringByDeletingPathExtension]
                 stringByAppendingPathExtension:@"gif"];
         NSURL *gifURL = [NSURL
-            fileURLWithPath:[NSTemporaryDirectory()
-                                stringByAppendingPathComponent:gifFileName]];
+            fileURLWithPath:[DYYYUtils cachePathForFilename:gifFileName]];
 
         // 读取WebP文件数据
         NSData *webpData = [NSData dataWithContentsOfURL:webpURL];
@@ -739,8 +742,7 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
             [[heicURL.lastPathComponent stringByDeletingPathExtension]
                 stringByAppendingPathExtension:@"gif"];
         NSURL *gifURL = [NSURL
-            fileURLWithPath:[NSTemporaryDirectory()
-                                stringByAppendingPathComponent:gifFileName]];
+            fileURLWithPath:[DYYYUtils cachePathForFilename:gifFileName]];
 
         // 4. GIF属性
         NSDictionary *gifProperties = @{
@@ -856,7 +858,7 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
                            completion:(void (^)(void))completion {
   // 创建临时目录
   NSString *livePhotoPath =
-      [NSTemporaryDirectory() stringByAppendingPathComponent:@"LivePhoto"];
+      [[DYYYUtils cacheDirectory] stringByAppendingPathComponent:@"LivePhoto"];
 
   NSFileManager *fileManager = [NSFileManager defaultManager];
   if (![fileManager fileExistsAtPath:livePhotoPath]) {
@@ -1084,6 +1086,9 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
             mediaType:(MediaType)mediaType
                 audio:(NSURL *)audioURL
            completion:(void (^)(BOOL success))completion {
+  if (mediaType == MediaTypeVideo) {
+    DYYYLogDownload(@"开始下载视频: %@", url);
+  }
   [self downloadMediaWithProgress:url
                         mediaType:mediaType
                             audio:audioURL
@@ -1119,12 +1124,16 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
                                }
                              });
                            } else {
-                             if (mediaType == MediaTypeVideo && audioURL) {
+                            if (mediaType == MediaTypeVideo && audioURL) {
                                if (![self videoHasAudio:fileURL]) {
+                                 DYYYLogMerge(@"视频无音轨，开始合并音频 %@", audioURL);
                                  [self downloadAudioAndMergeWithVideo:fileURL
                                                                   audioURL:audioURL
                                                                 completion:^(BOOL mergeSuccess, NSURL *mergedURL) {
                                                                   if (mergeSuccess) {
+                                                                    DYYYLogMerge(@"音频合并成功");
+                                                                    // 合并成功后清理原始视频文件
+                                                                    [[NSFileManager defaultManager] removeItemAtURL:fileURL error:nil];
                                                                     [self saveMedia:mergedURL
                                                                           mediaType:mediaType
                                                                          completion:^{
@@ -1133,6 +1142,8 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
                                                                            }
                                                                          }];
                                                                   } else {
+                                                                    DYYYLogMerge(@"音频合并失败，保存原始视频");
+                                                                    // 合并失败时保留原始视频文件
                                                                     [self saveMedia:fileURL
                                                                           mediaType:mediaType
                                                                          completion:^{
@@ -1203,6 +1214,10 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
         setObject:@0.0
            forKey:downloadID]; // 初始化进度为0
 
+    if (mediaType == MediaTypeVideo) {
+      DYYYLogDownload(@"正在下载视频: %@", url);
+    }
+
     // 开始下载
     [downloadTask resume];
   });
@@ -1235,25 +1250,70 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
                                  audioURL:(NSURL *)audioURL
                                completion:(void (^)(BOOL success, NSURL *mergedURL))completion {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    DYYYLogMerge(@"下载音频文件: %@", audioURL);
     NSData *audioData = [NSData dataWithContentsOfURL:audioURL];
     if (!audioData) {
+      DYYYLogMerge(@"音频下载失败");
       dispatch_async(dispatch_get_main_queue(), ^{
         if (completion) completion(NO, nil);
       });
       return;
     }
 
-    NSString *audioPath = [DYYYUtils cachePathForFilename:[NSString stringWithFormat:@"temp_%@", audioURL.lastPathComponent]];
+    NSString *originalFileName = audioURL.lastPathComponent;
+    NSString *audioFileName;
+    audioFileName = [NSString stringWithFormat:@"temp_%@", originalFileName];
+    
+    NSString *audioPath = [DYYYUtils cachePathForFilename:audioFileName];
     NSURL *audioFile = [NSURL fileURLWithPath:audioPath];
     if (![audioData writeToURL:audioFile atomically:YES]) {
+      DYYYLogMerge(@"写入音频文件失败");
       dispatch_async(dispatch_get_main_queue(), ^{
         if (completion) completion(NO, nil);
       });
       return;
     }
 
-    [self mergeVideo:videoURL withAudio:audioFile completion:^(BOOL success, NSURL *merged) {
-      [[NSFileManager defaultManager] removeItemAtURL:audioFile error:nil];
+    DYYYLogMerge(@"开始合并音频与视频");
+
+    // 尝试多种音频格式保存
+    NSArray *audioExtensions = @[@"mp3"];
+    BOOL audioSaved = NO;
+    NSURL *finalAudioFile = nil;
+    
+    for (NSString *extension in audioExtensions) {
+      NSString *testAudioFileName = [NSString stringWithFormat:@"temp_%@.%@", originalFileName, extension];
+      NSString *testAudioPath = [DYYYUtils cachePathForFilename:testAudioFileName];
+      NSURL *testAudioFile = [NSURL fileURLWithPath:testAudioPath];
+      
+      if ([audioData writeToURL:testAudioFile atomically:YES]) {
+        // 测试是否能创建音频asset
+        AVURLAsset *testAsset = [AVURLAsset URLAssetWithURL:testAudioFile options:nil];
+        AVAssetTrack *testTrack = [[testAsset tracksWithMediaType:AVMediaTypeAudio] firstObject];
+        
+        if (testTrack) {
+          DYYYLogMerge(@"成功识别音频格式: %@", extension);
+          audioSaved = YES;
+          finalAudioFile = testAudioFile;
+          break;
+        } else {
+          // 清理测试文件
+          [[NSFileManager defaultManager] removeItemAtURL:testAudioFile error:nil];
+        }
+      }
+    }
+    
+    if (!audioSaved) {
+      DYYYLogMerge(@"无法以任何支持的格式保存音频文件");
+      dispatch_async(dispatch_get_main_queue(), ^{
+        if (completion) completion(NO, nil);
+      });
+      return;
+    }
+
+    [self mergeVideo:videoURL withAudio:finalAudioFile completion:^(BOOL success, NSURL *merged) {
+      [[NSFileManager defaultManager] removeItemAtURL:finalAudioFile error:nil];
+      DYYYLogMerge(@"%@", success ? @"合并成功" : @"合并失败");
       dispatch_async(dispatch_get_main_queue(), ^{
         if (completion) completion(success, merged);
       });
@@ -1266,11 +1326,33 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
          withAudio:(NSURL *)audioURL
          completion:(void (^)(BOOL success, NSURL *mergedURL))completion {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    DYYYLogMerge(@"开始合并视频 %@ 与音频 %@", videoURL.lastPathComponent, audioURL.lastPathComponent);
+    
     AVURLAsset *videoAsset = [AVURLAsset URLAssetWithURL:videoURL options:nil];
     AVURLAsset *audioAsset = [AVURLAsset URLAssetWithURL:audioURL options:nil];
+    
+    // 检查视频轨道
     AVAssetTrack *videoTrack = [[videoAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+    if (!videoTrack) {
+      DYYYLogMerge(@"视频asset加载失败或无视频轨道");
+      dispatch_async(dispatch_get_main_queue(), ^{
+        if (completion) completion(NO, nil);
+      });
+      return;
+    }
+    
+    // 检查音频轨道
     AVAssetTrack *audioTrack = [[audioAsset tracksWithMediaType:AVMediaTypeAudio] firstObject];
-    if (!videoTrack || !audioTrack) {
+    if (!audioTrack) {
+      DYYYLogMerge(@"音频asset加载失败 tracks: %@", audioAsset.commonMetadata);
+      
+      // 尝试检测音频文件格式
+      NSData *audioData = [NSData dataWithContentsOfURL:audioURL];
+      if (audioData && audioData.length > 4) {
+        const unsigned char *bytes = [audioData bytes];
+        DYYYLogMerge(@"音频文件头信息: %02X %02X %02X %02X", bytes[0], bytes[1], bytes[2], bytes[3]);
+      }
+      
       dispatch_async(dispatch_get_main_queue(), ^{
         if (completion) completion(NO, nil);
       });
@@ -1302,9 +1384,10 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
     [exportSession exportAsynchronouslyWithCompletionHandler:^{
       BOOL success = exportSession.status == AVAssetExportSessionStatusCompleted;
       if (!success) {
-        NSLog(@"Merge export failed: %@", exportSession.error);
+        DYYYLogMerge(@"导出合并视频失败: %@", exportSession.error.localizedDescription);
       } else {
-        [[NSFileManager defaultManager] removeItemAtURL:videoURL error:nil];
+        DYYYLogMerge(@"导出合并视频成功: %@", outputURL.lastPathComponent);
+        // 不在这里删除原始视频文件，等待合并完成后再一起清理
       }
       dispatch_async(dispatch_get_main_queue(), ^{
         if (completion) completion(success, success ? outputURL : nil);
@@ -1331,7 +1414,7 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
     }
   }
 
-  NSString *livePhotoPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"LivePhotoBatch"];
+  NSString *livePhotoPath = [[DYYYUtils cacheDirectory] stringByAppendingPathComponent:@"LivePhotoBatch"];
   NSFileManager *fileManager = [NSFileManager defaultManager];
   if ([fileManager fileExistsAtPath:livePhotoPath]) {
     NSError *error = nil;
@@ -1341,7 +1424,7 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
     }
   }
   
-  NSString *generalLivePhotoPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"LivePhoto"];
+  NSString *generalLivePhotoPath = [[DYYYUtils cacheDirectory] stringByAppendingPathComponent:@"LivePhoto"];
   if ([fileManager fileExistsAtPath:generalLivePhotoPath]) {
     NSError *error = nil;
     [fileManager removeItemAtPath:generalLivePhotoPath error:&error];
@@ -1625,8 +1708,8 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
     }
   }
 
-  NSURL *tempDir = [NSURL fileURLWithPath:NSTemporaryDirectory()];
-  NSURL *destinationURL = [tempDir URLByAppendingPathComponent:fileName];
+  NSURL *destinationURL =
+      [NSURL fileURLWithPath:[DYYYUtils cachePathForFilename:fileName]];
 
   NSError *moveError;
   if ([[NSFileManager defaultManager] fileExistsAtPath:destinationURL.path]) {
@@ -1677,6 +1760,14 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
       // 如果已取消，直接返回
       if (wasCancelled) {
         return;
+      }
+
+      if (mediaType == MediaTypeVideo) {
+        if (!moveError) {
+          DYYYLogDownload(@"视频下载完成: %@", destinationURL.path);
+        } else {
+          DYYYLogDownload(@"视频下载失败: %@", moveError.localizedDescription);
+        }
       }
 
       if (!moveError) {
@@ -2021,7 +2112,7 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
   return item;
 }
 - (NSString *)filePathFromTmp:(NSString *)filename {
-  NSString *tempPath = NSTemporaryDirectory();
+  NSString *tempPath = [DYYYUtils cacheDirectory];
   NSString *filePath = [tempPath stringByAppendingPathComponent:filename];
   return filePath;
 }
@@ -2097,7 +2188,7 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
         __block NSInteger phase = 0; // 0:下载图片阶段，1:下载视频阶段，2:合成阶段
         
         // 创建临时目录
-        NSString *livePhotoPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"LivePhotoBatch"];
+        NSString *livePhotoPath = [[DYYYUtils cacheDirectory] stringByAppendingPathComponent:@"LivePhotoBatch"];
         NSFileManager *fileManager = [NSFileManager defaultManager];
         [fileManager createDirectoryAtPath:livePhotoPath withIntermediateDirectories:YES attributes:nil error:nil];
 
@@ -2776,7 +2867,6 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
     }
 }
 
-#define DYYYLogVideo(format, ...) NSLog((@"[DYYY视频合成] " format), ##__VA_ARGS__)
 // 创建视频合成器从多种媒体源
 + (void)createVideoFromMedia:(NSArray<NSString *> *)imageURLs
                   livePhotos:(NSArray<NSDictionary *> *)livePhotos
@@ -2811,7 +2901,7 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
         };
         
         // 创建临时目录
-        NSString *mediaPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"VideoComposition"];
+        NSString *mediaPath = [[DYYYUtils cacheDirectory] stringByAppendingPathComponent:@"VideoComposition"];
         NSFileManager *fileManager = [NSFileManager defaultManager];
         if ([fileManager fileExistsAtPath:mediaPath]) {
             DYYYLogVideo(@"正在清理旧的临时目录: %@", mediaPath);
@@ -3151,7 +3241,7 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
                    (long)(i+1), (long)imageFiles.count, image.size.width, image.size.height);
         
         // 创建临时视频文件路径
-        NSString *tempVideoPath = [NSTemporaryDirectory() stringByAppendingPathComponent:
+        NSString *tempVideoPath = [[DYYYUtils cacheDirectory] stringByAppendingPathComponent:
                                   [NSString stringWithFormat:@"temp_img_%@.mp4", [NSUUID UUID].UUIDString]];
         
         dispatch_group_enter(processingGroup);
@@ -3702,7 +3792,7 @@ static void CGContextCopyBytes(CGContextRef dst, CGContextRef src, int width,
                     });
                     return;
                 }
-                NSString *tempPath = [NSTemporaryDirectory() stringByAppendingPathComponent:
+                NSString *tempPath = [[DYYYUtils cacheDirectory] stringByAppendingPathComponent:
                                       [NSString stringWithFormat:@"sticker_%ld.gif", (long)[[NSDate date] timeIntervalSince1970]]];
                 BOOL success = [self createGIFWithImages:images duration:duration path:tempPath progress:^(float progress) {}];
                 dispatch_async(dispatch_get_main_queue(), ^{
