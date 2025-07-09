@@ -1017,8 +1017,8 @@
 			  }
 
 			  if (urlList && urlList.count > 0) {
-				  NSURL *url = [NSURL URLWithString:urlList.    
-                                                [DYYYManager downloadMedia:url
+		                   NSURL *url = [NSURL URLWithString:urlList.firstObject];
+                                  [DYYYManager downloadMedia:url
                                                    mediaType:MediaTypeVideo
                                                        audio:audioURL
                                                   completion:^(BOOL success){
@@ -1026,8 +1026,8 @@
 			  } else {
 				  // 备用方法：直接使用h264URL
 				  if (videoModel.h264URL && videoModel.h264URL.originURLList.count > 0) {
-					  NSURL *url = [NSURL URLWithString:videoModel.h264URL.originURLList.                           
-                                                           [DYYYManager downloadMedia:url
+						  NSURL *url = [NSURL URLWithString:videoModel.h264URL.originURLList.firstObject];
+                                          [DYYYManager downloadMedia:url
                                                            mediaType:MediaTypeVideo
                                                                audio:audioURL
                                                           completion:^(BOOL success){
