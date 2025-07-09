@@ -721,15 +721,15 @@ BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitansw
 %hook XIGDanmakuPlayerView
 
 - (id)initWithFrame:(CGRect)frame {
-    id orig = %orig;
+	id orig = %orig;
 
-    ((UIView *)orig).tag = DYYY_IGNORE_GLOBAL_ALPHA_TAG;
+	((UIView *)orig).tag = DYYY_IGNORE_GLOBAL_ALPHA_TAG;
 
-    return orig;
+	return orig;
 }
 
 - (void)setAlpha:(CGFloat)alpha {
-		if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYCommentShowDanmaku"]) {
+	if (DYYYGetBool(@"DYYYCommentShowDanmaku") && alpha == 0.0) {
 		return;
 	} else {
 		%orig(alpha);
