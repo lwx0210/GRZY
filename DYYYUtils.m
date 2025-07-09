@@ -1,3 +1,5 @@
+#import <os/lock.h>
+#import <stdatomic.h>
 #import <UIKit/UIKit.h>
 #import <MobileCoreServices/UTCoreTypes.h>
 #import "DYYYUtils.h"
