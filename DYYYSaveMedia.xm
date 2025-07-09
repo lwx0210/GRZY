@@ -145,10 +145,11 @@ static BOOL isDownloadFlied = NO;
 				}
 
 				NSURL *heifURL = [NSURL URLWithString:urlString];
-				[DYYYManager downloadMedia:heifURL
-						 mediaType:MediaTypeHeic
-						completion:^(BOOL success){
-						}];
+		                           [DYYYManager downloadMedia:heifURL
+                                                 mediaType:MediaTypeHeic
+                                                     audio:nil
+                                                completion:^(BOOL success){
+                                                }];
 				return;
 			}
 		}
@@ -294,10 +295,11 @@ static BOOL isDownloadFlied = NO;
 	}
 
 	NSURL *url = [NSURL URLWithString:urlString];
-	[DYYYManager downloadMedia:url
-			 mediaType:MediaTypeHeic
-			completion:^(BOOL success){
-			}];
+	 [DYYYManager downloadMedia:url
+                         mediaType:MediaTypeHeic
+                             audio:nil
+                        completion:^(BOOL success){
+                        }];
 }
 
 %end
