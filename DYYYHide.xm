@@ -1762,9 +1762,9 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveHotMessage"]
 
 - (void)layoutSubviews {
 	%orig;
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideItemTag"]) {
-		self.frame = CGRectMake(0, 0, 0, 0);
+	if (DYYYGetBool(@"DYYYHideItemTag")) {
 		self.hidden = YES;
+		return;
 	}
 }
 
@@ -1872,9 +1872,9 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveHotMessage"]
 
 - (void)layoutSubviews {
 	%orig;
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveCapsuleView"]) {
-		self.frame = CGRectMake(0, 0, 0, 0);
+	if (DYYYGetBool(@"DYYYHideLiveCapsuleView")) {
 		self.hidden = YES;
+		return;
 	}
 }
 
@@ -1945,6 +1945,74 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveHotMessage"]
 			}
 		}
 	}
+}
+%end
+
+%hook HTSEventForwardingView
+
+static const void *kDyHasTransformedKey = &kDyHasTransformedKey;
+
+- (void)layoutSubviews {
+    %orig;
+
+	NSString *transparentValue = DYYYGetString(@"DYYYGlobalTransparency");
+	if (transparentValue.length > 0) {
+		CGFloat alphaValue = transparentValue.floatValue;
+		if (alphaValue >= 0.0 && alphaValue <= 1.0) {
+			self.alpha = alphaValue;
+		}
+	}
+
+    UIResponder *nextResponder = [self nextResponder];
+    if (![nextResponder isKindOfClass:[UIView class]]) return;
+
+    UIView *parentView = (UIView *)nextResponder;
+    UIViewController *viewController = [parentView firstAvailableUIViewController];
+
+    if ([viewController isKindOfClass:%c(AWELiveNewPreStreamViewController)] &&
+        [[self levelName] isEqualToString:@"content"]) {
+
+        if ([objc_getAssociatedObject(self, kDyHasTransformedKey) boolValue]) {
+            return;
+        }
+
+        NSString *vcScaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
+        CGFloat scale = 1.0;
+        if (vcScaleValue.length > 0) {
+            scale = [vcScaleValue floatValue];
+            if (scale <= 0) scale = 1.0; 
+        }
+
+        BOOL shouldShiftUp = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"];
+
+        if (scale != 1.0 || shouldShiftUp) {
+            
+            CGAffineTransform finalTransform = self.transform;
+
+            if (scale != 1.0) {
+                NSArray *subviews = [self.subviews copy];
+                CGFloat ty = 0;
+                for (UIView *view in subviews) {
+                    CGFloat viewHeight = view.frame.size.height;
+                    CGFloat contribution = (viewHeight - viewHeight * scale) / 2;
+                    ty += contribution;
+                }
+                CGFloat frameWidth = self.frame.size.width;
+                CGFloat tx = (frameWidth - frameWidth * scale) / 2 - frameWidth * (1 - scale);
+
+                CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scale, scale);
+                finalTransform = CGAffineTransformTranslate(scaleTransform, tx / scale, ty / scale);
+            }
+
+            if (shouldShiftUp) {
+                finalTransform = CGAffineTransformTranslate(finalTransform, 0, -83 / (scale > 0 ? scale : 1.0));
+            }
+
+            self.transform = finalTransform;
+
+            objc_setAssociatedObject(self, kDyHasTransformedKey, @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
+    }
 }
 %end
 
