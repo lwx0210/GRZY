@@ -1,4 +1,5 @@
 #import "AwemeHeaders.h"
+#import "DYYYUtils.h"
 
 %hook AWEFeedLiveMarkView
 - (void)setHidden:(BOOL)hidden {
