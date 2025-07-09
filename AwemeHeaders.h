@@ -236,6 +236,8 @@ static CGFloat gStartVal = 0.0;
 
 @interface XIGDanmakuPlayerView : UIView
 @end
+@interface DDanmakuPlayerView : UIView
+@end
 
 @interface AWEDanmakuItemTextInfo : NSObject
 @property (nonatomic, strong) NSAttributedString *danmakuText;
