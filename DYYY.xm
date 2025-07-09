@@ -738,6 +738,18 @@ BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitansw
 
 %end
 
+%hook DDanmakuPlayerView
+
+- (void)setAlpha:(CGFloat)alpha {
+	if (DYYYGetBool(@"DYYYCommentShowDanmaku") && alpha == 0.0) {
+		return;
+	} else {
+		%orig(alpha);
+	}
+}
+
+%end
+
 %hook AWEMarkView
 
 - (void)layoutSubviews {
