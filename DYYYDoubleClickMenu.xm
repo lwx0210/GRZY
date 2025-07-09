@@ -172,15 +172,15 @@
 					      AWEVideoModel *videoModel = awemeModel.video;
 					      if (videoModel && videoModel.coverURL && videoModel.coverURL.originURLList.count > 0) {
 						      NSURL *coverURL = [NSURL URLWithString:videoModel.coverURL.originURLList.firstObject];
-						    [DYYYManager downloadMedia:downloadURL
-                                                                               mediaType:MediaTypeImage
-                                                                                   audio:nil
-                                                                              completion:^(BOOL success) {
-										if (success) {
-										} else {
-											[DYYYUtils showToast:@"封面保存已取消"];
-										}
-									      }];
+						    [DYYYManager downloadMedia:url
+                                                     mediaType:MediaTypeImage
+                                                     audio:nil
+                                                     completion:^(BOOL success) {
+					              if (success) {
+					               } else {
+						      [DYYYUtils showToast:@"封面保存已取消"];
+					    }
+					  }];
 					      }
 					    }];
 				[actions addObject:saveCoverAction];
