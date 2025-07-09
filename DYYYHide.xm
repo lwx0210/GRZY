@@ -1,5 +1,4 @@
 #import "AwemeHeaders.h"
-#import "DYYYUtils.h"
 
 %hook AWEFeedLiveMarkView
 - (void)setHidden:(BOOL)hidden {
@@ -170,7 +169,7 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveHotMessage"]
 				  [gpview isKindOfClass:%c(LynxView)] &&
 				  [gpview.accessibilityLabel isEqualToString:@"lynxview"];
 		// 基于最近的视图控制器IESLiveAudienceViewController的判断
-		UIViewController *vc = [DYYYUtils getActiveTopController:self];
+		
 		BOOL isLiveAudienceVC = [vc isKindOfClass:%c(IESLiveAudienceViewController)];
 		if (isLynxView && isLiveAudienceVC) {
 			[self removeFromSuperview];
