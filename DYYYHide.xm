@@ -157,6 +157,17 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveHotMessage"]
 }
 %end
 
+//直播间滚动弹幕
+%hook IESLiveDanmakuVariousView
+- (void)layoutSubviews {
+	%orig;
+	if (DYYYGetBool(@"DYYYHideLiveDanmaku")) {
+		[self removeFromSuperview];
+	}
+}
+
+%end
+
 // 禁用自动进入直播间
 %hook AWELiveGuideElement
 
