@@ -2410,10 +2410,11 @@ static AWEIMReusableCommonCell *currentCell;
 		  AWEIMGiphyMessage *giphyMessage = (AWEIMGiphyMessage *)context.message;
 		  if (giphyMessage.giphyURL && giphyMessage.giphyURL.originURLList.count > 0) {
 			  NSURL *url = [NSURL URLWithString:giphyMessage.giphyURL.originURLList.firstObject];
-			  [DYYYManager downloadMedia:url
-					   mediaType:MediaTypeHeic
-					  completion:^(BOOL success){
-					  }];
+			   [DYYYManager downloadMedia:url
+                                           mediaType:MediaTypeHeic
+                                               audio:nil
+                                          completion:^(BOOL success){
+                                          }];
 		  }
 	  }
 	};
