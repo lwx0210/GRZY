@@ -1074,6 +1074,8 @@ static CGFloat gStartVal = 0.0;
 @end
 @interface IESLiveDynamicRankListEntranceView : UIView
 @end
+@interface IESLiveDanmakuVariousView : UIView
+@end
 @interface IESLiveShortTouchActionView : UIView
 @end
 @interface PlatformCanvasView : UIView
