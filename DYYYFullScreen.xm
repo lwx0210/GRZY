@@ -8,100 +8,162 @@
 static CGFloat tabHeight = 0;
 
 static CGFloat customTabBarHeight() {
-	NSString *value = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYTabBarHeight"];
-	if (value.length > 0) {
-		CGFloat h = [value floatValue];
-		return h > 0 ? h : 0;
-	}
-	return 0;
+        NSString *value = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYTabBarHeight"];
+        if (value.length > 0) {
+                CGFloat h = [value floatValue];
+                return h > 0 ? h : 0;
+        }
+        return 0;
 }
 
-%hook AWECommentContainerViewController
-
-- (void)viewDidLayoutSubviews {
-	%orig;
-
-	BOOL enableCommentBlur = DYYYGetBool(@"DYYYisEnableCommentBlur");
-	if (!enableCommentBlur)
+static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
+	if (!parentView)
 		return;
 
-	Class containerViewClass = NSClassFromString(@"AWECommentInputViewSwiftImpl.CommentInputContainerView");
-	UIView *containerView = [DYYYUtils findSubviewOfClass:containerViewClass inView:self.view];
-	if (containerView) {
-		for (UIView *subview in containerView.subviews) {
-			if ([subview isKindOfClass:[UIView class]] && subview.alpha > 0.1f && subview.backgroundColor && CGColorGetAlpha(subview.backgroundColor.CGColor) > 0.1f) {
-				float userTransparency = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYCommentBlurTransparent"] floatValue];
-				if (userTransparency <= 0 || userTransparency > 1) {
-					userTransparency = 0.8;
-				}
-				[DYYYUtils applyBlurEffectToView:subview transparency:userTransparency blurViewTag:999];
-				[DYYYUtils clearBackgroundRecursivelyInView:subview];
-			}
+	parentView.backgroundColor = [UIColor clearColor];
+
+	UIVisualEffectView *existingBlurView = nil;
+	for (UIView *subview in parentView.subviews) {
+		if ([subview isKindOfClass:[UIVisualEffectView class]] && subview.tag == 999) {
+			existingBlurView = (UIVisualEffectView *)subview;
+			break;
 		}
 	}
 
-	Class middleContainerClass = NSClassFromString(@"AWECommentInputViewSwiftImpl.CommentInputViewMiddleContainer");
-	NSArray<UIView *> *middleContainers = [DYYYUtils findAllSubviewsOfClass:middleContainerClass inView:self.view];
-	for (UIView *middleContainer in middleContainers) {
-		BOOL containsDanmu = NO;
-		for (UIView *innerSubviewCheck in middleContainer.subviews) {
-			if ([innerSubviewCheck isKindOfClass:[UILabel class]] && [((UILabel *)innerSubviewCheck).text containsString:@"弹幕"]) {
-				containsDanmu = YES;
-				break;
-			}
+	BOOL isDarkMode = [DYYYUtils isDarkMode];
+	UIBlurEffectStyle blurStyle = isDarkMode ? UIBlurEffectStyleDark : UIBlurEffectStyleLight;
+
+	if (transparency <= 0 || transparency > 1) {
+		transparency = 0.5;
+	}
+
+	if (!existingBlurView) {
+		UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:blurStyle];
+		UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+		blurEffectView.frame = parentView.bounds;
+		blurEffectView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+		blurEffectView.alpha = transparency;
+		blurEffectView.tag = 999;
+
+		UIView *overlayView = [[UIView alloc] initWithFrame:parentView.bounds];
+		CGFloat alpha = isDarkMode ? 0.2 : 0.1;
+		overlayView.backgroundColor = [UIColor colorWithWhite:(isDarkMode ? 0 : 1) alpha:alpha];
+		overlayView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+		[blurEffectView.contentView addSubview:overlayView];
+
+		[parentView insertSubview:blurEffectView atIndex:0];
+	} else {
+		UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:blurStyle];
+		[existingBlurView setEffect:blurEffect];
+		existingBlurView.alpha = transparency;
+
+		for (UIView *subview in existingBlurView.contentView.subviews) {
+			CGFloat alpha = isDarkMode ? 0.2 : 0.1;
+			subview.backgroundColor = [UIColor colorWithWhite:(isDarkMode ? 0 : 1) alpha:alpha];
 		}
 
-		if (containsDanmu) {
-			UIView *parentView = middleContainer.superview;
-			for (UIView *innerSubview in parentView.subviews) {
-				if ([innerSubview isKindOfClass:[UIView class]]) {
-					// NSLog(@"[innerSubview] %@", innerSubview);
-					if (innerSubview.subviews.count > 0) {
-						[innerSubview.subviews[0] removeFromSuperview];
-					}
-
-					UIView *whiteBackgroundView = [[UIView alloc] initWithFrame:innerSubview.bounds];
-					whiteBackgroundView.backgroundColor = [UIColor whiteColor];
-					whiteBackgroundView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-					[innerSubview addSubview:whiteBackgroundView];
-					break;
-				}
-			}
-		} else {
-			for (UIView *innerSubview in middleContainer.subviews) {
-				if ([innerSubview isKindOfClass:[UIView class]] && innerSubview.alpha > 0.1f && innerSubview.backgroundColor &&
-				    CGColorGetAlpha(innerSubview.backgroundColor.CGColor) > 0.1f) {
-					[DYYYUtils applyBlurEffectToView:innerSubview transparency:0.2f blurViewTag:999];
-					[DYYYUtils clearBackgroundRecursivelyInView:innerSubview];
-					break;
-				}
-			}
-		}
+		[parentView insertSubview:existingBlurView atIndex:0];
 	}
 }
-
-%end
 
 %hook UIView
 - (void)layoutSubviews {
 	%orig;
 
-	if (DYYYGetBool(@"DYYYisEnableFullScreen")) {
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
 		if (self.frame.size.height == tabHeight && tabHeight > 0) {
-			UIViewController *vc = [DYYYUtils firstAvailableViewControllerFromView:self];
-			if ([vc isKindOfClass:NSClassFromString(@"AWEMixVideoPanelDetailTableViewController")] || [vc isKindOfClass:NSClassFromString(@"AWECommentInputViewController")] ||
-			    [vc isKindOfClass:NSClassFromString(@"AWEAwemeDetailTableViewController")]) {
+			UIViewController *vc = [self firstAvailableUIViewController];
+			if ([vc isKindOfClass:NSClassFromString(@"AWEMixVideoPanelDetailTableViewController")] || [vc isKindOfClass:NSClassFromString(@"AWECommentInputViewController")]) {
 				self.backgroundColor = [UIColor clearColor];
 			}
 		}
 	}
 
-	if (DYYYGetBool(@"DYYYisEnableFullScreen") || DYYYGetBool(@"DYYYisEnableCommentBlur")) {
-		UIViewController *vc = [DYYYUtils firstAvailableViewControllerFromView:self];
-		if ([vc isKindOfClass:%c(AWEPlayInteractionViewController)]) {
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"]) {
+		for (UIView *subview in self.subviews) {
+			if ([subview isKindOfClass:NSClassFromString(@"AWECommentInputViewSwiftImpl.CommentInputViewMiddleContainer")]) {
+				BOOL containsDanmu = NO;
+
+				for (UIView *innerSubview in subview.subviews) {
+					if ([innerSubview isKindOfClass:[UILabel class]] && [((UILabel *)innerSubview).text containsString:@"弹幕"]) {
+						containsDanmu = YES;
+						break;
+					}
+				}
+				if (containsDanmu) {
+					UIView *parentView = subview.superview;
+					for (UIView *innerSubview in parentView.subviews) {
+						if ([innerSubview isKindOfClass:[UIView class]]) {
+							// NSLog(@"[innerSubview] %@", innerSubview);
+							[innerSubview.subviews[0] removeFromSuperview];
+
+							UIView *whiteBackgroundView = [[UIView alloc] initWithFrame:innerSubview.bounds];
+							whiteBackgroundView.backgroundColor = [UIColor whiteColor];
+							whiteBackgroundView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+							[innerSubview addSubview:whiteBackgroundView];
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		NSString *className = NSStringFromClass([self class]);
+		if ([className isEqualToString:@"AWECommentInputViewSwiftImpl.CommentInputContainerView"]) {
 			for (UIView *subview in self.subviews) {
-				if ([subview isKindOfClass:[UIView class]] && subview.backgroundColor && CGColorEqualToColor(subview.backgroundColor.CGColor, [UIColor blackColor].CGColor)) {
-					subview.hidden = YES;
+				if ([subview isKindOfClass:[UIView class]] && subview.backgroundColor) {
+					CGFloat red = 0, green = 0, blue = 0, alpha = 0;
+					[subview.backgroundColor getRed:&red green:&green blue:&blue alpha:&alpha];
+
+					if ((red == 22 / 255.0 && green == 22 / 255.0 && blue == 22 / 255.0) || (red == 1.0 && green == 1.0 && blue == 1.0)) {
+						float userTransparency = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYCommentBlurTransparent"] floatValue];
+						if (userTransparency <= 0 || userTransparency > 1) {
+							userTransparency = 0.95;
+						}
+						DYYYAddCustomViewToParent(subview, userTransparency);
+					}
+				}
+			}
+		}
+	}
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBarBlur"]) {
+		for (UIView *subview in self.subviews) {
+			if ([subview isKindOfClass:NSClassFromString(@"AWECommentInputViewSwiftImpl.CommentInputViewMiddleContainer")]) {
+				BOOL containsDanmu = NO;
+				for (UIView *innerSubviewCheck in subview.subviews) {
+					if ([innerSubviewCheck isKindOfClass:[UILabel class]] && [((UILabel *)innerSubviewCheck).text containsString:@"弹幕"]) {
+						containsDanmu = YES;
+						break;
+					}
+				}
+				if (!containsDanmu) {
+					for (UIView *innerSubview in subview.subviews) {
+						if ([innerSubview isKindOfClass:[UIView class]]) {
+							float userTransparency = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYCommentBlurTransparent"] floatValue];
+							if (userTransparency <= 0 || userTransparency > 1) {
+								userTransparency = 0.95;
+							}
+							DYYYAddCustomViewToParent(innerSubview, userTransparency);
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"] || [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"]) {
+		UIViewController *vc = [self firstAvailableUIViewController];
+		if ([vc isKindOfClass:%c(AWEPlayInteractionViewController)]) {
+			BOOL shouldHideSubview = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"] ||
+						 [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"];
+
+			if (shouldHideSubview) {
+				for (UIView *subview in self.subviews) {
+					if ([subview isKindOfClass:[UIView class]] && subview.backgroundColor && CGColorEqualToColor(subview.backgroundColor.CGColor, [UIColor blackColor].CGColor)) {
+						subview.hidden = YES;
+					}
 				}
 			}
 		}
@@ -116,9 +178,9 @@ static CGFloat customTabBarHeight() {
 		return;
 	}
 
-	BOOL enableBlur = DYYYGetBool(@"DYYYisEnableCommentBlur");
-	BOOL enableFS = DYYYGetBool(@"DYYYisEnableFullScreen");
-	BOOL hideAvatar = DYYYGetBool(@"DYYYisHiddenAvatarList");
+	BOOL enableBlur = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"];
+	BOOL enableFS = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"];
+	BOOL hideAvatar = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHiddenAvatarList"];
 
 	Class SkylightListViewClass = NSClassFromString(@"AWEIMSkylightListView");
 	if (hideAvatar && SkylightListViewClass && [self isKindOfClass:SkylightListViewClass]) {
@@ -127,7 +189,7 @@ static CGFloat customTabBarHeight() {
 		return;
 	}
 
-	UIViewController *vc = [DYYYUtils firstAvailableViewControllerFromView:self];
+	UIViewController *vc = [self firstAvailableUIViewController];
 	Class DetailVCClass = NSClassFromString(@"AWEMixVideoPanelDetailTableViewController");
 	Class PlayVCClass1 = NSClassFromString(@"AWEAwemePlayVideoViewController");
 	Class PlayVCClass2 = NSClassFromString(@"AWEDPlayerFeedPlayerViewController");
