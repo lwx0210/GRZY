@@ -67,6 +67,39 @@ UIViewController *topView(void) {
 
   return topController;
 }
++ (UIViewController *)firstAvailableViewControllerFromView:(UIView *)view {
+    UIResponder *responder = view;
+    while ((responder = [responder nextResponder])) {
+        if ([responder isKindOfClass:[UIViewController class]]) {
+            return (UIViewController *)responder;
+        }
+    }
+    return nil;
+}
++ (UIViewController *)findViewControllerOfClass:(Class)targetClass inViewController:(UIViewController *)vc {
+    if (!vc) return nil;
+    if ([vc isKindOfClass:targetClass]) {
+        return vc;
+    }
+    for (UIViewController *childVC in vc.childViewControllers) {
+        UIViewController *found = [self findViewControllerOfClass:targetClass inViewController:childVC];
+        if (found)
+            return found;
+    }
+    return [self findViewControllerOfClass:targetClass inViewController:vc.presentedViewController];
+}
+
++ (UIResponder *)findAncestorResponderOfClass:(Class)targetClass fromView:(UIView *)view {
+    if (!view) return nil;
+    UIResponder *responder = view.superview;
+    while (responder) {
+        if ([responder isKindOfClass:targetClass]) {
+            return responder;
+        }
+        responder = [responder nextResponder];
+    }
+    return nil;
+}
 
 + (void)applyColorSettingsToLabel:(UILabel *)label colorHexString:(NSString *)colorHexString {
     if (!label || !label.text || label.text.length == 0) {
