@@ -279,112 +279,95 @@ BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitansw
 
 %end
 
-// 调整直播默认清晰度功能
-static NSArray<NSString *> *dyyy_qualityRank = nil;
+//最高画质
+%hook AWEVideoModel
 
-%hook HTSLiveStreamQualityFragment
+- (AWEURLModel *)playURL {
+	if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableVideoHighestQuality"]) {
+		return %orig;
+	}
 
-- (void)setupStreamQuality:(id)arg1 {
-    %orig;
+	// 获取比特率模型数组
+	NSArray *bitrateModels = [self bitrateModels];
+	if (!bitrateModels || bitrateModels.count == 0) {
+		return %orig;
+	}
 
-    NSString *preferredQuality = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYLiveQuality"];
-    if (!preferredQuality || [preferredQuality isEqualToString:@"自动"]) {
-        NSLog(@"[DYYY] Live quality auto - skipping hook");
-        return;
-    }
+	// 查找比特率最高的模型
+	id highestBitrateModel = nil;
+	NSInteger highestBitrate = 0;
 
-    BOOL preferLower = YES;
-    NSLog(@"[DYYY] preferredQuality=%@ preferLower=%@", preferredQuality, @(preferLower));
+	for (id model in bitrateModels) {
+		NSInteger bitrate = 0;
+		BOOL validModel = NO;
 
-    NSArray *qualities = self.streamQualityArray;
-    if (!qualities || qualities.count == 0) {
-        qualities = [self getQualities];
-    }
-    if (!qualities || qualities.count == 0) {
-        return;
-    }
+		if ([model isKindOfClass:NSClassFromString(@"AWEVideoBSModel")]) {
+			id bitrateValue = [model bitrate];
+			if (bitrateValue) {
+				bitrate = [bitrateValue integerValue];
+				validModel = YES;
+			}
+		}
 
-    if (!dyyy_qualityRank) {
-        dyyy_qualityRank = @[ @"蓝光帧彩", @"蓝光", @"超清", @"高清", @"标清" ];
-    }
-    NSArray *orderedNames = dyyy_qualityRank;
+		if (validModel && bitrate > highestBitrate) {
+			highestBitrate = bitrate;
+			highestBitrateModel = model;
+		}
+	}
 
-    // Map available names to their indices in the provided order
-    NSMutableDictionary<NSString *, NSNumber *> *nameToIndex = [NSMutableDictionary dictionary];
-    NSMutableArray<NSString *> *availableNames = [NSMutableArray array];
-    NSMutableArray<NSNumber *> *rankArray = [NSMutableArray array];
-    for (NSInteger i = 0; i < qualities.count; i++) {
-        id q = qualities[i];
-        NSString *name = nil;
-        if ([q respondsToSelector:@selector(name)]) {
-            name = [q name];
-        } else {
-            name = [q valueForKey:@"name"];
-        }
-        if (name) {
-            [availableNames addObject:name];
-            nameToIndex[name] = @(i);
-            NSInteger rank = [orderedNames indexOfObject:name];
-            if (rank != NSNotFound) {
-                [rankArray addObject:@(rank)];
-            }
-        }
-    }
-    NSLog(@"[DYYY] available qualities: %@", availableNames);
+	// 如果找到了最高比特率模型，获取其播放地址
+	if (highestBitrateModel) {
+		id playAddr = [highestBitrateModel valueForKey:@"playAddr"];
+		if (playAddr && [playAddr isKindOfClass:%c(AWEURLModel)]) {
+			return playAddr;
+		}
+	}
 
-    BOOL qualityDesc = YES; // ranks ascending -> high to low
-    BOOL qualityAsc = YES;  // ranks descending -> low to high
-    for (NSInteger i = 1; i < rankArray.count; i++) {
-        NSInteger prev = rankArray[i - 1].integerValue;
-        NSInteger curr = rankArray[i].integerValue;
-        if (curr < prev) {
-            qualityDesc = NO;
-        }
-        if (curr > prev) {
-            qualityAsc = NO;
-        }
-    }
+	return %orig;
+}
 
-    NSInteger count = availableNames.count;
-    NSInteger (^convertIndex)(NSInteger) = ^NSInteger(NSInteger idx) {
-      if (qualityAsc && !qualityDesc) {
-          return count - 1 - idx;
-      }
-      return idx;
-    };
+- (NSArray *)bitrateModels {
 
-    NSArray *searchOrder = orderedNames;
+	NSArray *originalModels = %orig;
 
-    NSNumber *indexToUse = nameToIndex[preferredQuality];
-    if (indexToUse) {
-        NSInteger finalIdx = convertIndex(indexToUse.integerValue);
-        NSLog(@"[DYYY] exact quality %@ found at index %ld", preferredQuality, (long)finalIdx);
-        [self setResolutionWithIndex:finalIdx isManual:YES beginChange:nil completion:nil];
-        return;
-    }
+	if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableVideoHighestQuality"]) {
+		return originalModels;
+	}
 
-    NSInteger targetPos = [orderedNames indexOfObject:preferredQuality];
-    if (targetPos == NSNotFound) {
-        NSLog(@"[DYYY] preferred quality %@ not in list", preferredQuality);
-        return;
-    }
+	if (originalModels.count == 0) {
+		return originalModels;
+	}
 
-    NSInteger step = preferLower ? 1 : -1;
-    BOOL applied = NO;
-    for (NSInteger pos = targetPos + step; pos >= 0 && pos < searchOrder.count; pos += step) {
-        NSString *candidate = searchOrder[pos];
-        NSNumber *idx = nameToIndex[candidate];
-        if (idx) {
-            NSInteger finalIdx = convertIndex(idx.integerValue);
-            NSLog(@"[DYYY] fallback quality %@ at index %ld", candidate, (long)finalIdx);
-            [self setResolutionWithIndex:finalIdx isManual:YES beginChange:nil completion:nil];
-            applied = YES;
-            break;
-        }
-    }
-    if (!applied) {
-        NSLog(@"[DYYY] no suitable fallback quality found");
-    }
+	// 查找比特率最高的模型
+	id highestBitrateModel = nil;
+	NSInteger highestBitrate = 0;
+
+	for (id model in originalModels) {
+
+		NSInteger bitrate = 0;
+		BOOL validModel = NO;
+
+		if ([model isKindOfClass:NSClassFromString(@"AWEVideoBSModel")]) {
+			id bitrateValue = [model bitrate];
+			if (bitrateValue) {
+				bitrate = [bitrateValue integerValue];
+				validModel = YES;
+			}
+		}
+
+		if (validModel) {
+			if (bitrate > highestBitrate) {
+				highestBitrate = bitrate;
+				highestBitrateModel = model;
+			}
+		}
+	}
+
+	if (highestBitrateModel) {
+		return @[ highestBitrateModel ];
+	}
+
+	return originalModels;
 }
 
 %end
