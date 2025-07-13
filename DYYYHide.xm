@@ -10,6 +10,17 @@
 }
 %end
 
+//纯净模式双击点赞
+%hook AFDPureModePageTapController
+
+- (void)onVideoPlayerViewDoubleClicked:(id)arg1 {
+    BOOL isSwitchOn = DYYYGetBool(@"DYYYDisableDoubleTapLike");
+    if (!isSwitchOn) {
+        %orig;
+    }
+}
+%end
+
 // 隐藏直播间文字贴纸
 %hook IESLiveStickerView
 - (void)layoutSubviews {
