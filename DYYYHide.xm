@@ -14,7 +14,7 @@
 %hook AFDPureModePageTapController
 
 - (void)onVideoPlayerViewDoubleClicked:(id)arg1 {
-    BOOL isSwitchOn = DYYYGetBool(@"DYYYDisableDoubleTapLike");
+    BOOL isSwitchOn = DYYYGetBool(@"DYYYDouble");
     if (!isSwitchOn) {
         %orig;
     }
