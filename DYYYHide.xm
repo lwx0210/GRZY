@@ -645,16 +645,31 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveHotMessage"]
 
 %end
 
-//挑战贴纸
+//图文贴纸和挑战贴纸
 %hook ACCGestureResponsibleStickerView
-- (void)layoutSubviews {
-	%orig;
 
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideChallengeStickers"]) {
-		[self removeFromSuperview];
-		return;
-	}
+- (void)layoutSubviews {
+    %orig;
+
+    if (DYYYGetBool(@"DYYYHideEditTags")) {
+        for (UIView *subview in self.subviews) {
+            if ([subview isKindOfClass:NSClassFromString(@"ACCEditTagStickerView")]) {
+                self.hidden = YES;
+                return;
+            }
+        }
+    }
+
+    if (DYYYGetBool(@"DYYYHideChallengeStickers")) {
+        for (UIView *subview in self.subviews) {
+            if ([subview isKindOfClass:NSClassFromString(@"ACCMordernQuickFlashStickerView")]) {
+                self.hidden = YES;
+                return;
+            }
+        }
+    }
 }
+
 %end
 
 // 去除"我的"加入挑战横幅
