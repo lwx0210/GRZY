@@ -1670,11 +1670,11 @@ extern "C"
 		    @"detail" : @"",
 		    @"cellType" : @6,
 		    @"imageName" : @"ic_xmark_outlined_20"},
-		  @{@"identifier" : @"DYYYHideOtherChannel",
-		    @"title" : @"移除其它",
-		    @"detail" : @"",
-		    @"cellType" : @26,
-		    @"imageName" : @"ic_xmark_outlined_20"}
+                  @{@"identifier" : @"DYYYHideMediumVideo",
+                    @"title" : @"移除长视频",
+                    @"detail" : @"",
+                    @"cellType" : @6,
+                    @"imageName" : @"ic_xmark_outlined_20"}
 	  ];
 
 	  for (NSDictionary *dict in removeSettings) {
@@ -1699,31 +1699,6 @@ extern "C"
 		    }
 		  };
 		  [removeSettingsItems addObject:item];
-
-		  if ([item.identifier isEqualToString:@"DYYYHideOtherChannel"]) {
-			  NSString *savedValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYHideOtherChannel"];
-			  item.detail = savedValue ?: @"";
-			  item.cellTappedBlock = ^{
-			    // 将保存的逗号分隔字符串转换为数组
-			    NSString *savedKeywords = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYHideOtherChannel"] ?: @"";
-			    NSArray *keywordArray = [savedKeywords length] > 0 ? [savedKeywords componentsSeparatedByString:@","] : @[];
-
-			    // 创建并显示关键词列表视图
-			    DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"自定义过滤顶栏" keywords:keywordArray];
-
-			    // 设置确认回调
-			    keywordListView.onConfirm = ^(NSArray *keywords) {
-			      // 将关键词数组转换为逗号分隔的字符串
-			      NSString *keywordString = [keywords componentsJoinedByString:@","];
-			      [DYYYSettingsHelper setUserDefaults:keywordString forKey:@"DYYYHideOtherChannel"];
-			      item.detail = keywordString;
-			      [item refreshCell];
-			    };
-
-			    // 显示关键词列表视图
-			    [keywordListView show];
-			  };
-		  }
 	  }
 
 	  NSMutableArray *sections = [NSMutableArray array];
