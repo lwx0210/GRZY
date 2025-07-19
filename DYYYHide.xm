@@ -2568,6 +2568,7 @@ static NSString *const kStreamlineSidebarKey = @"DYYYStreamlinethesidebar";
 }
 %end
 
+//顶栏
 %hook AWEFeedChannelManager
 
 - (void)reloadChannelWithChannelModels:(id)arg1 currentChannelIDList:(id)arg2 reloadType:(id)arg3 selectedChannelID:(id)arg4 {
@@ -2618,7 +2619,9 @@ static NSString *const kStreamlineSidebarKey = @"DYYYStreamlinethesidebar";
 			isHideChannel = [defaults boolForKey:@"DYYYHideKidsV2"];
 		} else if ([channelID isEqualToString:@"homepage_pad_game"]) {
 			isHideChannel = [defaults boolForKey:@"DYYYHideGame"];
-		}
+		} else if ([channelID isEqualToString:@"homepage_mediumvideo"]) {
+                        isHideChannel = [defaults boolForKey:@"DYYYHideMediumVideo"];
+                }
 
 		if (oldChannelTitle.length > 0 || newChannelTitle.length > 0) {
 			for (NSString *keyword in hideChannelKeywords) {
