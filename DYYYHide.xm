@@ -51,17 +51,6 @@
 }
 %end
 
-// 隐藏直播间礼物挑战
-%hook IESLiveGroupLiveComponentView
-- (void)layoutSubviews {
-    if (DYYYGetBool(@"DYYYHideGroupComponent")) {
-        [self removeFromSuperview];
-        return;
-    }
-    %orig;
-}
-%end
-
 %hook AWEHomePageBubbleLiveHeadLabelContentView
 - (void)layoutSubviews {
 	%orig;
