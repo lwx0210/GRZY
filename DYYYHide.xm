@@ -51,26 +51,6 @@
 }
 %end
 
-// 隐藏特殊进场特效
-%hook PlatformCanvasView
-- (void)layoutSubviews {
-    %orig;
-    if (DYYYGetBool(@"DYYYHideLivePopup")) {
-        UIView *pview = self.superview;
-        UIView *gpview = pview.superview;
-        // 基于accessibilitylabel的判断
-        BOOL isLynxView = [pview isKindOfClass:%c(UILynxView)] && [gpview isKindOfClass:%c(LynxView)] && [gpview.accessibilityLabel isEqualToString:@"lynxview"];
-        // 基于最近的视图控制器IESLiveAudienceViewController的判断
-        UIViewController *vc = [DYYYUtils firstAvailableViewControllerFromView:self];
-        BOOL isLiveAudienceVC = [vc isKindOfClass:%c(IESLiveAudienceViewController)];
-        if (isLynxView && isLiveAudienceVC) {
-            self.hidden = YES;
-        }
-    }
-    return;
-}
-%end
-
 // 隐藏直播间礼物挑战
 %hook IESLiveGroupLiveComponentView
 - (void)layoutSubviews {
@@ -80,42 +60,6 @@
     }
     %orig;
 }
-%end
-
-// 隐藏直播退出清屏、投屏按钮
-%hook IESLiveButton
-
-- (void)layoutSubviews {
-    %orig;
-    BOOL hideClear = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveRoomClear"];
-    BOOL hideMirror = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveRoomMirroring"];
-    BOOL hideFull = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveRoomFullscreen"];
-
-    if (!(hideClear || hideMirror || hideFull)) {
-        return;
-    }
-
-    NSString *label = self.accessibilityLabel;
-    if (hideClear && [label isEqualToString:@"退出清屏"] && self.superview) {
-        [self.superview removeFromSuperview];
-        return;
-    } else if (hideMirror && [label isEqualToString:@"投屏"] && self.superview) {
-        self.superview.hidden = YES;
-        return;
-    } else if (hideFull && [label isEqualToString:@"横屏"] && self.superview) {
-        static char kDYLiveButtonCacheKey;
-        NSArray *cached = objc_getAssociatedObject(self, &kDYLiveButtonCacheKey);
-        if (!cached) {
-            cached = [self.subviews copy];
-            objc_setAssociatedObject(self, &kDYLiveButtonCacheKey, cached, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-        }
-        for (UIView *subview in cached) {
-            subview.hidden = YES;
-        }
-        return;
-    }
-}
-
 %end
 
 %hook AWEHomePageBubbleLiveHeadLabelContentView
