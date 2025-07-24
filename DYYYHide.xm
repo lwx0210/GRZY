@@ -21,6 +21,17 @@
 }
 %end
 
+//评论显示
+%hook AWEFeedCommentConfigModel
+- (void)setCommentInputConfigText:(NSString *)text {
+    NSString *customText = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYCommentContent"];
+    if (customText && customText.length > 0) {
+        text = customText;
+    }
+    %orig(text);
+}
+%end
+
 // 隐藏直播间文字贴纸
 %hook IESLiveStickerView
 - (void)layoutSubviews {
