@@ -694,8 +694,12 @@ extern "C"
 			      @"title" : @"设置我的标题",
 			      @"detail" : @"不填默认",
 			      @"cellType" : @26,
-			      @"imageName" : @"ic_user_outlined_20"}
-
+			      @"imageName" : @"ic_user_outlined_20"},
+                            @{@"identifier" : @"DYYYCommentContent",
+                              @"title" : @"设置评论填充",
+                              @"detail" : @"善语结善缘，恶言伤人心",
+                              @"cellType" : @26,
+                              @"imageName" : @"ic_comment_outlined_20"}
 
 	  ];
 
