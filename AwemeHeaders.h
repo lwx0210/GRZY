@@ -147,6 +147,14 @@ static CGFloat gStartVal = 0.0;
 - (AWESearchAwemeExtraModel *)searchExtraModel;
 @end
 
+@interface AWEAwemeStatusModel : NSObject
+- (void)setListenVideoStatus:(NSInteger)status;
+@end
+
+@interface AWEFeedLiveTabTopSelectionView : UIView
+- (void)setHideTimer:(id)timer;
+@end
+
 @interface AWEFeedCommentConfigModel : NSObject
 - (void)setCommentInputConfigText:(NSString *)text;
 @end
