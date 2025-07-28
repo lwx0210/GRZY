@@ -1001,6 +1001,31 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveHotMessage"]
 }
 %end
 
+//侧栏红点
+%hook AWELeftSideBarEntranceView
+- (void)layoutSubviews {
+    %orig;
+    
+    UIResponder *responder = self;
+    UIViewController *parentVC = nil;
+    while ((responder = [responder nextResponder])) {
+        if ([responder isKindOfClass:%c(AWEFeedContainerViewController)]) {
+            parentVC = (UIViewController *)responder;
+            break;
+        }
+    }
+    
+    if (parentVC && [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHiddenLeftSideBar"]) {
+        for (UIView *subview in self.subviews) {
+            if ([subview isKindOfClass:%c(DUXBaseImageView)]) {
+                subview.hidden = YES;
+            }
+        }
+    }
+}
+
+%end
+
 %hook AWENormalModeTabBarBadgeContainerView
 
 - (void)layoutSubviews {
