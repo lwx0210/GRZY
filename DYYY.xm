@@ -243,6 +243,45 @@ BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitansw
 }
 %end
 
+// 隐藏侧栏红点
+%hook AWEHPTopBarCTAItemView
+
+- (void)showRedDot {
+    if (![[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYisHiddenSidebarDot"])
+        %orig;
+}
+
+- (void)hideCountRedDot {
+    if (![[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYisHiddenSidebarDot"])
+        %orig;
+}
+
+- (void)layoutSubviews {
+    %orig;
+
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHiddenSidebarDot"]) {
+        return;
+    }
+
+    static char kDYSidebarBadgeCacheKey;
+    NSArray *cachedBadges = objc_getAssociatedObject(self, &kDYSidebarBadgeCacheKey);
+    if (!cachedBadges) {
+        NSMutableArray *badges = [NSMutableArray array];
+        for (UIView *subview in self.subviews) {
+            if ([subview isKindOfClass:%c(DUXBadge)]) {
+                [badges addObject:subview];
+            }
+        }
+        cachedBadges = [badges copy];
+        objc_setAssociatedObject(self, &kDYSidebarBadgeCacheKey, cachedBadges, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+
+    for (UIView *badge in cachedBadges) {
+        badge.hidden = YES;
+    }
+}
+%end
+
 // 长按复制个人简介
 %hook AWEProfileMentionLabel
 
