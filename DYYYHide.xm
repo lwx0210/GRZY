@@ -62,6 +62,26 @@
 }
 %end
 
+//直播标签缩放
+%hook AWEFeedLiveTabTopSelectionView
+- (void)setHideTimer:(id)timer {
+    if (DYYYGetBool(@"DYYYDisableAutoHideLive")) {
+        timer = nil;
+    }
+    %orig(timer);
+}
+%end
+
+//后台播放
+%hook AWEAwemeStatusModel
+- (void)setListenVideoStatus:(NSInteger)status {
+    if (status == 1 && DYYYGetBool(@"DYYYEnableBackgroundListen")) {
+        status = 2;
+    }
+    %orig(status);
+}
+%end
+
 %hook AWEHomePageBubbleLiveHeadLabelContentView
 - (void)layoutSubviews {
 	%orig;
@@ -213,24 +233,24 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveHotMessage"]
 %hook AWENormalModeTabBarGeneralPlusButton
 - (void)setImage:(UIImage *)image forState:(UIControlState)state {
 
-	if ([self.accessibilityLabel isEqualToString:@"拍摄"]) {
+    if ([self.accessibilityLabel isEqualToString:@"拍摄"]) {
 
-		NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-		NSString *dyyyFolderPath = [documentsPath stringByAppendingPathComponent:@"DYYY"];
+        NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+        NSString *dyyyFolderPath = [documentsPath stringByAppendingPathComponent:@"DYYY"];
 
-		NSString *customImagePath = [dyyyFolderPath stringByAppendingPathComponent:@"tab_plus.png"];
+        NSString *customImagePath = [dyyyFolderPath stringByAppendingPathComponent:@"tab_plus.png"];
 
-		if ([[NSFileManager defaultManager] fileExistsAtPath:customImagePath]) {
-			UIImage *customImage = [UIImage imageWithContentsOfFile:customImagePath];
-			if (customImage) {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:customImagePath]) {
+            UIImage *customImage = [UIImage imageWithContentsOfFile:customImagePath];
+            if (customImage) {
 
-				%orig(customImage, state);
-				return;
-			}
-		}
-	}
+                %orig(customImage, state);
+                return;
+            }
+        }
+    }
 
-	%orig;
+    %orig;
 }
 %end
 
@@ -997,28 +1017,42 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveHotMessage"]
 %end
 
 //侧栏红点
-%hook AWELeftSideBarEntranceView
-- (void)layoutSubviews {
-    %orig;
-    
-    UIResponder *responder = self;
-    UIViewController *parentVC = nil;
-    while ((responder = [responder nextResponder])) {
-        if ([responder isKindOfClass:%c(AWEFeedContainerViewController)]) {
-            parentVC = (UIViewController *)responder;
-            break;
-        }
-    }
-    
-    if (parentVC && [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHiddenLeftSideBar"]) {
-        for (UIView *subview in self.subviews) {
-            if ([subview isKindOfClass:%c(DUXBaseImageView)]) {
-                subview.hidden = YES;
-            }
-        }
-    }
+%hook AWEHPTopBarCTAItemView
+
+- (void)showRedDot {
+    if (![[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYHideSidebarDot"])
+        %orig;
 }
 
+- (void)hideCountRedDot {
+    if (![[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYHideSidebarDot"])
+        %orig;
+}
+
+- (void)layoutSubviews {
+    %orig;
+
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideSidebarDot"]) {
+        return;
+    }
+
+    static char kDYSidebarBadgeCacheKey;
+    NSArray *cachedBadges = objc_getAssociatedObject(self, &kDYSidebarBadgeCacheKey);
+    if (!cachedBadges) {
+        NSMutableArray *badges = [NSMutableArray array];
+        for (UIView *subview in self.subviews) {
+            if ([subview isKindOfClass:%c(DUXBadge)]) {
+                [badges addObject:subview];
+            }
+        }
+        cachedBadges = [badges copy];
+        objc_setAssociatedObject(self, &kDYSidebarBadgeCacheKey, cachedBadges, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+
+    for (UIView *badge in cachedBadges) {
+        badge.hidden = YES;
+    }
+}
 %end
 
 %hook AWEFeedVideoButton
