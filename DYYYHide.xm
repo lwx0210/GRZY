@@ -1016,45 +1016,6 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveHotMessage"]
 
 %end
 
-//侧栏红点
-%hook AWEHPTopBarCTAItemView
-
-- (void)showRedDot {
-    if (![[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYHideSidebarDot"])
-        %orig;
-}
-
-- (void)hideCountRedDot {
-    if (![[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYHideSidebarDot"])
-        %orig;
-}
-
-- (void)layoutSubviews {
-    %orig;
-
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideSidebarDot"]) {
-        return;
-    }
-
-    static char kDYSidebarBadgeCacheKey;
-    NSArray *cachedBadges = objc_getAssociatedObject(self, &kDYSidebarBadgeCacheKey);
-    if (!cachedBadges) {
-        NSMutableArray *badges = [NSMutableArray array];
-        for (UIView *subview in self.subviews) {
-            if ([subview isKindOfClass:%c(DUXBadge)]) {
-                [badges addObject:subview];
-            }
-        }
-        cachedBadges = [badges copy];
-        objc_setAssociatedObject(self, &kDYSidebarBadgeCacheKey, cachedBadges, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-
-    for (UIView *badge in cachedBadges) {
-        badge.hidden = YES;
-    }
-}
-%end
-
 %hook AWEFeedVideoButton
 
 - (void)layoutSubviews {
