@@ -233,24 +233,24 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLiveHotMessage"]
 %hook AWENormalModeTabBarGeneralPlusButton
 - (void)setImage:(UIImage *)image forState:(UIControlState)state {
 
-	if ([self.accessibilityLabel isEqualToString:@"拍摄"]) {
+    if ([self.accessibilityLabel isEqualToString:@"拍摄"]) {
 
-		NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-		NSString *dyyyFolderPath = [documentsPath stringByAppendingPathComponent:@"DYYY"];
+        NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+        NSString *dyyyFolderPath = [documentsPath stringByAppendingPathComponent:@"DYYY"];
 
-		NSString *customImagePath = [dyyyFolderPath stringByAppendingPathComponent:@"tab_plus.png"];
+        NSString *customImagePath = [dyyyFolderPath stringByAppendingPathComponent:@"tab_plus.png"];
 
-		if ([[NSFileManager defaultManager] fileExistsAtPath:customImagePath]) {
-			UIImage *customImage = [UIImage imageWithContentsOfFile:customImagePath];
-			if (customImage) {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:customImagePath]) {
+            UIImage *customImage = [UIImage imageWithContentsOfFile:customImagePath];
+            if (customImage) {
 
-				%orig(customImage, state);
-				return;
-			}
-		}
-	}
+                %orig(customImage, state);
+                return;
+            }
+        }
+    }
 
-	%orig;
+    %orig;
 }
 %end
 
