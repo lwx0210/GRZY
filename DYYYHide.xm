@@ -62,6 +62,26 @@
 }
 %end
 
+//直播标签缩放
+%hook AWEFeedLiveTabTopSelectionView
+- (void)setHideTimer:(id)timer {
+    if (DYYYGetBool(@"DYYYDisableAutoHideLive")) {
+        timer = nil;
+    }
+    %orig(timer);
+}
+%end
+
+//后台播放
+%hook AWEAwemeStatusModel
+- (void)setListenVideoStatus:(NSInteger)status {
+    if (status == 1 && DYYYGetBool(@"DYYYEnableBackgroundListen")) {
+        status = 2;
+    }
+    %orig(status);
+}
+%end
+
 %hook AWEHomePageBubbleLiveHeadLabelContentView
 - (void)layoutSubviews {
 	%orig;
