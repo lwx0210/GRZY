@@ -82,7 +82,6 @@
               @"DYYYisEnableModernLight" : @[ @"DYYYisEnableModern" ],
               @"DYYYLabelColor" : @[ @"DYYYEnabsuijiyanse" ],
               @"DYYYEnabsuijiyanse" : @[ @"DYYYLabelColor" ]
-
           },
 
           // ===== 互斥激活配置 =====
@@ -96,8 +95,6 @@
               @"DYYYHideFollowPromptView" : @[ @"DYYYHideLOTAnimationView" ],
               @"DYYYLabelColor" : @[ @"DYYYEnabsuijiyanse" ],
               @"DYYYEnabsuijiyanse" : @[ @"DYYYLabelColor" ]
-
-          },
           },
 
           // ===== 值依赖配置 =====
