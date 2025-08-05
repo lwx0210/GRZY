@@ -81,9 +81,8 @@
               @"DYYYisEnableModern" : @[ @"DYYYisEnableModernLight" ],
               @"DYYYisEnableModernLight" : @[ @"DYYYisEnableModern" ],
               @"DYYYLabelColor" : @[ @"DYYYEnabsuijiyanse" ],
-              @"DYYYEnabsuijiyanse" : @[ @"DYYYLabelColor" ],
-              @"DYYYHideEntry" : @[ @"DYYYRemoveEntry" ],
-              @"DYYYRemoveEntry" : @[ @"DYYYHideEntry" ]
+              @"DYYYEnabsuijiyanse" : @[ @"DYYYLabelColor" ]
+
           },
 
           // ===== 互斥激活配置 =====
