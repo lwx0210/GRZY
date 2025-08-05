@@ -550,6 +550,24 @@ static CGFloat currentScale = 1.0;
 }
 %end
 
+%hook AWELandscapeFeedEntryView
+- (void)setCenter:(CGPoint)center {
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"] || [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"]) {
+		center.y += 50;
+	}
+
+	%orig(center);
+}
+
+- (void)layoutSubviews {
+	%orig;
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHiddenEntry"]) {
+		[self removeFromSuperview];
+	}
+}
+
+%end
+
 %hook AWENormalModeTabBar
 
 - (void)layoutSubviews {

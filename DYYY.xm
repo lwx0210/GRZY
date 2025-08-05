@@ -338,40 +338,6 @@ BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYtacitansw
 
 %end
 
-//隐藏移除全屏观看
-%hook AWELandscapeFeedEntryView
-- (void)setCenter:(CGPoint)center {
-    if (DYYYGetBool(@"DYYYEnableFullScreen")) {
-        center.y += tabHeight * 0.5;
-    }
-
-    %orig(center);
-}
-
-- (void)layoutSubviews {
-    %orig;
-    if (DYYYGetBool(@"DYYYRemoveEntry")) {
-        [self removeFromSuperview];
-        return;
-    }
-    if (DYYYGetBool(@"DYYYHideEntry")) {
-        for(UIView *subview in self.subviews) {
-            subview.hidden = YES;
-        }
-        return;
-    }
-
-    NSString *scaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
-    CGFloat scale = scaleValue.length > 0 ? [scaleValue floatValue] : 1.0;
-    if (scale > 0 && scale != 1.0) {
-        self.transform = CGAffineTransformMakeScale(scale, scale);
-    } else {
-        self.transform = CGAffineTransformIdentity;
-    }
-}
-
-%end
-
 //最高画质
 %hook AWEVideoModel
 
