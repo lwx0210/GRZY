@@ -1079,6 +1079,12 @@ static CGFloat gStartVal = 0.0;
 - (void)setContentText:(NSString *)text;
 @end
 
+//隐藏移除全屏观看
+@interface IESECLiveCardSizeComponent : UIView
+@end
+@interface IESECLiveGoodsCardView : UIView
+@end
+
 // 直播间商品信息
 @interface IESECLivePluginLayoutView : UIView
 @end
